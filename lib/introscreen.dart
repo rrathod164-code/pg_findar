@@ -12,7 +12,7 @@ class _IntroscreenState extends State<Introscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Intro Screen')),
-      body: const Center(child: Text('Welcome to the Intro Screen!')),
+      body: const Center(child: Text(' to the Intro Screen!')),
     );
   }
 }
