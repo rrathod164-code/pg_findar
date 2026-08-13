@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/introscreen.dart';
+import 'intro.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const PGFinderApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PGFinderApp extends StatelessWidget {
+  const PGFinderApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const Introscreen(),
       debugShowCheckedModeBanner: false,
+
+      title: 'PG Finder',
+
+      theme: ThemeData(fontFamily: 'Roboto', useMaterial3: true),
+
+      home: const Introduction(),
     );
   }
 }
