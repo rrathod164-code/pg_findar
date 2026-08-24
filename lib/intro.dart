@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/login.dart';
 
 class Introduction extends StatelessWidget {
   const Introduction({super.key});
-
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -27,17 +24,10 @@ class Introduction extends StatelessWidget {
               // PG Illustration
               Expanded(
                 child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: screenHeight * 0.03,
-                      left: screenWidth * 0.03,
-                      right: screenWidth * 0.03,
-                    ),
-                    child: Image.asset(
-                      'assets/images/intro.png',
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                    ),
+                  child: Image.asset(
+                    'assets/intro.png',
+                    fit: BoxFit.contain,
+                    width: double.infinity,
                   ),
                 ),
               ),
@@ -45,9 +35,9 @@ class Introduction extends StatelessWidget {
               // Get Start Button
               Padding(
                 padding: EdgeInsets.only(
-                  left: screenWidth * 0.07,
-                  right: screenWidth * 0.07,
-                  bottom: screenHeight * 0.06,
+                  left: MediaQuery.of(context).size.width * 0.07,
+                  right: MediaQuery.of(context).size.width * 0.07,
+                  bottom: MediaQuery.of(context).size.height * 0.06,
                 ),
                 child: SizedBox(
                   width: double.infinity,
@@ -57,7 +47,7 @@ class Introduction extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const NextPage(),
+                          builder: (context) => const login_screen(),
                         ),
                       );
                     },
@@ -84,25 +74,6 @@ class Introduction extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// Next Page
-class NextPage extends StatelessWidget {
-  const NextPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('PG Finder')),
-
-      body: const Center(
-        child: Text(
-          'Welcome to PG Finder!',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
     );
