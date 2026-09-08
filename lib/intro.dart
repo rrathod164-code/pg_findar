@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/login.dart';
 
 class Introduction extends StatelessWidget {
   const Introduction({super.key});
@@ -46,7 +47,7 @@ class Introduction extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const NextPage(),
+                          builder: (context) => const LoginPage(),
                         ),
                       );
                     },
