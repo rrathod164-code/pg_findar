@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'forgot_password.dart';
 import 'signup.dart';
 import 'screens/user_dashboard.dart';
+import 'screens/admin_dashboard.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -679,74 +680,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// Placeholders for Admin and Organizer Dashboards
-class AdminDashboardPage extends StatelessWidget {
-  const AdminDashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1FBFA),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF13B99D),
-        elevation: 0,
-        title: const Text(
-          'Admin Dashboard',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF13B99D).withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.admin_panel_settings_rounded,
-                  size: 50,
-                  color: Color(0xFF13B99D),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Admin Panel - PG Finder',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF091A2A),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Logged in as admin13. Manage bookings and listings here.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Color(0xFF758595)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Placeholder for Organizer Dashboard
 
 class OrganizerDashboardPage extends StatelessWidget {
   const OrganizerDashboardPage({super.key});

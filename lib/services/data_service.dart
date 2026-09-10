@@ -324,40 +324,95 @@ class DataService {
   final ValueNotifier<List<String>> savedPgIdsNotifier =
       ValueNotifier<List<String>>([]);
 
-  // Bookings list (seeded with past bookings matching design)
+  // Bookings list (seeded with bookings matching screenshot)
   late final ValueNotifier<List<PGBooking>> bookingsNotifier =
       ValueNotifier<List<PGBooking>>([
         PGBooking(
           id: 'b1',
           pg: pgsNotifier.value[0], // Green Valley PG
-          checkInDate: DateTime(2025, 5, 10),
-          checkOutDate: DateTime(2025, 6, 10),
-          status: 'completed',
+          checkInDate: DateTime(2025, 5, 23),
+          status: 'Confirmed',
           roomType: 'Double Sharing',
-          totalPaid: 13000,
-          customDateRange: '10 May 2025 - 10 Jun 2025',
+          totalPaid: 6500,
+          customDateRange: '23 May 2025',
         ),
         PGBooking(
           id: 'b2',
           pg: pgsNotifier.value[1], // Royal PG
-          checkInDate: DateTime(2025, 3, 5),
-          checkOutDate: DateTime(2025, 5, 5),
-          status: 'Cancelled',
+          checkInDate: DateTime(2025, 5, 23),
+          status: 'Confirmed',
           roomType: 'Single Sharing',
-          totalPaid: 0,
-          customDateRange: '5 Mar 2025 - 5 May 2025',
+          totalPaid: 6500,
+          customDateRange: '23 May 2025',
         ),
         PGBooking(
           id: 'b3',
-          pg: pgsNotifier.value[0], // Green Valley PG
-          checkInDate: DateTime(2024, 12, 1),
-          checkOutDate: DateTime(2025, 3, 1),
-          status: 'completed',
+          pg: pgsNotifier.value[2], // Shivam PG
+          checkInDate: DateTime(2025, 5, 23),
+          status: 'Cancelled',
           roomType: 'Triple Sharing',
-          totalPaid: 19500,
-          customDateRange: '1 Dec 2024 - 1 Mar 2025',
+          totalPaid: 8500,
+          customDateRange: '23 May 2025',
+        ),
+        PGBooking(
+          id: 'b4',
+          pg: PGAccommodation(
+            id: 'maple',
+            name: 'Maple PG',
+            location: 'Rajkot, Gujarat',
+            city: 'Rajkot',
+            price: 7500,
+            rating: 4.6,
+            category: 'Boys PG',
+            imageUrl:
+                'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop',
+          ),
+          checkInDate: DateTime(2025, 5, 23),
+          status: 'Confirmed',
+          roomType: 'Double Sharing',
+          totalPaid: 7500,
+          customDateRange: '23 May 2025',
+        ),
+        PGBooking(
+          id: 'b5',
+          pg: pgsNotifier.value[3], // Beary besti hostel
+          checkInDate: DateTime(2025, 5, 23),
+          status: 'Pending',
+          roomType: 'Four Sharing',
+          totalPaid: 8500,
+          customDateRange: '23 May 2025',
+        ),
+        PGBooking(
+          id: 'b6',
+          pg: pgsNotifier.value[5], // Galaxy Prime Hostel
+          checkInDate: DateTime(2025, 5, 23),
+          status: 'Confirmed',
+          roomType: 'Single Sharing',
+          totalPaid: 10500,
+          customDateRange: '23 May 2025',
+        ),
+        PGBooking(
+          id: 'b7',
+          pg: pgsNotifier.value[4], // Kashmira's PG
+          checkInDate: DateTime(2025, 5, 23),
+          status: 'Confirmed',
+          roomType: 'Double Sharing',
+          totalPaid: 6500,
+          customDateRange: '23 May 2025',
         ),
       ]);
+
+  // Update booking status by admin (Confirmed, Pending, Cancelled)
+  void updateBookingStatus(String bookingId, String newStatus) {
+    final currentBookings = List<PGBooking>.from(bookingsNotifier.value);
+    final index = currentBookings.indexWhere((b) => b.id == bookingId);
+    if (index != -1) {
+      currentBookings[index] = currentBookings[index].copyWith(
+        status: newStatus,
+      );
+      bookingsNotifier.value = currentBookings;
+    }
+  }
 
   // Toggle favorite status of a PG
   void toggleFavorite(String pgId) {
