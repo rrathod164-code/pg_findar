@@ -190,3 +190,45 @@ class PGBooking {
     );
   }
 }
+
+class UserReview {
+  final String id;
+  final String? bookingId;
+  final String pgId;
+  final String pgName;
+  final String location;
+  final String roomType;
+  final double rating;
+  final String comment;
+  final DateTime createdAt;
+
+  UserReview({
+    required this.id,
+    this.bookingId,
+    required this.pgId,
+    required this.pgName,
+    required this.location,
+    this.roomType = 'Double Sharing',
+    required this.rating,
+    required this.comment,
+    required this.createdAt,
+  });
+
+  String get formattedDate {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${createdAt.day.toString().padLeft(2, '0')} ${months[createdAt.month - 1]} ${createdAt.year}';
+  }
+}

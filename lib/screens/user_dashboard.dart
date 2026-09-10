@@ -105,8 +105,16 @@ class _HomeTabState extends State<HomeTab> {
 
   String _selectedCity = 'Rajkot';
   String _selectedCategory = ''; // Empty means all
-  final String _searchQuery = '';
+  bool _isSearchView = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   PGFilterCriteria _filterCriteria = const PGFilterCriteria();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   // Format date helper to avoid packages
   String _formatDate(DateTime date) {
@@ -121,6 +129,7 @@ class _HomeTabState extends State<HomeTab> {
       onApply: (newCriteria) {
         setState(() {
           _filterCriteria = newCriteria;
+          _isSearchView = true;
         });
       },
     );
@@ -679,6 +688,10 @@ class _HomeTabState extends State<HomeTab> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
+    if (_isSearchView) {
+      return _buildSearchView(screenWidth, screenHeight);
+    }
+
     return Stack(
       children: [
         // Background
@@ -859,40 +872,43 @@ class _HomeTabState extends State<HomeTab> {
                 // Search Bar with Filter Button (Clicking anywhere opens Apply Filters)
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                  child: InkWell(
-                    onTap: _openFilterSheet,
-                    borderRadius: BorderRadius.circular(18),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: _filterCriteria.hasActiveFilters
-                            ? Border.all(
-                                color: const Color(0xFF13B99D),
-                                width: 1.5,
-                              )
-                            : null,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 16,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.search,
-                            color: Color(0xFF758595),
-                            size: 22,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: _filterCriteria.hasActiveFilters
+                          ? Border.all(
+                              color: const Color(0xFF13B99D),
+                              width: 1.5,
+                            )
+                          : null,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.search,
+                          color: Color(0xFF758595),
+                          size: 22,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                _isSearchView = true;
+                              });
+                            },
                             child: Text(
                               _filterCriteria.hasActiveFilters
                                   ? (_filterCriteria.facilities.isNotEmpty
@@ -912,9 +928,12 @@ class _HomeTabState extends State<HomeTab> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          // Interactive Filter Icon Button
-                          Container(
+                        ),
+                        const SizedBox(width: 8),
+                        // Interactive Filter Icon Button
+                        GestureDetector(
+                          onTap: _openFilterSheet,
+                          child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 6,
@@ -949,8 +968,8 @@ class _HomeTabState extends State<HomeTab> {
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -1541,6 +1560,752 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSearchView(double screenWidth, double screenHeight) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          setState(() {
+            _isSearchView = false;
+            _searchController.clear();
+            _searchQuery = '';
+          });
+        }
+      },
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 6),
+            // Top Bar: Back button and Search Bar with Filter Icon
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF091A2A),
+                      size: 26,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isSearchView = false;
+                        _searchController.clear();
+                        _searchQuery = '';
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 14,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.search,
+                            color: Color(0xFF758595),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              autofocus: true,
+                              onChanged: (val) {
+                                setState(() {
+                                  _searchQuery = val;
+                                });
+                              },
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                color: Color(0xFF091A2A),
+                              ),
+                              decoration: const InputDecoration(
+                                hintText: 'Search PG, location or area...',
+                                hintStyle: TextStyle(
+                                  color: Color(0xFFB0BAC5),
+                                  fontSize: 13.5,
+                                ),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (_searchQuery.isNotEmpty)
+                            GestureDetector(
+                              onTap: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _searchQuery = '';
+                                });
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 4),
+                                child: Icon(
+                                  Icons.clear,
+                                  size: 18,
+                                  color: Color(0xFF758595),
+                                ),
+                              ),
+                            ),
+                          GestureDetector(
+                            onTap: _openFilterSheet,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: _filterCriteria.hasActiveFilters
+                                    ? const Color(0xFF13B99D)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.tune_rounded,
+                                color: _filterCriteria.hasActiveFilters
+                                    ? Colors.white
+                                    : const Color(0xFF091A2A),
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Active Filter Tags Row
+            if (_filterCriteria.hasActiveFilters) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: [
+                      if (_filterCriteria.gender != 'Both')
+                        _buildActiveFilterChip(
+                          'Gender: ${_filterCriteria.gender}',
+                          () {
+                            setState(() {
+                              _filterCriteria = _filterCriteria.copyWith(
+                                gender: 'Both',
+                              );
+                            });
+                          },
+                        ),
+                      if (_filterCriteria.minPrice > 3000 ||
+                          _filterCriteria.maxPrice < 10000)
+                        _buildActiveFilterChip(
+                          '₹${_filterCriteria.minPrice.toInt()} - ₹${_filterCriteria.maxPrice.toInt()}',
+                          () {
+                            setState(() {
+                              _filterCriteria = _filterCriteria.copyWith(
+                                minPrice: 3000,
+                                maxPrice: 10000,
+                              );
+                            });
+                          },
+                        ),
+                      for (final facility in _filterCriteria.facilities)
+                        _buildActiveFilterChip(facility, () {
+                          final updated = List<String>.from(
+                            _filterCriteria.facilities,
+                          )..remove(facility);
+                          setState(() {
+                            _filterCriteria = _filterCriteria.copyWith(
+                              facilities: updated,
+                            );
+                          });
+                        }),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _filterCriteria = const PGFilterCriteria();
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(left: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            'Clear All',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
+            // PG Grid Results
+            Expanded(
+              child: ValueListenableBuilder<List<PGAccommodation>>(
+                valueListenable: _dataService.pgsNotifier,
+                builder: (context, pgs, child) {
+                  // Filter by city
+                  var baseList = pgs
+                      .where(
+                        (pg) =>
+                            pg.city.toLowerCase() ==
+                            _selectedCity.toLowerCase(),
+                      )
+                      .toList();
+
+                  // Filter by search query
+                  if (_searchQuery.isNotEmpty) {
+                    final q = _searchQuery.toLowerCase().trim();
+                    baseList = baseList.where((pg) {
+                      return pg.name.toLowerCase().contains(q) ||
+                          pg.location.toLowerCase().contains(q) ||
+                          pg.category.toLowerCase().contains(q) ||
+                          pg.facilities.any((f) => f.toLowerCase().contains(q));
+                    }).toList();
+                  }
+
+                  // If user applied filters (Price, Gender, or Facilities)
+                  if (_filterCriteria.hasActiveFilters) {
+                    // Exact matches
+                    final exactMatches = baseList.where((pg) {
+                      final inPrice =
+                          pg.price >= _filterCriteria.minPrice &&
+                          pg.price <= _filterCriteria.maxPrice;
+                      final matchGender =
+                          _filterCriteria.gender == 'Both' ||
+                          pg.gender == _filterCriteria.gender ||
+                          pg.gender == 'Both';
+                      final matchesAllFacilities = _filterCriteria.facilities
+                          .every((f) => pg.hasFacility(f));
+                      return inPrice && matchGender && matchesAllFacilities;
+                    }).toList();
+
+                    // Reference PGs that fulfill some/most requested facilities
+                    final referencePgs = baseList.where((pg) {
+                      final isNotExact = !exactMatches.contains(pg);
+                      final matchCount = pg.matchingFacilitiesCount(
+                        _filterCriteria.facilities,
+                      );
+                      final inPrice =
+                          pg.price >= _filterCriteria.minPrice &&
+                          pg.price <= _filterCriteria.maxPrice;
+                      final matchGender =
+                          _filterCriteria.gender == 'Both' ||
+                          pg.gender == _filterCriteria.gender ||
+                          pg.gender == 'Both';
+
+                      if (_filterCriteria.facilities.isNotEmpty) {
+                        return isNotExact && matchCount > 0;
+                      } else {
+                        return isNotExact && (inPrice || matchGender);
+                      }
+                    }).toList();
+
+                    referencePgs.sort(
+                      (a, b) => b
+                          .matchingFacilitiesCount(_filterCriteria.facilities)
+                          .compareTo(
+                            a.matchingFacilitiesCount(
+                              _filterCriteria.facilities,
+                            ),
+                          ),
+                    );
+
+                    if (exactMatches.isEmpty && referencePgs.isEmpty) {
+                      return _buildEmptyState();
+                    }
+
+                    return ListView(
+                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        if (exactMatches.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 4,
+                              bottom: 8,
+                              top: 4,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF13B99D),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '${exactMatches.length}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Exact Matches',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF091A2A),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          _buildGridFromList(exactMatches),
+                          const SizedBox(height: 16),
+                        ],
+                        if (referencePgs.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 4,
+                              bottom: 4,
+                              top: 6,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade700,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '${referencePgs.length}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Reference PGs (Matching Amenities)',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF091A2A),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 4, bottom: 8),
+                            child: Text(
+                              'These accommodations fulfill some of your requested amenities',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: Color(0xFF758595),
+                              ),
+                            ),
+                          ),
+                          _buildGridFromList(referencePgs),
+                        ],
+                      ],
+                    );
+                  }
+
+                  // Default: No filters, show 2-column Grid of all PGs
+                  if (baseList.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  return GridView.builder(
+                    padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.65,
+                        ),
+                    itemCount: baseList.length,
+                    itemBuilder: (context, index) {
+                      return _buildGridPGCard(baseList[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGridFromList(List<PGAccommodation> list) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.65,
+      ),
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        return _buildGridPGCard(list[index]);
+      },
+    );
+  }
+
+  Widget _buildGridPGCard(PGAccommodation pg) {
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: _dataService.savedPgIdsNotifier,
+      builder: (context, savedIds, child) {
+        final isFavorited = savedIds.contains(pg.id);
+
+        return GestureDetector(
+          onTap: () => _showPGDetailsDialog(pg),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image Section
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(18),
+                        topRight: Radius.circular(18),
+                      ),
+                      child: Image.network(
+                        pg.imageUrl,
+                        height: 105,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          height: 105,
+                          color: const Color(0xFFEBFDFB),
+                          child: const Center(
+                            child: Icon(
+                              Icons.home_work_rounded,
+                              color: Color(0xFF13B99D),
+                              size: 36,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: GestureDetector(
+                        onTap: () {
+                          _dataService.toggleFavorite(pg.id);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isFavorited
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            color: isFavorited
+                                ? Colors.red
+                                : const Color(0xFF758595),
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                pg.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF091A2A),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.star_rounded,
+                                  color: Colors.amber,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 1),
+                                Text(
+                                  pg.rating.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF758595),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              '₹${pg.price.toInt()}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF13B99D),
+                              ),
+                            ),
+                            const Text(
+                              '/mo',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                color: Color(0xFF758595),
+                              ),
+                            ),
+                            const Spacer(),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  size: 10,
+                                  color: Color(0xFF758595),
+                                ),
+                                const SizedBox(width: 1),
+                                Text(
+                                  pg.location.split(',').first,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: Color(0xFF758595),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        // Amenities Row
+                        Row(
+                          children: [
+                            if (pg.hasWifi)
+                              Container(
+                                margin: const EdgeInsets.only(right: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 1.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEBFDFB),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Wifi',
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    color: Color(0xFF13B99D),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            if (pg.hasAC)
+                              Container(
+                                margin: const EdgeInsets.only(right: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 1.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF0F5),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'AC',
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    color: Colors.pink,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            if (pg.hasFood)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 1.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF0FDF4),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Food',
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 26,
+                          child: ElevatedButton(
+                            onPressed: () => _showPGDetailsDialog(pg),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF13B99D),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Book Now',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF1FBFA),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.home_work_outlined,
+              size: 50,
+              color: Color(0xFF13B99D),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'No PGs Found',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF091A2A),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Try changing search query or reset filters',
+            style: TextStyle(fontSize: 13, color: Color(0xFF758595)),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _searchController.clear();
+                _searchQuery = '';
+                _filterCriteria = const PGFilterCriteria();
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF13B99D),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text('Reset All'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2544,7 +3309,11 @@ class BookingTab extends StatelessWidget {
     );
   }
 
-  void _showWriteReviewDialog(BuildContext context, PGAccommodation pg) {
+  void _showWriteReviewDialog(
+    BuildContext context,
+    PGAccommodation pg, {
+    PGBooking? booking,
+  }) {
     int rating = 5;
     final commentController = TextEditingController();
 
@@ -2552,111 +3321,221 @@ class BookingTab extends StatelessWidget {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
-          return AlertDialog(
+          return Dialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
             ),
-            title: Row(
-              children: [
-                const Icon(
-                  Icons.rate_review_outlined,
-                  color: Color(0xFFFF9F43),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Review: ${pg.name}',
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 24,
             ),
-            content: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(22),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Rate your stay experience:',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF758595)),
-                  ),
-                  const SizedBox(height: 8),
+                  // Header: Title and Close Button
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      return IconButton(
-                        icon: Icon(
-                          index < rating
-                              ? Icons.star_rounded
-                              : Icons.star_border_rounded,
-                          color: Colors.amber,
-                          size: 32,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Write a Review',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F3B3E),
+                          letterSpacing: -0.3,
                         ),
-                        onPressed: () {
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Color(0xFF334155),
+                          size: 22,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        splashRadius: 20,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Overall Rating Section
+                  const Text(
+                    'Overall Rating',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(5, (index) {
+                      final bool isFilled = index < rating;
+                      return GestureDetector(
+                        onTap: () {
                           setDialogState(() => rating = index + 1);
                         },
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Icon(
+                            isFilled ? Icons.star : Icons.star_border,
+                            color: const Color(0xFFD97706),
+                            size: 28,
+                          ),
+                        ),
                       );
                     }),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 18),
+
+                  // Your Review Section
+                  const Text(
+                    'Your Review',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: commentController,
-                    maxLines: 3,
+                    maxLines: 4,
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      color: Color(0xFF1E293B),
+                    ),
                     decoration: InputDecoration(
-                      hintText:
-                          'Share feedback regarding food, cleanliness, wifi...',
-                      hintStyle: const TextStyle(fontSize: 12.5),
+                      hintText: 'Share your experience living here...',
+                      hintStyle: const TextStyle(
+                        fontSize: 14.5,
+                        color: Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w400,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.all(14),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFCBD5E1),
+                          width: 1.2,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFCBD5E1),
+                          width: 1.2,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(
-                          color: Color(0xFF13B99D),
+                          color: Color(0xFF00B074),
                           width: 1.5,
                         ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 22),
+
+                  // Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF0F3B3E),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF0F3B3E),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          final text = commentController.text.trim();
+                          if (text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please enter your review comments before submitting.',
+                                ),
+                                backgroundColor: Color(0xFFFF5252),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final review = UserReview(
+                            id: DateTime.now().millisecondsSinceEpoch
+                                .toString(),
+                            bookingId: booking?.id,
+                            pgId: pg.id,
+                            pgName: pg.name,
+                            location: '${pg.location}, ${pg.city}',
+                            roomType: booking?.roomType ?? 'Double Sharing',
+                            rating: rating.toDouble(),
+                            comment: text,
+                            createdAt: DateTime.now(),
+                          );
+
+                          DataService().addReview(review);
+                          Navigator.pop(context);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Thank you! Your review has been submitted.',
+                              ),
+                              backgroundColor: Color(0xFF00B074),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00B074),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          'Submit Review',
+                          style: TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Color(0xFF758595)),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Thank you! Your review has been submitted.',
-                      ),
-                      backgroundColor: Color(0xFF13B99D),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF9F43),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Submit Review',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
           );
         },
       ),
@@ -3123,6 +4002,7 @@ class BookingTab extends StatelessWidget {
                                               _showWriteReviewDialog(
                                                 context,
                                                 booking.pg,
+                                                booking: booking,
                                               ),
                                           style: OutlinedButton.styleFrom(
                                             side: const BorderSide(
@@ -3378,128 +4258,285 @@ class _ProfileTabState extends State<ProfileTab> {
   void _showReviewsDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: const [
-            Icon(Icons.star_rounded, color: Colors.amber, size: 28),
-            SizedBox(width: 8),
-            Text(
-              'My Reviews',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Column(
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: ValueListenableBuilder<List<UserReview>>(
+            valueListenable: DataService().userReviewsNotifier,
+            builder: (context, userReviews, _) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Header: Title, Badge, and Close Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        'Green Valley PG',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
+                    children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.star_rounded,
-                            color: Colors.amber,
-                            size: 16,
-                          ),
-                          Text(
-                            ' 5.0',
+                          const Text(
+                            'My Reviews',
                             style: TextStyle(
+                              fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                              color: Color(0xFF0F3B3E),
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          if (userReviews.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE6F7F2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '${userReviews.length} ${userReviews.length == 1 ? 'Review' : 'Reviews'}',
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF00B074),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Color(0xFF334155),
+                          size: 22,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        splashRadius: 20,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Reviews List or Empty State
+                  if (userReviews.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 32,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFE6F7F2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.rate_review_outlined,
+                              color: Color(0xFF00B074),
+                              size: 32,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          const Text(
+                            'No Reviews Given Yet',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F3B3E),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Reviews you submit for your bookings will appear here.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: Color(0xFF64748B),
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    '"Extremely clean rooms and delicious 3-time meals. Fast Wifi and very cooperative owner."',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF4A5568)),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        'Royal PG',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                    )
+                  else
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: userReviews.map((review) {
+                            final int filledStars = review.rating.round();
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFFE2E8F0),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          review.pgName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                            color: Color(0xFF0F3B3E),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFF7ED),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                          border: Border.all(
+                                            color: const Color(0xFFFED7AA),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.star_rounded,
+                                              color: Color(0xFFD97706),
+                                              size: 15,
+                                            ),
+                                            const SizedBox(width: 3),
+                                            Text(
+                                              review.rating.toStringAsFixed(1),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                                color: Color(0xFF9A3412),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '${review.location} • ${review.roomType}',
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '"${review.comment}"',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF334155),
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Row(
+                                        children: List.generate(
+                                          5,
+                                          (index) => Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 2,
+                                            ),
+                                            child: Icon(
+                                              index < filledStars
+                                                  ? Icons.star
+                                                  : Icons.star_border,
+                                              color: const Color(0xFFD97706),
+                                              size: 15,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        review.formattedDate,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Color(0xFF94A3B8),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star_rounded,
-                            color: Colors.amber,
-                            size: 16,
+                    ),
+                  const SizedBox(height: 20),
+
+                  // Action Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00B074),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 12,
                           ),
-                          Text(
-                            ' 4.8',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ],
+                        ),
+                        child: const Text(
+                          'Close',
+                          style: TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    '"Peaceful environment for studying and good laundry service."',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF4A5568)),
-                  ),
                 ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Close',
-              style: TextStyle(
-                color: Color(0xFF13B99D),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }

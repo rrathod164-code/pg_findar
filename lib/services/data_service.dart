@@ -8,7 +8,8 @@ class DataService {
   DataService._internal();
 
   // PG Accommodations list
-  final ValueNotifier<List<PGAccommodation>> pgsNotifier = ValueNotifier<List<PGAccommodation>>([
+  final ValueNotifier<List<PGAccommodation>>
+  pgsNotifier = ValueNotifier<List<PGAccommodation>>([
     PGAccommodation(
       id: '1',
       name: 'Green Valley PG',
@@ -18,7 +19,8 @@ class DataService {
       rating: 4.8,
       category: 'Boys PG',
       gender: 'Boys',
-      imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -39,7 +41,8 @@ class DataService {
       rating: 4.8,
       category: 'Girls PG',
       gender: 'Girls',
-      imageUrl: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -60,7 +63,8 @@ class DataService {
       rating: 4.8,
       category: 'Boys PG',
       gender: 'Boys',
-      imageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -81,7 +85,8 @@ class DataService {
       rating: 4.8,
       category: 'Hostels',
       gender: 'Both',
-      imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -102,7 +107,8 @@ class DataService {
       rating: 4.8,
       category: 'Girls PG',
       gender: 'Girls',
-      imageUrl: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -123,7 +129,8 @@ class DataService {
       rating: 4.8,
       category: 'Hostels',
       gender: 'Boys',
-      imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -144,7 +151,8 @@ class DataService {
       rating: 4.5,
       category: 'Flats',
       gender: 'Both',
-      imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: false,
@@ -165,7 +173,8 @@ class DataService {
       rating: 4.4,
       category: 'Girls PG',
       gender: 'Girls',
-      imageUrl: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -186,7 +195,8 @@ class DataService {
       rating: 4.1,
       category: 'Hostels',
       gender: 'Boys',
-      imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: false,
       hasFood: true,
@@ -207,7 +217,8 @@ class DataService {
       rating: 4.9,
       category: 'Flats',
       gender: 'Both',
-      imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -228,7 +239,8 @@ class DataService {
       rating: 4.3,
       category: 'Boys PG',
       gender: 'Boys',
-      imageUrl: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: false,
       hasFood: true,
@@ -249,7 +261,8 @@ class DataService {
       rating: 4.7,
       category: 'Girls PG',
       gender: 'Girls',
-      imageUrl: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -270,7 +283,8 @@ class DataService {
       rating: 4.6,
       category: 'Boys PG',
       gender: 'Boys',
-      imageUrl: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: false,
       hasFood: true,
@@ -291,7 +305,8 @@ class DataService {
       rating: 4.2,
       category: 'Hostels',
       gender: 'Both',
-      imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=600&auto=format&fit=crop',
+      imageUrl:
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=600&auto=format&fit=crop',
       hasWifi: true,
       hasAC: false,
       hasFood: true,
@@ -306,7 +321,8 @@ class DataService {
   ]);
 
   // Saved/Favorited PGs list (stores ID)
-  final ValueNotifier<List<String>> savedPgIdsNotifier = ValueNotifier<List<String>>([]);
+  final ValueNotifier<List<String>> savedPgIdsNotifier =
+      ValueNotifier<List<String>>([]);
 
   // Bookings list (seeded with past bookings matching design)
   late final ValueNotifier<List<PGBooking>> bookingsNotifier =
@@ -404,5 +420,33 @@ class DataService {
       );
       bookingsNotifier.value = currentBookings;
     }
+  }
+
+  // User submitted reviews list
+  final ValueNotifier<List<UserReview>> userReviewsNotifier =
+      ValueNotifier<List<UserReview>>([]);
+
+  // Add or update a review submitted by the user
+  void addReview(UserReview review) {
+    final currentReviews = List<UserReview>.from(userReviewsNotifier.value);
+    // If review already exists for this booking or pg, update it
+    final existingIndex = currentReviews.indexWhere(
+      (r) =>
+          (review.bookingId != null && r.bookingId == review.bookingId) ||
+          (r.pgId == review.pgId && r.id == review.id),
+    );
+    if (existingIndex != -1) {
+      currentReviews[existingIndex] = review;
+    } else {
+      currentReviews.insert(0, review);
+    }
+    userReviewsNotifier.value = currentReviews;
+  }
+
+  // Delete a review
+  void deleteReview(String reviewId) {
+    final currentReviews = List<UserReview>.from(userReviewsNotifier.value);
+    currentReviews.removeWhere((r) => r.id == reviewId);
+    userReviewsNotifier.value = currentReviews;
   }
 }
