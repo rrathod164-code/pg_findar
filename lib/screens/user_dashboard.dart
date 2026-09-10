@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/pg_model.dart';
 import '../services/data_service.dart';
 import '../login.dart'; // To navigate back on logout
+import 'widgets/filter_bottom_sheet.dart';
+import 'pg_list_page.dart';
 
 class UserDashboardPage extends StatefulWidget {
   const UserDashboardPage({super.key});
@@ -14,24 +16,23 @@ class UserDashboardPage extends StatefulWidget {
 class _UserDashboardPageState extends State<UserDashboardPage> {
   int _currentIndex = 0;
 
-  // Tabs list
-  late final List<Widget> _tabs;
-
   @override
-  void initState() {
-    super.initState();
-    _tabs = [
+  Widget build(BuildContext context) {
+    final tabs = [
       const HomeTab(),
       const SavedTab(),
       const BookingTab(),
-      const ProfileTab(),
+      ProfileTab(
+        onNavigateTab: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
     ];
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      body: _tabs[_currentIndex],
+      body: tabs[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -53,8 +54,14 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
           backgroundColor: Colors.white,
           selectedItemColor: const Color(0xFF13B99D),
           unselectedItemColor: const Color(0xFF758595),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
@@ -84,7 +91,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 }
 
 // ==========================================
-// 1. HOME TAB (MATCHES SCREENSHOT)
+// 1. HOME TAB (WITH SMART SEARCH & FUNCTIONALITY FILTERS)
 // ==========================================
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -95,21 +102,306 @@ class HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<HomeTab> {
   final DataService _dataService = DataService();
-  final TextEditingController _searchController = TextEditingController();
-  
+
   String _selectedCity = 'Rajkot';
   String _selectedCategory = ''; // Empty means all
-  String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+  final String _searchQuery = '';
+  PGFilterCriteria _filterCriteria = const PGFilterCriteria();
 
   // Format date helper to avoid packages
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  // Open the Apply Filters Modal Sheet matching user's design
+  void _openFilterSheet() {
+    FilterBottomSheet.show(
+      context,
+      initialCriteria: _filterCriteria,
+      onApply: (newCriteria) {
+        setState(() {
+          _filterCriteria = newCriteria;
+        });
+      },
+    );
+  }
+
+  // Show detailed PG info with all facilities and booking option
+  void _showPGDetailsDialog(PGAccommodation pg) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 24,
+            right: 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      pg.imageUrl,
+                      width: 90,
+                      height: 90,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 90,
+                        height: 90,
+                        color: const Color(0xFFEBFDFB),
+                        child: const Icon(
+                          Icons.home_work_rounded,
+                          color: Color(0xFF13B99D),
+                          size: 36,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pg.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF091A2A),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: Color(0xFF13B99D),
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${pg.location}, ${pg.city}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF758595),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEBFDFB),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                pg.category,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF13B99D),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.star_rounded,
+                              color: Colors.amber,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              pg.rating.toString(),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF091A2A),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Available Facilities & Amenities',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF091A2A),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildFacilityBadge('Wifi', pg.hasWifi, Icons.wifi),
+                  _buildFacilityBadge('AC', pg.hasAC, Icons.ac_unit),
+                  _buildFacilityBadge('Food', pg.hasFood, Icons.restaurant),
+                  _buildFacilityBadge(
+                    'Parking',
+                    pg.hasParking,
+                    Icons.local_parking,
+                  ),
+                  _buildFacilityBadge(
+                    'Laundry',
+                    pg.hasLaundry,
+                    Icons.local_laundry_service,
+                  ),
+                  _buildFacilityBadge('TV', pg.hasTV, Icons.tv),
+                  _buildFacilityBadge('Fridge', pg.hasFridge, Icons.kitchen),
+                  _buildFacilityBadge('Gyser', pg.hasGeyser, Icons.water_drop),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Monthly Rent',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF758595),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '₹${pg.price.toInt()}/mo',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF13B99D),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 46,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showBookingDialog(pg);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF13B99D),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 28),
+                      ),
+                      child: const Text(
+                        'Book Now',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFacilityBadge(String name, bool isAvailable, IconData icon) {
+    final bool isUserRequested = _filterCriteria.facilities.contains(name);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: isAvailable
+            ? (isUserRequested
+                  ? const Color(0xFF13B99D)
+                  : const Color(0xFFF1FBFA))
+            : Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isAvailable
+              ? (isUserRequested
+                    ? const Color(0xFF13B99D)
+                    : const Color(0xFF13B99D).withValues(alpha: 0.3))
+              : Colors.transparent,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: isAvailable
+                ? (isUserRequested ? Colors.white : const Color(0xFF13B99D))
+                : Colors.grey,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isAvailable
+                  ? (isUserRequested ? Colors.white : const Color(0xFF091A2A))
+                  : Colors.grey,
+            ),
+          ),
+          if (isAvailable) ...[
+            const SizedBox(width: 3),
+            Icon(
+              Icons.check,
+              size: 12,
+              color: isUserRequested ? Colors.white : const Color(0xFF13B99D),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   // Book PG modal dialog
@@ -153,7 +445,7 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text(
+                  const Text(
                     'Book PG Accommodation',
                     style: TextStyle(
                       fontSize: 20,
@@ -186,21 +478,27 @@ class _HomeTabState extends State<HomeTab> {
                         title: 'Single',
                         price: pg.price + 1500,
                         isSelected: selectedRoomType == 'Single Sharing',
-                        onTap: () => setModalState(() => selectedRoomType = 'Single Sharing'),
+                        onTap: () => setModalState(
+                          () => selectedRoomType = 'Single Sharing',
+                        ),
                       ),
                       const SizedBox(width: 10),
                       _buildSharingOption(
                         title: 'Double',
                         price: pg.price,
                         isSelected: selectedRoomType == 'Double Sharing',
-                        onTap: () => setModalState(() => selectedRoomType = 'Double Sharing'),
+                        onTap: () => setModalState(
+                          () => selectedRoomType = 'Double Sharing',
+                        ),
                       ),
                       const SizedBox(width: 10),
                       _buildSharingOption(
                         title: 'Triple',
                         price: pg.price - 1000,
                         isSelected: selectedRoomType == 'Triple Sharing',
-                        onTap: () => setModalState(() => selectedRoomType = 'Triple Sharing'),
+                        onTap: () => setModalState(
+                          () => selectedRoomType = 'Triple Sharing',
+                        ),
                       ),
                     ],
                   ),
@@ -241,7 +539,10 @@ class _HomeTabState extends State<HomeTab> {
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey[300]!),
                         borderRadius: BorderRadius.circular(12),
@@ -257,7 +558,11 @@ class _HomeTabState extends State<HomeTab> {
                               color: Color(0xFF091A2A),
                             ),
                           ),
-                          const Icon(Icons.calendar_today_rounded, color: Color(0xFF13B99D), size: 20),
+                          const Icon(
+                            Icons.calendar_today_rounded,
+                            color: Color(0xFF13B99D),
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
@@ -274,16 +579,23 @@ class _HomeTabState extends State<HomeTab> {
                           SnackBar(
                             content: Row(
                               children: [
-                                const Icon(Icons.check_circle_rounded, color: Colors.white),
+                                const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Colors.white,
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: Text('Booking request for ${pg.name} sent successfully!'),
+                                  child: Text(
+                                    'Booking request for ${pg.name} sent successfully!',
+                                  ),
                                 ),
                               ],
                             ),
                             backgroundColor: const Color(0xFF13B99D),
                             behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         );
                       },
@@ -291,11 +603,16 @@ class _HomeTabState extends State<HomeTab> {
                         backgroundColor: const Color(0xFF13B99D),
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       child: const Text(
                         'Confirm & Request Booking',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -334,7 +651,9 @@ class _HomeTabState extends State<HomeTab> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? const Color(0xFF13B99D) : const Color(0xFF091A2A),
+                  color: isSelected
+                      ? const Color(0xFF13B99D)
+                      : const Color(0xFF091A2A),
                 ),
               ),
               const SizedBox(height: 4),
@@ -343,7 +662,9 @@ class _HomeTabState extends State<HomeTab> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? const Color(0xFF13B99D) : const Color(0xFF758595),
+                  color: isSelected
+                      ? const Color(0xFF13B99D)
+                      : const Color(0xFF758595),
                 ),
               ),
             ],
@@ -360,14 +681,14 @@ class _HomeTabState extends State<HomeTab> {
 
     return Stack(
       children: [
-        // Background Gradient
+        // Background
         Container(
           width: double.infinity,
           height: double.infinity,
           color: const Color(0xFFFBFDFD),
         ),
 
-        // Translucent background circles matching the screenshot
+        // Translucent background circles matching design
         Positioned(
           top: -40,
           right: -40,
@@ -432,15 +753,16 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                         ],
                       ),
-                      
-                      // Location selector dropdown dropdown matching the icon and name
+
+                      // Location selector dropdown
                       InkWell(
                         onTap: () {
-                          // Simple bottom sheet to choose location
                           showModalBottomSheet(
                             context: context,
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
                             ),
                             builder: (context) {
                               return Padding(
@@ -451,13 +773,24 @@ class _HomeTabState extends State<HomeTab> {
                                   children: [
                                     const Text(
                                       'Select Location',
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     const SizedBox(height: 16),
                                     ListTile(
-                                      leading: const Icon(Icons.location_on, color: Color(0xFF13B99D)),
+                                      leading: const Icon(
+                                        Icons.location_on,
+                                        color: Color(0xFF13B99D),
+                                      ),
                                       title: const Text('Rajkot, Gujarat'),
-                                      trailing: _selectedCity == 'Rajkot' ? const Icon(Icons.check, color: Color(0xFF13B99D)) : null,
+                                      trailing: _selectedCity == 'Rajkot'
+                                          ? const Icon(
+                                              Icons.check,
+                                              color: Color(0xFF13B99D),
+                                            )
+                                          : null,
                                       onTap: () {
                                         setState(() {
                                           _selectedCity = 'Rajkot';
@@ -466,9 +799,17 @@ class _HomeTabState extends State<HomeTab> {
                                       },
                                     ),
                                     ListTile(
-                                      leading: const Icon(Icons.location_on, color: Color(0xFF13B99D)),
+                                      leading: const Icon(
+                                        Icons.location_on,
+                                        color: Color(0xFF13B99D),
+                                      ),
                                       title: const Text('Ahmedabad, Gujarat'),
-                                      trailing: _selectedCity == 'Ahmedabad' ? const Icon(Icons.check, color: Color(0xFF13B99D)) : null,
+                                      trailing: _selectedCity == 'Ahmedabad'
+                                          ? const Icon(
+                                              Icons.check,
+                                              color: Color(0xFF13B99D),
+                                            )
+                                          : null,
                                       onTap: () {
                                         setState(() {
                                           _selectedCity = 'Ahmedabad';
@@ -491,7 +832,9 @@ class _HomeTabState extends State<HomeTab> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              _selectedCity == 'Rajkot' ? 'Rajkot, Gujarat' : 'Prahlad Nagar',
+                              _selectedCity == 'Rajkot'
+                                  ? 'Rajkot, Gujarat'
+                                  : 'Prahlad Nagar, Ahmedabad',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -513,47 +856,185 @@ class _HomeTabState extends State<HomeTab> {
 
                 const SizedBox(height: 20),
 
-                // Search Bar
+                // Search Bar with Filter Button (Clicking anywhere opens Apply Filters)
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        hintText: 'Search PG, location or area...',
-                        hintStyle: TextStyle(
-                          color: Color(0xFFB0BAC5),
-                          fontSize: 14,
-                        ),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Color(0xFF758595),
-                          size: 22,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  child: InkWell(
+                    onTap: _openFilterSheet,
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: _filterCriteria.hasActiveFilters
+                            ? Border.all(
+                                color: const Color(0xFF13B99D),
+                                width: 1.5,
+                              )
+                            : null,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.search,
+                            color: Color(0xFF758595),
+                            size: 22,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _filterCriteria.hasActiveFilters
+                                  ? (_filterCriteria.facilities.isNotEmpty
+                                        ? 'Filters: ${_filterCriteria.facilities.join(', ')}'
+                                        : 'Filtered: ${_filterCriteria.gender}, ₹${_filterCriteria.minPrice.toInt()}-₹${_filterCriteria.maxPrice.toInt()}')
+                                  : 'Search PG, location or area...',
+                              style: TextStyle(
+                                color: _filterCriteria.hasActiveFilters
+                                    ? const Color(0xFF091A2A)
+                                    : const Color(0xFFB0BAC5),
+                                fontSize: 14,
+                                fontWeight: _filterCriteria.hasActiveFilters
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Interactive Filter Icon Button
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _filterCriteria.hasActiveFilters
+                                  ? const Color(0xFF13B99D)
+                                  : const Color(0xFFF1FBFA),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.tune_rounded,
+                                  color: _filterCriteria.hasActiveFilters
+                                      ? Colors.white
+                                      : const Color(0xFF13B99D),
+                                  size: 16,
+                                ),
+                                if (_filterCriteria.hasActiveFilters) ...[
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${_filterCriteria.activeFiltersCount}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                // Active Filter Tags Row
+                if (_filterCriteria.hasActiveFilters) ...[
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.06,
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          if (_filterCriteria.gender != 'Both')
+                            _buildActiveFilterChip(
+                              'Gender: ${_filterCriteria.gender}',
+                              () {
+                                setState(() {
+                                  _filterCriteria = _filterCriteria.copyWith(
+                                    gender: 'Both',
+                                  );
+                                });
+                              },
+                            ),
+                          if (_filterCriteria.minPrice > 3000 ||
+                              _filterCriteria.maxPrice < 10000)
+                            _buildActiveFilterChip(
+                              '₹${_filterCriteria.minPrice.toInt()} - ₹${_filterCriteria.maxPrice.toInt()}',
+                              () {
+                                setState(() {
+                                  _filterCriteria = _filterCriteria.copyWith(
+                                    minPrice: 3000,
+                                    maxPrice: 10000,
+                                  );
+                                });
+                              },
+                            ),
+                          for (final facility in _filterCriteria.facilities)
+                            _buildActiveFilterChip(facility, () {
+                              final updated = List<String>.from(
+                                _filterCriteria.facilities,
+                              )..remove(facility);
+                              setState(() {
+                                _filterCriteria = _filterCriteria.copyWith(
+                                  facilities: updated,
+                                );
+                              });
+                            }),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _filterCriteria = const PGFilterCriteria();
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Text(
+                                'Clear All',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 20),
 
                 // Browse by Category Title
                 Padding(
@@ -571,9 +1052,16 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                       TextButton(
                         onPressed: () {
-                          setState(() {
-                            _selectedCategory = ''; // Reset filter
-                          });
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PGListPage(
+                                title: 'All Accommodations',
+                                listType: PGListType.all,
+                                selectedCity: _selectedCity,
+                              ),
+                            ),
+                          );
                         },
                         child: const Text(
                           'See All',
@@ -596,7 +1084,9 @@ class _HomeTabState extends State<HomeTab> {
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.05,
+                    ),
                     children: [
                       _buildCategoryItem(
                         title: 'Boys PG',
@@ -632,147 +1122,415 @@ class _HomeTabState extends State<HomeTab> {
 
                 const SizedBox(height: 18),
 
-                // Popular PGs Section
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Popular PGs',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF091A2A),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          'See All',
-                          style: TextStyle(
-                            color: Color(0xFF13B99D),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Popular PGs ListView
+                // Main listings container using Smart Functionality & Filter Matcher
                 ValueListenableBuilder<List<PGAccommodation>>(
                   valueListenable: _dataService.pgsNotifier,
                   builder: (context, pgs, child) {
-                    // Filter logic
-                    final filteredPgs = pgs.where((pg) {
-                      final matchesCity = pg.city.toLowerCase() == _selectedCity.toLowerCase();
-                      final matchesCategory = _selectedCategory.isEmpty || pg.category == _selectedCategory;
-                      final matchesSearch = _searchQuery.isEmpty ||
-                          pg.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                          pg.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                          pg.category.toLowerCase().contains(_searchQuery.toLowerCase());
+                    // Base filtering for City & Search Query
+                    final baseFiltered = pgs.where((pg) {
+                      final matchesCity =
+                          pg.city.toLowerCase() == _selectedCity.toLowerCase();
+                      final matchesCategory =
+                          _selectedCategory.isEmpty ||
+                          pg.category == _selectedCategory;
+                      final matchesSearch =
+                          _searchQuery.isEmpty ||
+                          pg.name.toLowerCase().contains(
+                            _searchQuery.toLowerCase(),
+                          ) ||
+                          pg.location.toLowerCase().contains(
+                            _searchQuery.toLowerCase(),
+                          ) ||
+                          pg.category.toLowerCase().contains(
+                            _searchQuery.toLowerCase(),
+                          ) ||
+                          pg.facilities.any(
+                            (f) => f.toLowerCase().contains(
+                              _searchQuery.toLowerCase(),
+                            ),
+                          );
                       return matchesCity && matchesCategory && matchesSearch;
                     }).toList();
 
-                    final popularPgs = filteredPgs.where((pg) => pg.isPopular || pg.rating >= 4.5).toList();
+                    // If user applied filters (Price, Gender, or Facilities)
+                    if (_filterCriteria.hasActiveFilters) {
+                      // 1. Direct/Exact Matches: satisfies Price, Gender, AND 100% of requested facilities
+                      final exactMatches = baseFiltered.where((pg) {
+                        final inPrice =
+                            pg.price >= _filterCriteria.minPrice &&
+                            pg.price <= _filterCriteria.maxPrice;
+                        final matchGender =
+                            _filterCriteria.gender == 'Both' ||
+                            pg.gender == _filterCriteria.gender ||
+                            pg.gender == 'Both';
+                        final matchesAllFacilities = _filterCriteria.facilities
+                            .every((f) => pg.hasFacility(f));
+                        return inPrice && matchGender && matchesAllFacilities;
+                      }).toList();
 
-                    if (popularPgs.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-                        child: Text(
-                          'No popular PGs found matching criteria in this location.',
-                          style: TextStyle(color: Color(0xFF758595), fontSize: 13),
-                        ),
+                      // 2. Reference / Suggested PGs:
+                      // PGs that match price/gender or fulfill some/most requested facilities
+                      final referencePgs = baseFiltered.where((pg) {
+                        final isNotExact = !exactMatches.contains(pg);
+                        final matchCount = pg.matchingFacilitiesCount(
+                          _filterCriteria.facilities,
+                        );
+                        final inPrice =
+                            pg.price >= _filterCriteria.minPrice &&
+                            pg.price <= _filterCriteria.maxPrice;
+                        final matchGender =
+                            _filterCriteria.gender == 'Both' ||
+                            pg.gender == _filterCriteria.gender ||
+                            pg.gender == 'Both';
+
+                        if (_filterCriteria.facilities.isNotEmpty) {
+                          // Has at least 1 matching facility
+                          return isNotExact && matchCount > 0;
+                        } else {
+                          // Filtered by price/gender
+                          return isNotExact && (inPrice || matchGender);
+                        }
+                      }).toList();
+
+                      // Sort reference PGs by how many facilities they fulfill (descending)
+                      referencePgs.sort(
+                        (a, b) => b
+                            .matchingFacilitiesCount(_filterCriteria.facilities)
+                            .compareTo(
+                              a.matchingFacilitiesCount(
+                                _filterCriteria.facilities,
+                              ),
+                            ),
+                      );
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Exact Match Section Header
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.06,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF13B99D),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    '${exactMatches.length}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Exact Matches',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF091A2A),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          if (exactMatches.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.06,
+                                vertical: 12,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.amber.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.info_outline_rounded,
+                                      color: Colors.amber,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'No PG matches 100% of the selected criteria. Check the reference PGs below!',
+                                        style: TextStyle(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF091A2A),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              height: 236,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.05,
+                                ),
+                                itemCount: exactMatches.length,
+                                itemBuilder: (context, index) {
+                                  final pg = exactMatches[index];
+                                  return _buildPGCard(
+                                    pg,
+                                    screenWidth,
+                                    isExactMatch: true,
+                                  );
+                                },
+                              ),
+                            ),
+
+                          const SizedBox(height: 22),
+
+                          // Reference / Alternative PGs Section Header
+                          if (referencePgs.isNotEmpty) ...[
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.06,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF758595),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '${referencePgs.length}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Reference & Alternative PGs',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF091A2A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            SizedBox(
+                              height: 236,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.05,
+                                ),
+                                itemCount: referencePgs.length,
+                                itemBuilder: (context, index) {
+                                  final pg = referencePgs[index];
+                                  return _buildPGCard(
+                                    pg,
+                                    screenWidth,
+                                    isExactMatch: false,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ],
                       );
                     }
 
-                    return SizedBox(
-                      height: 250,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                        itemCount: popularPgs.length,
-                        itemBuilder: (context, index) {
-                          final pg = popularPgs[index];
-                          return _buildPGCard(pg, screenWidth);
-                        },
-                      ),
-                    );
-                  },
-                ),
+                    // Default View (No filters applied): Show Popular & Nearby Sections
+                    final popularPgs = baseFiltered
+                        .where((pg) => pg.isPopular || pg.rating >= 4.5)
+                        .toList();
+                    final nearbyPgs = baseFiltered
+                        .where((pg) => pg.isNearby || !pg.isPopular)
+                        .toList();
 
-                const SizedBox(height: 18),
-
-                // Nearby You Section
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Nearby You',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF091A2A),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          'See All',
-                          style: TextStyle(
-                            color: Color(0xFF13B99D),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Popular PGs Section Header
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.06,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Popular PGs',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF091A2A),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PGListPage(
+                                        title: 'Popular PGs',
+                                        listType: PGListType.popular,
+                                        selectedCity: _selectedCity,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'See All',
+                                  style: TextStyle(
+                                    color: Color(0xFF13B99D),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
 
-                // Nearby PGs ListView
-                ValueListenableBuilder<List<PGAccommodation>>(
-                  valueListenable: _dataService.pgsNotifier,
-                  builder: (context, pgs, child) {
-                    // Filter logic
-                    final filteredPgs = pgs.where((pg) {
-                      final matchesCity = pg.city.toLowerCase() == _selectedCity.toLowerCase();
-                      final matchesCategory = _selectedCategory.isEmpty || pg.category == _selectedCategory;
-                      final matchesSearch = _searchQuery.isEmpty ||
-                          pg.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                          pg.location.toLowerCase().contains(_searchQuery.toLowerCase());
-                      return matchesCity && matchesCategory && matchesSearch;
-                    }).toList();
+                        // Popular PGs ListView
+                        if (popularPgs.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 24,
+                            ),
+                            child: Text(
+                              'No popular PGs found in this location.',
+                              style: TextStyle(
+                                color: Color(0xFF758595),
+                                fontSize: 13,
+                              ),
+                            ),
+                          )
+                        else
+                          SizedBox(
+                            height: 236,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.05,
+                              ),
+                              itemCount: popularPgs.length,
+                              itemBuilder: (context, index) {
+                                final pg = popularPgs[index];
+                                return _buildPGCard(pg, screenWidth);
+                              },
+                            ),
+                          ),
 
-                    final nearbyPgs = filteredPgs.where((pg) => pg.isNearby || !pg.isPopular).toList();
+                        const SizedBox(height: 18),
 
-                    if (nearbyPgs.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-                        child: Text(
-                          'No nearby PGs found matching criteria in this location.',
-                          style: TextStyle(color: Color(0xFF758595), fontSize: 13),
+                        // Nearby You Section Header
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.06,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Nearby You',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF091A2A),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PGListPage(
+                                        title: 'Nearby PGs',
+                                        listType: PGListType.nearby,
+                                        selectedCity: _selectedCity,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'See All',
+                                  style: TextStyle(
+                                    color: Color(0xFF13B99D),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    }
 
-                    return SizedBox(
-                      height: 250,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                        itemCount: nearbyPgs.length,
-                        itemBuilder: (context, index) {
-                          final pg = nearbyPgs[index];
-                          return _buildPGCard(pg, screenWidth);
-                        },
-                      ),
+                        // Nearby PGs ListView
+                        if (nearbyPgs.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 24,
+                            ),
+                            child: Text(
+                              'No nearby PGs found matching criteria in this location.',
+                              style: TextStyle(
+                                color: Color(0xFF758595),
+                                fontSize: 13,
+                              ),
+                            ),
+                          )
+                        else
+                          SizedBox(
+                            height: 236,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.05,
+                              ),
+                              itemCount: nearbyPgs.length,
+                              itemBuilder: (context, index) {
+                                final pg = nearbyPgs[index];
+                                return _buildPGCard(pg, screenWidth);
+                              },
+                            ),
+                          ),
+                      ],
                     );
                   },
                 ),
@@ -783,6 +1541,42 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActiveFilterChip(String label, VoidCallback onRemove) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEBFDFB),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: const Color(0xFF13B99D).withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF13B99D),
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(
+              Icons.close_rounded,
+              size: 14,
+              color: Color(0xFF13B99D),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -812,7 +1606,9 @@ class _HomeTabState extends State<HomeTab> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? const Color(0xFF13B99D) : Colors.black.withValues(alpha: 0.04),
+            color: isSelected
+                ? const Color(0xFF13B99D)
+                : Colors.black.withValues(alpha: 0.04),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -828,13 +1624,12 @@ class _HomeTabState extends State<HomeTab> {
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               child: Icon(
                 icon,
-                color: isSelected ? const Color(0xFF13B99D) : const Color(0xFF091A2A),
+                color: isSelected
+                    ? const Color(0xFF13B99D)
+                    : const Color(0xFF091A2A),
                 size: 20,
               ),
             ),
@@ -844,7 +1639,9 @@ class _HomeTabState extends State<HomeTab> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? const Color(0xFF13B99D) : const Color(0xFF091A2A),
+                color: isSelected
+                    ? const Color(0xFF13B99D)
+                    : const Color(0xFF091A2A),
               ),
             ),
           ],
@@ -853,85 +1650,137 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  Widget _buildPGCard(PGAccommodation pg, double screenWidth) {
+  Widget _buildPGCard(
+    PGAccommodation pg,
+    double screenWidth, {
+    bool? isExactMatch,
+  }) {
+    final int matchedFacilities = pg.matchingFacilitiesCount(
+      _filterCriteria.facilities,
+    );
+    final int totalRequestedFacilities = _filterCriteria.facilities.length;
+
     return ValueListenableBuilder<List<String>>(
       valueListenable: _dataService.savedPgIdsNotifier,
       builder: (context, savedIds, child) {
         final isFavorited = savedIds.contains(pg.id);
 
-        return Container(
-          width: 190,
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image Section
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
+        return GestureDetector(
+          onTap: () => _showPGDetailsDialog(pg),
+          child: Container(
+            width: 195,
+            margin: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: isExactMatch == true
+                  ? Border.all(color: const Color(0xFF13B99D), width: 1.5)
+                  : null,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Image Section
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(18),
+                        topRight: Radius.circular(18),
+                      ),
+                      child: Image.network(
+                        pg.imageUrl,
+                        height: 102,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 102,
+                            color: const Color(0xFFEBFDFB),
+                            child: const Center(
+                              child: Icon(
+                                Icons.home_work_rounded,
+                                color: Color(0xFF13B99D),
+                                size: 36,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    child: Image.network(
-                      pg.imageUrl,
-                      height: 105,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 105,
-                          color: const Color(0xFFEBFDFB),
-                          child: const Center(
-                            child: Icon(Icons.home_work_rounded, color: Color(0xFF13B99D), size: 40),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
 
-                  // Favorite Button Overlay
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () {
-                        _dataService.toggleFavorite(pg.id);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          shape: BoxShape.circle,
+                    // Top Left Match Badge if user requested facilities
+                    if (totalRequestedFacilities > 0)
+                      Positioned(
+                        top: 7,
+                        left: 7,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isExactMatch == true
+                                ? const Color(0xFF13B99D)
+                                : Colors.black87,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            isExactMatch == true
+                                ? '100% Match'
+                                : '$matchedFacilities/$totalRequestedFacilities Facilities',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                        child: Icon(
-                          isFavorited ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                          color: isFavorited ? Colors.red : const Color(0xFF758595),
-                          size: 16,
+                      ),
+
+                    // Favorite Button Overlay
+                    Positioned(
+                      top: 7,
+                      right: 7,
+                      child: GestureDetector(
+                        onTap: () {
+                          _dataService.toggleFavorite(pg.id);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isFavorited
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            color: isFavorited
+                                ? Colors.red
+                                : const Color(0xFF758595),
+                            size: 15,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              // Info Section
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                // Info Section
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // Name & Rating Row
                       Row(
@@ -943,7 +1792,7 @@ class _HomeTabState extends State<HomeTab> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 13.5,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF091A2A),
                               ),
@@ -951,14 +1800,18 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                           Row(
                             children: [
-                              const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
-                              const SizedBox(width: 2),
+                              const Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 1),
                               Text(
                                 pg.rating.toString(),
                                 style: const TextStyle(
-                                  fontSize: 11.5,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF758595),
+                                  color: Color(0xFF091A2A),
                                 ),
                               ),
                             ],
@@ -968,21 +1821,21 @@ class _HomeTabState extends State<HomeTab> {
 
                       const SizedBox(height: 2),
 
-                      // Price Row
+                      // Price Row & Location
                       Row(
                         children: [
                           Text(
                             '₹${pg.price.toInt()}',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w800,
                               color: Color(0xFF13B99D),
                             ),
                           ),
                           const Text(
-                            '/month',
+                            '/mo',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 9.5,
                               color: Color(0xFF758595),
                               fontWeight: FontWeight.w500,
                             ),
@@ -990,12 +1843,16 @@ class _HomeTabState extends State<HomeTab> {
                           const Spacer(),
                           Row(
                             children: [
-                              const Icon(Icons.location_on, color: Color(0xFF758595), size: 12),
-                              const SizedBox(width: 2),
+                              const Icon(
+                                Icons.location_on,
+                                color: Color(0xFF758595),
+                                size: 11,
+                              ),
+                              const SizedBox(width: 1),
                               Text(
-                                pg.location,
+                                pg.location.split(',').first,
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 9.5,
                                   fontWeight: FontWeight.w500,
                                   color: Color(0xFF758595),
                                 ),
@@ -1007,44 +1864,72 @@ class _HomeTabState extends State<HomeTab> {
 
                       const SizedBox(height: 4),
 
-                      // Amenities row
-                      Row(
-                        children: [
-                          if (pg.hasWifi)
-                            Container(
-                              margin: const EdgeInsets.only(right: 6),
-                              padding: const EdgeInsets.all(3),
+                      // Amenities row with pastel colors matching design
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          children: pg.facilities.take(3).map((facility) {
+                            final bool isFiltered = _filterCriteria.facilities
+                                .contains(facility);
+                            Color bgColor;
+                            Color textColor;
+
+                            if (isFiltered) {
+                              bgColor = const Color(0xFF13B99D);
+                              textColor = Colors.white;
+                            } else {
+                              switch (facility.toLowerCase()) {
+                                case 'wifi':
+                                  bgColor = const Color(0xFFEBFDFB);
+                                  textColor = const Color(0xFF13B99D);
+                                  break;
+                                case 'ac':
+                                  bgColor = const Color(0xFFFFF0F5);
+                                  textColor = const Color(0xFFE91E63);
+                                  break;
+                                case 'food':
+                                  bgColor = const Color(0xFFF0FDF4);
+                                  textColor = const Color(0xFF4CAF50);
+                                  break;
+                                case 'parking':
+                                  bgColor = const Color(0xFFF3F4F6);
+                                  textColor = const Color(0xFF6B7280);
+                                  break;
+                                case 'laundry':
+                                  bgColor = const Color(0xFFEFF6FF);
+                                  textColor = const Color(0xFF3B82F6);
+                                  break;
+                                default:
+                                  bgColor = const Color(0xFFF8FAFC);
+                                  textColor = const Color(0xFF64748B);
+                              }
+                            }
+
+                            return Container(
+                              margin: const EdgeInsets.only(right: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFEBFDFB),
+                                color: bgColor,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Row(
-                                children: const [
-                                  Icon(Icons.wifi, size: 10, color: Color(0xFF13B99D)),
-                                  SizedBox(width: 2),
-                                  Text('Wifi', style: TextStyle(fontSize: 8, color: Color(0xFF13B99D), fontWeight: FontWeight.bold)),
-                                ],
+                              child: Text(
+                                facility,
+                                style: TextStyle(
+                                  fontSize: 8.5,
+                                  color: textColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          if (pg.hasAC)
-                            Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF0F5),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                children: const [
-                                  Icon(Icons.ac_unit, size: 10, color: Colors.pink),
-                                  SizedBox(width: 2),
-                                  Text('A.C', style: TextStyle(fontSize: 8, color: Colors.pink, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                        ],
+                            );
+                          }).toList(),
+                        ),
                       ),
 
-                      const Spacer(),
+                      const SizedBox(height: 7),
 
                       // Book Now Button
                       SizedBox(
@@ -1073,8 +1958,8 @@ class _HomeTabState extends State<HomeTab> {
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -1095,7 +1980,13 @@ class SavedTab extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFBFDFD),
       appBar: AppBar(
-        title: const Text('Saved PGs', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF091A2A))),
+        title: const Text(
+          'Saved PGs',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF091A2A),
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -1106,7 +1997,9 @@ class SavedTab extends StatelessWidget {
           return ValueListenableBuilder<List<PGAccommodation>>(
             valueListenable: dataService.pgsNotifier,
             builder: (context, pgs, child) {
-              final savedPgs = pgs.where((pg) => savedIds.contains(pg.id)).toList();
+              final savedPgs = pgs
+                  .where((pg) => savedIds.contains(pg.id))
+                  .toList();
 
               if (savedPgs.isEmpty) {
                 return Center(
@@ -1128,12 +2021,19 @@ class SavedTab extends StatelessWidget {
                       const SizedBox(height: 16),
                       const Text(
                         'No Saved PGs yet',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF091A2A)),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF091A2A),
+                        ),
                       ),
                       const SizedBox(height: 6),
                       const Text(
                         'Tap the heart icon on PGs to save them here.',
-                        style: TextStyle(fontSize: 14, color: Color(0xFF758595)),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF758595),
+                        ),
                       ),
                     ],
                   ),
@@ -1167,17 +2067,24 @@ class SavedTab extends StatelessWidget {
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 80,
-                            height: 80,
-                            color: const Color(0xFFEBFDFB),
-                            child: const Icon(Icons.home_work_rounded, color: Color(0xFF13B99D)),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                width: 80,
+                                height: 80,
+                                color: const Color(0xFFEBFDFB),
+                                child: const Icon(
+                                  Icons.home_work_rounded,
+                                  color: Color(0xFF13B99D),
+                                ),
+                              ),
                         ),
                       ),
                       title: Text(
                         pg.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF091A2A)),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF091A2A),
+                        ),
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1185,24 +2092,44 @@ class SavedTab extends StatelessWidget {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.location_on, size: 14, color: Color(0xFF758595)),
+                              const Icon(
+                                Icons.location_on,
+                                size: 14,
+                                color: Color(0xFF758595),
+                              ),
                               const SizedBox(width: 2),
-                              Text(pg.location, style: const TextStyle(fontSize: 12)),
+                              Text(
+                                pg.location,
+                                style: const TextStyle(fontSize: 12),
+                              ),
                               const SizedBox(width: 8),
-                              const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+                              const Icon(
+                                Icons.star_rounded,
+                                size: 14,
+                                color: Colors.amber,
+                              ),
                               const SizedBox(width: 2),
-                              Text(pg.rating.toString(), style: const TextStyle(fontSize: 12)),
+                              Text(
+                                pg.rating.toString(),
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 6),
                           Text(
                             '₹${pg.price.toInt()}/month',
-                            style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF13B99D)),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF13B99D),
+                            ),
                           ),
                         ],
                       ),
                       trailing: IconButton(
-                        icon: const Icon(Icons.favorite_rounded, color: Colors.red),
+                        icon: const Icon(
+                          Icons.favorite_rounded,
+                          color: Colors.red,
+                        ),
                         onPressed: () {
                           dataService.toggleFavorite(pg.id);
                         },
@@ -1220,13 +2147,561 @@ class SavedTab extends StatelessWidget {
 }
 
 // ==========================================
-// 3. BOOKING TAB (STATEFUL FLOW)
+// 3. BOOKING TAB (PAST BOOKINGS & MANAGEMENT)
 // ==========================================
 class BookingTab extends StatelessWidget {
   const BookingTab({super.key});
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+  void _showBookingDetailsDialog(BuildContext context, PGBooking booking) {
+    final pg = booking.pg;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEBFDFB),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.bookmark_outline_rounded,
+                color: Color(0xFF13B99D),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Booking Summary',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  pg.imageUrl,
+                  height: 130,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 130,
+                    color: const Color(0xFFEBFDFB),
+                    child: const Center(
+                      child: Icon(
+                        Icons.home_work_rounded,
+                        color: Color(0xFF13B99D),
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                pg.name,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF091A2A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 14,
+                    color: Color(0xFF758595),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '${pg.location}, ${pg.city}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF758595),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Divider(),
+              const SizedBox(height: 8),
+              _buildDetailRow(
+                'Booking ID',
+                '#BK-${booking.id.substring(0, booking.id.length > 6 ? 6 : booking.id.length)}',
+              ),
+              _buildDetailRow('Duration', booking.dateRangeFormatted),
+              _buildDetailRow('Room Sharing', booking.roomType),
+              _buildDetailRow('Status', booking.status),
+              _buildDetailRow('Monthly Rent', '₹${pg.price.toInt()} / mo'),
+              _buildDetailRow(
+                'Total Paid',
+                '₹${booking.totalPaid.toInt()}',
+                isTotal: true,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Included Amenities',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF758595),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: pg.facilities
+                    .map(
+                      (f) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1FBFA),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: const Color(
+                              0xFF13B99D,
+                            ).withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Text(
+                          f,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF13B99D),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Color(0xFF758595),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Connecting to ${pg.name} owner...'),
+                  backgroundColor: const Color(0xFF13B99D),
+                ),
+              );
+            },
+            icon: const Icon(Icons.phone, size: 16),
+            label: const Text('Call Owner'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF13B99D),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.5,
+              color: isTotal
+                  ? const Color(0xFF091A2A)
+                  : const Color(0xFF758595),
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: isTotal ? 14.5 : 12.5,
+              color: isTotal
+                  ? const Color(0xFF13B99D)
+                  : const Color(0xFF091A2A),
+              fontWeight: isTotal ? FontWeight.w800 : FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showBookAgainDialog(BuildContext context, PGAccommodation pg) {
+    String selectedRoom = 'Double Sharing';
+    DateTime selectedDate = DateTime.now().add(const Duration(days: 2));
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          return Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Book Again: ${pg.name}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF091A2A),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Monthly Rate: ₹${pg.price.toInt()} / month',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF13B99D),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Select Sharing Type',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF758595),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children:
+                      [
+                        'Single Sharing',
+                        'Double Sharing',
+                        'Triple Sharing',
+                      ].map((type) {
+                        final isSelected = selectedRoom == type;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: ChoiceChip(
+                            label: Text(type.replaceAll(' Sharing', '')),
+                            selected: isSelected,
+                            selectedColor: const Color(0xFF13B99D),
+                            labelStyle: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF091A2A),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                            onSelected: (val) {
+                              if (val) setSheetState(() => selectedRoom = type);
+                            },
+                          ),
+                        );
+                      }).toList(),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Check-in Date',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF758595),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setSheetState(() => selectedDate = picked);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.calendar_month_rounded,
+                          color: Color(0xFF13B99D),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      DataService().bookPG(
+                        pg,
+                        selectedDate,
+                        selectedRoom,
+                        totalPaid: pg.price * 2,
+                        dateRange:
+                            '${selectedDate.day}/${selectedDate.month}/${selectedDate.year} - ${selectedDate.day}/${(selectedDate.month + 2) % 12}/${selectedDate.year}',
+                      );
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Booking submitted successfully!'),
+                          backgroundColor: Color(0xFF13B99D),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF13B99D),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Confirm Re-Booking',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showWriteReviewDialog(BuildContext context, PGAccommodation pg) {
+    int rating = 5;
+    final commentController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Row(
+              children: [
+                const Icon(
+                  Icons.rate_review_outlined,
+                  color: Color(0xFFFF9F43),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Review: ${pg.name}',
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Rate your stay experience:',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF758595)),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < rating
+                              ? Icons.star_rounded
+                              : Icons.star_border_rounded,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                        onPressed: () {
+                          setDialogState(() => rating = index + 1);
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: commentController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText:
+                          'Share feedback regarding food, cleanliness, wifi...',
+                      hintStyle: const TextStyle(fontSize: 12.5),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF13B99D),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Color(0xFF758595)),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Thank you! Your review has been submitted.',
+                      ),
+                      backgroundColor: Color(0xFF13B99D),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF9F43),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Submit Review',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    final bool isCompleted =
+        status.toLowerCase() == 'completed' || status == 'Approved';
+    final bool isCancelled = status.toLowerCase() == 'cancelled';
+
+    Color bgColor;
+    Color textColor;
+    Color borderColor;
+
+    if (isCancelled) {
+      bgColor = const Color(0xFFFFECEC);
+      textColor = const Color(0xFFFF4D4F);
+      borderColor = const Color(0xFFFF8B8B);
+    } else if (isCompleted) {
+      bgColor = const Color(0xFFE4F9EC);
+      textColor = const Color(0xFF13B99D);
+      borderColor = const Color(0xFF5ED5A8);
+    } else {
+      bgColor = const Color(0xFFFFF7E6);
+      textColor = Colors.orange;
+      borderColor = Colors.amber;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
+      ),
+    );
   }
 
   @override
@@ -1234,160 +2709,455 @@ class BookingTab extends StatelessWidget {
     final DataService dataService = DataService();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
-      appBar: AppBar(
-        title: const Text('My Bookings', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF091A2A))),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: ValueListenableBuilder<List<PGBooking>>(
-        valueListenable: dataService.bookingsNotifier,
-        builder: (context, bookings, child) {
-          if (bookings.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1FBFA),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.book_online_rounded,
-                      size: 60,
-                      color: Color(0xFF13B99D),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No Bookings yet',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF091A2A)),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Go to Home and book your first PG accommodation!',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF758595)),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: bookings.length,
-            itemBuilder: (context, index) {
-              final booking = bookings[index];
-              final pg = booking.pg;
-
-              Color statusColor = Colors.orange;
-              IconData statusIcon = Icons.hourglass_empty_rounded;
-              if (booking.status == 'Approved') {
-                statusColor = const Color(0xFF13B99D);
-                statusIcon = Icons.check_circle_rounded;
-              } else if (booking.status == 'Cancelled') {
-                statusColor = Colors.red;
-                statusIcon = Icons.cancel_rounded;
-              }
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+      backgroundColor: Colors.white,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF7FEFB), Color(0xFFE2FBF1), Color(0xFFC7F8E6)],
+            stops: [0.2, 0.6, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: ValueListenableBuilder<List<PGBooking>>(
+            valueListenable: dataService.bookingsNotifier,
+            builder: (context, bookings, child) {
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          pg.imageUrl,
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 64,
-                            height: 64,
-                            color: const Color(0xFFEBFDFB),
-                            child: const Icon(Icons.home_work_rounded, color: Color(0xFF13B99D)),
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        pg.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF091A2A)),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 4),
-                          Text('Sharing: ${booking.roomType}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 2),
-                          Text('Check-in: ${_formatDate(booking.checkInDate)}', style: const TextStyle(fontSize: 12, color: Color(0xFF758595))),
-                        ],
-                      ),
-                      trailing: Text(
-                        '₹${pg.price.toInt()}/mo',
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF091A2A)),
+                    // Header Title & Subtitle
+                    const Text(
+                      'My Bookings',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF091A2A),
+                        letterSpacing: -0.3,
                       ),
                     ),
-                    const Divider(height: 1, thickness: 1),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
+                    const SizedBox(height: 4),
+                    const Text(
+                      'View and manage your past bookings',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF758595),
+                      ),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    // Section Heading
+                    const Text(
+                      'Your Past Bookings',
+                      style: TextStyle(
+                        fontSize: 16.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF091A2A),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    if (bookings.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40.0),
+                          child: Column(
                             children: [
-                              Icon(statusIcon, color: statusColor, size: 16),
-                              const SizedBox(width: 4),
-                              Text(
-                                booking.status == 'Pending' ? 'Pending Approval' : booking.status,
-                                style: TextStyle(
-                                  color: statusColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 48,
+                                  color: Color(0xFF13B99D),
                                 ),
                               ),
-                              if (booking.status == 'Pending') ...[
-                                const SizedBox(width: 8),
-                                const SizedBox(
-                                  width: 12,
-                                  height: 12,
-                                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFF13B99D))),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No bookings recorded yet',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF091A2A),
                                 ),
-                              ]
+                              ),
                             ],
                           ),
-                          if (booking.status != 'Cancelled')
-                            TextButton(
-                              onPressed: () {
-                                dataService.cancelBooking(booking.id);
-                              },
-                              style: TextButton.styleFrom(foregroundColor: Colors.red),
-                              child: const Text('Cancel Booking', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                            ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      )
+                    else
+                      ...bookings.map((booking) {
+                        final pg = booking.pg;
+                        final bool isCancelled =
+                            booking.status.toLowerCase() == 'cancelled';
+
+                        // Facilities to display
+                        final displayFacilities = pg.facilities
+                            .take(4)
+                            .toList();
+                        final int moreCount = pg.facilities.length > 4
+                            ? pg.facilities.length - 4
+                            : 0;
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Top Row: Image, Middle Info, Right Status & Price
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Left Image Thumbnail
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: Image.network(
+                                      pg.imageUrl,
+                                      width: 82,
+                                      height: 82,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: 82,
+                                                height: 82,
+                                                color: const Color(0xFFEBFDFB),
+                                                child: const Icon(
+                                                  Icons.home_work_rounded,
+                                                  color: Color(0xFF13B99D),
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 10),
+
+                                  // Middle Information
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          pg.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 14.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF091A2A),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.location_on_outlined,
+                                              size: 11.5,
+                                              color: Color(0xFF758595),
+                                            ),
+                                            const SizedBox(width: 2),
+                                            Expanded(
+                                              child: Text(
+                                                '${pg.location.split(',').first} , ${pg.city}',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 10.5,
+                                                  color: Color(0xFF758595),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.calendar_today_outlined,
+                                              size: 11,
+                                              color: Color(0xFF758595),
+                                            ),
+                                            const SizedBox(width: 3),
+                                            Expanded(
+                                              child: Text(
+                                                booking.dateRangeFormatted,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 10.5,
+                                                  color: Color(0xFF091A2A),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          '₹ ${pg.price.toInt()} / month',
+                                          style: const TextStyle(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF091A2A),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 8),
+
+                                  // Right Column: Badge & Total Paid
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      _buildStatusBadge(booking.status),
+                                      const SizedBox(height: 10),
+                                      const Text(
+                                        'Total Paid',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Color(0xFF758595),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        '₹${booking.totalPaid.toInt()}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900,
+                                          color: isCancelled
+                                              ? const Color(0xFF13B99D)
+                                              : const Color(0xFF13B99D),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              // Amenities Chips Row
+                              Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
+                                children: [
+                                  ...displayFacilities.map(
+                                    (f) => Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF8FAFC),
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(
+                                          color: const Color(0xFFE2E8F0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        f,
+                                        style: const TextStyle(
+                                          fontSize: 9.5,
+                                          color: Color(0xFF091A2A),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (moreCount > 0)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF8FAFC),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Text(
+                                        '+$moreCount more',
+                                        style: const TextStyle(
+                                          fontSize: 9,
+                                          color: Color(0xFF758595),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 10),
+                              const Divider(
+                                height: 1,
+                                thickness: 1,
+                                color: Color(0xFFF1F5F9),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Action Buttons
+                              if (isCancelled)
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 34,
+                                  child: OutlinedButton(
+                                    onPressed: () => _showBookingDetailsDialog(
+                                      context,
+                                      booking,
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(
+                                        color: Color(0xFF13B99D),
+                                        width: 1.5,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                    child: const Text(
+                                      'View Details',
+                                      style: TextStyle(
+                                        color: Color(0xFF13B99D),
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              else
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 34,
+                                        child: OutlinedButton(
+                                          onPressed: () =>
+                                              _showBookingDetailsDialog(
+                                                context,
+                                                booking,
+                                              ),
+                                          style: OutlinedButton.styleFrom(
+                                            side: const BorderSide(
+                                              color: Color(0xFF13B99D),
+                                              width: 1.5,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                          ),
+                                          child: const Text(
+                                            'View Details',
+                                            style: TextStyle(
+                                              color: Color(0xFF13B99D),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 34,
+                                        child: ElevatedButton(
+                                          onPressed: () => _showBookAgainDialog(
+                                            context,
+                                            booking.pg,
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(
+                                              0xFF13B99D,
+                                            ),
+                                            foregroundColor: Colors.white,
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                          ),
+                                          child: const Text(
+                                            'Book Again',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 34,
+                                        child: OutlinedButton(
+                                          onPressed: () =>
+                                              _showWriteReviewDialog(
+                                                context,
+                                                booking.pg,
+                                              ),
+                                          style: OutlinedButton.styleFrom(
+                                            side: const BorderSide(
+                                              color: Color(0xFFFF9F43),
+                                              width: 1.5,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                          ),
+                                          child: const Text(
+                                            'Review',
+                                            style: TextStyle(
+                                              color: Color(0xFFFF9F43),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        );
+                      }),
                   ],
                 ),
               );
             },
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -1396,225 +3166,677 @@ class BookingTab extends StatelessWidget {
 // ==========================================
 // 4. PROFILE TAB
 // ==========================================
-class ProfileTab extends StatelessWidget {
-  const ProfileTab({super.key});
+class ProfileTab extends StatefulWidget {
+  final Function(int)? onNavigateTab;
+
+  const ProfileTab({super.key, this.onNavigateTab});
 
   @override
-  Widget build(BuildContext context) {
-    final DataService dataService = DataService();
+  State<ProfileTab> createState() => _ProfileTabState();
+}
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
-      appBar: AppBar(
-        title: const Text('Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF091A2A))),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            // Avatar and info
-            Center(
+class _ProfileTabState extends State<ProfileTab> {
+  String _userName = 'User';
+  String _userEmail = 'user@gmail.com';
+  String _userPhone = '+91 98765 43210';
+  String _userGender = 'Boys';
+
+  void _showEditProfileSheet(BuildContext context) {
+    final nameController = TextEditingController(text: _userName);
+    final emailController = TextEditingController(text: _userEmail);
+    final phoneController = TextEditingController(text: _userPhone);
+    String selectedGender = _userGender;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          return Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              left: 20,
+              right: 20,
+              top: 20,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF13B99D), Color(0xFF5ED5A8)],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF13B99D).withValues(alpha: 0.2),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'U',
-                        style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'User 13',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF091A2A)),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'user13@gmail.com',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF758595), fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // Statistics Row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<List<PGBooking>>(
-                      valueListenable: dataService.bookingsNotifier,
-                      builder: (context, bookings, child) {
-                        final active = bookings.where((b) => b.status != 'Cancelled').length;
-                        return _buildStatCard('Active Bookings', active.toString(), Icons.home_work_outlined);
-                      },
+                    'Edit Profile',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF091A2A),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ValueListenableBuilder<List<String>>(
-                      valueListenable: dataService.savedPgIdsNotifier,
-                      builder: (context, saved, child) {
-                        return _buildStatCard('Saved Listings', saved.length.toString(), Icons.favorite_border_rounded);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Profile List items
-            _buildProfileListTile(context, 'Edit Profile', Icons.edit_outlined, () {}),
-            _buildProfileListTile(context, 'My Preferred Location', Icons.pin_drop_outlined, () {}),
-            _buildProfileListTile(context, 'Notifications', Icons.notifications_none_rounded, () {}),
-            _buildProfileListTile(context, 'Privacy Policy', Icons.security_rounded, () {}),
-            _buildProfileListTile(context, 'Help & Support', Icons.support_agent_rounded, () {}),
-
-            const SizedBox(height: 12),
-            const Divider(),
-            const SizedBox(height: 12),
-
-            // Logout
-            _buildProfileListTile(
-              context,
-              'Log Out',
-              Icons.logout_rounded,
-              () {
-                // Show confirm logout dialog
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Log Out'),
-                    content: const Text('Are you sure you want to log out of the PG Finder application?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel', style: TextStyle(color: Color(0xFF758595))),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      prefixIcon: const Icon(
+                        Icons.person_outline,
+                        color: Color(0xFF13B99D),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Pop dialog
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginPage()),
-                            (route) => false,
-                          );
-                        },
-                        child: const Text('Log Out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF13B99D),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        color: Color(0xFF13B99D),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF13B99D),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      prefixIcon: const Icon(
+                        Icons.phone_outlined,
+                        color: Color(0xFF13B99D),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF13B99D),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Gender Preference',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF758595),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: ['Boys', 'Girls'].map((g) {
+                      final isSelected = selectedGender == g;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12.0),
+                        child: ChoiceChip(
+                          label: Text(g),
+                          selected: isSelected,
+                          selectedColor: const Color(0xFF13B99D),
+                          labelStyle: TextStyle(
+                            color: isSelected
+                                ? Colors.white
+                                : const Color(0xFF091A2A),
+                            fontWeight: FontWeight.bold,
+                          ),
+                          onSelected: (val) {
+                            if (val) {
+                              setSheetState(() => selectedGender = g);
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _userName = nameController.text.trim().isEmpty
+                              ? 'User'
+                              : nameController.text.trim();
+                          _userEmail = emailController.text.trim().isEmpty
+                              ? 'user@gmail.com'
+                              : emailController.text.trim();
+                          _userPhone = phoneController.text.trim();
+                          _userGender = selectedGender;
+                        });
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profile updated successfully!'),
+                            backgroundColor: Color(0xFF13B99D),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF13B99D),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Save Changes',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showReviewsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(Icons.star_rounded, color: Colors.amber, size: 28),
+            SizedBox(width: 8),
+            Text(
+              'My Reviews',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text(
+                        'Green Valley PG',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                            size: 16,
+                          ),
+                          Text(
+                            ' 5.0',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                );
-              },
-              textColor: Colors.red,
-              iconColor: Colors.red,
+                  const SizedBox(height: 4),
+                  const Text(
+                    '"Extremely clean rooms and delicious 3-time meals. Fast Wifi and very cooperative owner."',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF4A5568)),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 40),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text(
+                        'Royal PG',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                            size: 16,
+                          ),
+                          Text(
+                            ' 4.8',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    '"Peaceful environment for studying and good laundry service."',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF4A5568)),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Color(0xFF13B99D),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+  void _showHelpSupportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(
+              Icons.support_agent_rounded,
+              color: Color(0xFF13B99D),
+              size: 28,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Help & Support',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Need assistance with your PG booking or listing inquiries? Reach out to us:',
+              style: TextStyle(fontSize: 13, color: Color(0xFF4A5568)),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.phone, color: Color(0xFF13B99D)),
+              title: const Text(
+                '+91 98765 43210',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              subtitle: const Text('Mon - Sat (9 AM - 8 PM)'),
+            ),
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.email_outlined,
+                color: Color(0xFF13B99D),
+              ),
+              title: const Text(
+                'support@pgfinder.com',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              subtitle: const Text('24/7 Email Support'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Color(0xFF13B99D),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1FBFA),
-              borderRadius: BorderRadius.circular(12),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Logout',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF758595)),
             ),
-            child: Icon(icon, color: const Color(0xFF13B99D), size: 20),
           ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+                (route) => false,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Logout',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFE8FAF3), Color(0xFFB5F4DC)],
+            stops: [0.35, 0.75, 1.0],
+          ),
+        ),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
             children: [
-              Text(
-                value,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF091A2A)),
+              // Top Mint Curved Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                  top: 50,
+                  left: 20,
+                  right: 20,
+                  bottom: 34,
+                ),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF88F2CE),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(38),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Back Arrow
+                    GestureDetector(
+                      onTap: () {
+                        if (widget.onNavigateTab != null) {
+                          widget.onNavigateTab!(0); // Go to Home
+                        } else {
+                          Navigator.maybePop(context);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        color: Colors.transparent,
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Color(0xFF091A2A),
+                          size: 26,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Profile Details Row
+                    Row(
+                      children: [
+                        // Avatar matching design
+                        Container(
+                          width: 86,
+                          height: 86,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              width: 3,
+                            ),
+                            image: const DecorationImage(
+                              image: NetworkImage(
+                                'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 18),
+
+                        // Name and Email
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Hi , $_userName',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF091A2A),
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _userEmail,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: const Color(
+                                    0xFF758595,
+                                  ).withValues(alpha: 0.9),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF758595), fontWeight: FontWeight.w500),
+
+              const SizedBox(height: 12),
+
+              // Menu List Items
+              _buildMenuItem(
+                icon: Icons.edit_outlined,
+                title: 'Edit profile',
+                onTap: () => _showEditProfileSheet(context),
               ),
+              _buildDivider(),
+
+              _buildMenuItem(
+                icon: Icons.calendar_today_outlined,
+                title: 'My booking',
+                onTap: () {
+                  if (widget.onNavigateTab != null) {
+                    widget.onNavigateTab!(2); // Go to Booking Tab
+                  }
+                },
+              ),
+              _buildDivider(),
+
+              _buildMenuItem(
+                icon: Icons.favorite_border_rounded,
+                title: 'Favourite',
+                onTap: () {
+                  if (widget.onNavigateTab != null) {
+                    widget.onNavigateTab!(1); // Go to Saved Tab
+                  }
+                },
+              ),
+              _buildDivider(),
+
+              _buildMenuItem(
+                icon: Icons.star_border_rounded,
+                title: 'My Review',
+                onTap: () => _showReviewsDialog(context),
+              ),
+              _buildDivider(),
+
+              _buildMenuItem(
+                icon: Icons.help_outline_rounded,
+                title: 'Help & Support',
+                onTap: () => _showHelpSupportDialog(context),
+              ),
+              _buildDivider(),
+
+              _buildMenuItem(
+                icon: Icons.logout_rounded,
+                title: 'Logout',
+                isLogout: true,
+                onTap: () => _showLogoutDialog(context),
+              ),
+              _buildDivider(),
+
+              const SizedBox(height: 50),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildProfileListTile(
-    BuildContext context,
-    String title,
-    IconData icon,
-    VoidCallback onTap, {
-    Color textColor = const Color(0xFF091A2A),
-    Color iconColor = const Color(0xFF758595),
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    bool isLogout = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 6),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: const Color(0xFF091A2A)),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: isLogout ? Colors.red : const Color(0xFF091A2A),
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: Color(0xFF091A2A),
             ),
           ],
         ),
-        child: ListTile(
-          onTap: onTap,
-          leading: Icon(icon, color: iconColor),
-          title: Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.w600, color: textColor, fontSize: 14.5),
-          ),
-          trailing: Icon(Icons.chevron_right_rounded, color: Colors.grey[400]),
-        ),
       ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: const Color(0xFFD3E0EA).withValues(alpha: 0.7),
+      indent: 20,
+      endIndent: 20,
     );
   }
 }
