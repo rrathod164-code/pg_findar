@@ -27,7 +27,9 @@ class _LoginPageState extends State<LoginPage> {
     }
     final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     final valLower = value.trim().toLowerCase();
-    if (valLower == 'user13' || valLower == 'admin13' || valLower == 'organizer13') {
+    if (valLower == 'user13' ||
+        valLower == 'admin13' ||
+        valLower == 'organizer13') {
       return null;
     }
     if (!emailRegExp.hasMatch(value.trim())) {
@@ -248,7 +250,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Email Label & Input Field
                     const Text(
-                      'Email',
+                      'Email or Username',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -260,6 +262,12 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _emailError != null
+                              ? const Color(0xFFD32F2F)
+                              : Colors.transparent,
+                          width: 1.5,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.04),
@@ -278,20 +286,29 @@ class _LoginPageState extends State<LoginPage> {
                             });
                           }
                         },
-                        decoration: const InputDecoration(
-                          hintText: 'Enter your email',
-                          hintStyle: TextStyle(
+                        decoration: InputDecoration(
+                          hintText: 'Enter your email or username',
+                          hintStyle: const TextStyle(
                             color: Color(0xFFB0BAC5),
                             fontSize: 14,
                           ),
                           prefixIcon: Icon(
                             Icons.mail_outline_rounded,
-                            color: Color(0xFF091A2A),
+                            color: _emailError != null
+                                ? const Color(0xFFD32F2F)
+                                : const Color(0xFF091A2A),
                             size: 20,
                           ),
+                          suffixIcon: _emailError != null
+                              ? const Icon(
+                                  Icons.error_outline_rounded,
+                                  color: Color(0xFFD32F2F),
+                                  size: 20,
+                                )
+                              : null,
                           border: InputBorder.none,
-                          errorStyle: TextStyle(height: 0, fontSize: 0),
-                          contentPadding: EdgeInsets.symmetric(
+                          errorStyle: const TextStyle(height: 0, fontSize: 0),
+                          contentPadding: const EdgeInsets.symmetric(
                             vertical: 16,
                             horizontal: 16,
                           ),
@@ -301,12 +318,25 @@ class _LoginPageState extends State<LoginPage> {
                     if (_emailError != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 6, left: 8),
-                        child: Text(
-                          _emailError!,
-                          style: const TextStyle(
-                            color: Color(0xFFD32F2F),
-                            fontSize: 12,
-                          ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              color: Color(0xFFD32F2F),
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                _emailError!,
+                                style: const TextStyle(
+                                  color: Color(0xFFD32F2F),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -326,6 +356,12 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _passwordError != null
+                              ? const Color(0xFFD32F2F)
+                              : Colors.transparent,
+                          width: 1.5,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.04),
@@ -350,9 +386,11 @@ class _LoginPageState extends State<LoginPage> {
                             color: Color(0xFFB0BAC5),
                             fontSize: 14,
                           ),
-                          prefixIcon: const Icon(
+                          prefixIcon: Icon(
                             Icons.lock_outline_rounded,
-                            color: Color(0xFF091A2A),
+                            color: _passwordError != null
+                                ? const Color(0xFFD32F2F)
+                                : const Color(0xFF091A2A),
                             size: 20,
                           ),
                           suffixIcon: IconButton(
@@ -360,7 +398,9 @@ class _LoginPageState extends State<LoginPage> {
                               _obscurePassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: const Color(0xFF091A2A),
+                              color: _passwordError != null
+                                  ? const Color(0xFFD32F2F)
+                                  : const Color(0xFF091A2A),
                               size: 20,
                             ),
                             onPressed: () {
@@ -381,12 +421,25 @@ class _LoginPageState extends State<LoginPage> {
                     if (_passwordError != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 6, left: 8),
-                        child: Text(
-                          _passwordError!,
-                          style: const TextStyle(
-                            color: Color(0xFFD32F2F),
-                            fontSize: 12,
-                          ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              color: Color(0xFFD32F2F),
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                _passwordError!,
+                                style: const TextStyle(
+                                  color: Color(0xFFD32F2F),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -523,6 +576,17 @@ class _LoginPageState extends State<LoginPage> {
                             child: Image.asset(
                               'assets/images/google.png',
                               fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Center(
+                                    child: Text(
+                                      'G',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFEA4335),
+                                      ),
+                                    ),
+                                  ),
                             ),
                           ),
                         ),
@@ -549,6 +613,17 @@ class _LoginPageState extends State<LoginPage> {
                             child: Image.asset(
                               'assets/images/facebook.png',
                               fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Center(
+                                    child: Text(
+                                      'f',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1877F2),
+                                      ),
+                                    ),
+                                  ),
                             ),
                           ),
                         ),
