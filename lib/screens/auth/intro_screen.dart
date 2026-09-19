@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/login.dart';
+import 'login_screen.dart';
 
-class Introduction extends StatelessWidget {
-  const Introduction({super.key});
+/// ============================================================================
+/// SPLASH / GET STARTED ONBOARDING SCREEN
+/// ============================================================================
+/// The entry onboarding screen of the app.
+/// ============================================================================
+
+class IntroScreen extends StatelessWidget {
+  const IntroScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -17,22 +23,29 @@ class Introduction extends StatelessWidget {
             colors: [Color(0xFFF1FBFA), Color(0xFFB9F2E9)],
           ),
         ),
-
         child: SafeArea(
           child: Column(
             children: [
-              // PG Illustration
+              // Illustration Image
               Expanded(
                 child: Center(
                   child: Image.asset(
                     'assets/intro.png',
                     fit: BoxFit.contain,
                     width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      padding: const EdgeInsets.all(32),
+                      child: const Icon(
+                        Icons.apartment_rounded,
+                        size: 100,
+                        color: Color(0xFF13B99D),
+                      ),
+                    ),
                   ),
                 ),
               ),
 
-              // Get Start Button
+              // 'Get start' Button
               Padding(
                 padding: EdgeInsets.only(
                   left: MediaQuery.of(context).size.width * 0.07,
@@ -47,21 +60,18 @@ class Introduction extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
+                          builder: (context) => const LoginScreen(),
                         ),
                       );
                     },
-
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF13B99D),
                       foregroundColor: Colors.white,
                       elevation: 0,
-
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-
                     child: const Text(
                       'Get start',
                       style: TextStyle(
@@ -79,3 +89,6 @@ class Introduction extends StatelessWidget {
     );
   }
 }
+
+// Alias for compatibility
+typedef Introduction = IntroScreen;
