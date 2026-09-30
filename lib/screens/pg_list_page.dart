@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/widgets/app_image.dart';
+import 'package:pg_findar/widgets/dashboard_background.dart';
 import '../models/pg_model.dart';
 import '../services/data_service.dart';
+import 'pg_detail_screen.dart';
 import 'widgets/filter_bottom_sheet.dart';
+import '../widgets/bottom_nav_bar.dart';
 
 enum PGListType { popular, nearby, category, all }
 
@@ -11,6 +15,8 @@ class PGListPage extends StatefulWidget {
   final String selectedCity;
   final String? categoryFilter;
   final PGFilterCriteria? initialFilterCriteria;
+  final bool autoFocusSearch;
+  final bool showBottomNav;
 
   const PGListPage({
     super.key,
@@ -19,6 +25,8 @@ class PGListPage extends StatefulWidget {
     required this.selectedCity,
     this.categoryFilter,
     this.initialFilterCriteria,
+    this.autoFocusSearch = false,
+    this.showBottomNav = true,
   });
 
   @override
@@ -32,6 +40,7 @@ class _PGListPageState extends State<PGListPage> {
   String _searchQuery = '';
   late String _currentCity;
   PGFilterCriteria _filterCriteria = const PGFilterCriteria();
+  String _selectedCategory = '';
 
   @override
   void initState() {
@@ -39,6 +48,9 @@ class _PGListPageState extends State<PGListPage> {
     _currentCity = widget.selectedCity;
     if (widget.initialFilterCriteria != null) {
       _filterCriteria = widget.initialFilterCriteria!;
+    }
+    if (widget.categoryFilter != null && widget.categoryFilter!.isNotEmpty) {
+      _selectedCategory = widget.categoryFilter!;
     }
   }
 
@@ -50,6 +62,37 @@ class _PGListPageState extends State<PGListPage> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  // --------------------------------------------------------------------------
+  // HELPER: Category Filter Matching (No Backend, 100% Frontend Logic)
+  // --------------------------------------------------------------------------
+  // Checks if a PG accommodation matches the clicked category (Boys PG, Girls PG, etc.)
+  bool _matchesCategory(PGAccommodation pg, String category) {
+    if (category.isEmpty) return true; // Show all if no category selected
+
+    final filter = category.toLowerCase().trim();
+    final pgCategory = pg.category.toLowerCase().trim();
+    final pgGender = pg.gender.toLowerCase().trim();
+
+    // 1. Boys PG (Male)
+    if (filter.contains('boy')) {
+      return pgCategory.contains('boy') || pgGender == 'boys';
+    }
+    // 2. Girls PG (Female)
+    if (filter.contains('girl')) {
+      return pgCategory.contains('girl') || pgGender == 'girls';
+    }
+    // 3. Hostels
+    if (filter.contains('hostel')) {
+      return pgCategory.contains('hostel');
+    }
+    // 4. Flats
+    if (filter.contains('flat')) {
+      return pgCategory.contains('flat');
+    }
+
+    return pgCategory == filter || pgGender == filter;
   }
 
   void _openFilterSheet() {
@@ -104,21 +147,11 @@ class _PGListPageState extends State<PGListPage> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      pg.imageUrl,
+                    child: AppImage(
+                      imageUrl: pg.imageUrl,
                       width: 90,
                       height: 90,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: 90,
-                        height: 90,
-                        color: const Color(0xFFEBFDFB),
-                        child: const Icon(
-                          Icons.home_work_rounded,
-                          color: Color(0xFF13B99D),
-                          size: 36,
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -258,7 +291,12 @@ class _PGListPageState extends State<PGListPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        _showBookingDialog(pg);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PgDetailScreen(pg: pg),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF13B99D),
@@ -341,6 +379,7 @@ class _PGListPageState extends State<PGListPage> {
     );
   }
 
+  // ignore: unused_element
   void _showBookingDialog(PGAccommodation pg) {
     DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
     String selectedRoomType = 'Double Sharing';
@@ -654,7 +693,7 @@ class _PGListPageState extends State<PGListPage> {
         crossAxisCount: 2,
         crossAxisSpacing: 10,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.65,
+        childAspectRatio: 0.80, // Proportional ratio for reduced, even spacing
       ),
       itemCount: list.length,
       itemBuilder: (context, index) {
@@ -667,288 +706,454 @@ class _PGListPageState extends State<PGListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFBFDFD),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 6),
-            // Top Bar: Back button and Search Bar with Filter Icon
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Color(0xFF091A2A),
-                      size: 26,
+      body: DashboardBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 6),
+              // Top Bar: Back button and Search Bar with Filter Icon
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF091A2A),
+                        size: 26,
+                      ),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(22),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 14,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.search,
-                            color: Color(0xFF758595),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (val) {
-                                setState(() {
-                                  _searchQuery = val;
-                                });
-                              },
-                              style: const TextStyle(
-                                fontSize: 13.5,
-                                color: Color(0xFF091A2A),
-                              ),
-                              decoration: const InputDecoration(
-                                hintText: 'Search PG, location or area...',
-                                hintStyle: TextStyle(
-                                  color: Color(0xFFB0BAC5),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.search,
+                              color: Color(0xFF758595),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                autofocus: widget.autoFocusSearch,
+                                onChanged: (val) {
+                                  setState(() {
+                                    _searchQuery = val;
+                                  });
+                                },
+                                style: const TextStyle(
                                   fontSize: 13.5,
+                                  color: Color(0xFF091A2A),
                                 ),
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10,
+                                decoration: const InputDecoration(
+                                  hintText: 'Search PG, location or area...',
+                                  hintStyle: TextStyle(
+                                    color: Color(0xFFB0BAC5),
+                                    fontSize: 13.5,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          if (_searchQuery.isNotEmpty)
+                            if (_searchQuery.isNotEmpty)
+                              GestureDetector(
+                                onTap: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                  child: Icon(
+                                    Icons.clear,
+                                    size: 18,
+                                    color: Color(0xFF758595),
+                                  ),
+                                ),
+                              ),
                             GestureDetector(
-                              onTap: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchQuery = '';
-                                });
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 4),
+                              onTap: _openFilterSheet,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: _filterCriteria.hasActiveFilters
+                                      ? const Color(0xFF13B99D)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                                 child: Icon(
-                                  Icons.clear,
-                                  size: 18,
+                                  Icons.tune_rounded,
+                                  color: _filterCriteria.hasActiveFilters
+                                      ? Colors.white
+                                      : const Color(0xFF091A2A),
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Active Filter Tags Row
+              if (_filterCriteria.hasActiveFilters) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Row(
+                      children: [
+                        if (_filterCriteria.gender != 'Both')
+                          _buildActiveFilterChip(
+                            'Gender: ${_filterCriteria.gender}',
+                            () {
+                              setState(() {
+                                _filterCriteria = _filterCriteria.copyWith(
+                                  gender: 'Both',
+                                );
+                              });
+                            },
+                          ),
+                        if (_filterCriteria.minPrice > 3000 ||
+                            _filterCriteria.maxPrice < 10000)
+                          _buildActiveFilterChip(
+                            '₹${_filterCriteria.minPrice.toInt()} - ₹${_filterCriteria.maxPrice.toInt()}',
+                            () {
+                              setState(() {
+                                _filterCriteria = _filterCriteria.copyWith(
+                                  minPrice: 3000,
+                                  maxPrice: 10000,
+                                );
+                              });
+                            },
+                          ),
+                        for (final facility in _filterCriteria.facilities)
+                          _buildActiveFilterChip(facility, () {
+                            final updated = List<String>.from(
+                              _filterCriteria.facilities,
+                            )..remove(facility);
+                            setState(() {
+                              _filterCriteria = _filterCriteria.copyWith(
+                                facilities: updated,
+                              );
+                            });
+                          }),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _filterCriteria = const PGFilterCriteria();
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'Clear All',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              // PGs Grid List
+              Expanded(
+                child: ValueListenableBuilder<List<PGAccommodation>>(
+                  valueListenable: _dataService.pgsNotifier,
+                  builder: (context, pgs, child) {
+                    // Filter by city
+                    var list = pgs
+                        .where(
+                          (pg) =>
+                              pg.city.toLowerCase() ==
+                              _currentCity.toLowerCase(),
+                        )
+                        .toList();
+
+                    // Filter by Category (Boys PG / Girls PG / Hostels / Flats)
+                    if (_selectedCategory.isNotEmpty) {
+                      list = list
+                          .where(
+                            (pg) => _matchesCategory(pg, _selectedCategory),
+                          )
+                          .toList();
+                    } else if (widget.listType == PGListType.popular) {
+                      list = list
+                          .where((pg) => pg.isPopular || pg.rating >= 4.5)
+                          .toList();
+                    } else if (widget.listType == PGListType.nearby) {
+                      list = list
+                          .where((pg) => pg.isNearby || !pg.isPopular)
+                          .toList();
+                    }
+
+                    // Search query filter
+                    if (_searchQuery.isNotEmpty) {
+                      final q = _searchQuery.toLowerCase().trim();
+                      list = list
+                          .where(
+                            (pg) =>
+                                pg.name.toLowerCase().contains(q) ||
+                                pg.location.toLowerCase().contains(q) ||
+                                pg.category.toLowerCase().contains(q) ||
+                                pg.facilities.any(
+                                  (f) => f.toLowerCase().contains(q),
+                                ),
+                          )
+                          .toList();
+                    }
+
+                    // If user applied filters
+                    if (_filterCriteria.hasActiveFilters) {
+                      final exactMatches = list.where((pg) {
+                        final inPrice =
+                            pg.price >= _filterCriteria.minPrice &&
+                            pg.price <= _filterCriteria.maxPrice;
+                        final matchGender =
+                            _filterCriteria.gender == 'Both' ||
+                            pg.gender == _filterCriteria.gender ||
+                            pg.gender == 'Both';
+                        final matchesAllFacilities = _filterCriteria.facilities
+                            .every((f) => pg.hasFacility(f));
+                        return inPrice && matchGender && matchesAllFacilities;
+                      }).toList();
+
+                      final referencePgs = list.where((pg) {
+                        final isNotExact = !exactMatches.contains(pg);
+                        final matchCount = pg.matchingFacilitiesCount(
+                          _filterCriteria.facilities,
+                        );
+                        final inPrice =
+                            pg.price >= _filterCriteria.minPrice &&
+                            pg.price <= _filterCriteria.maxPrice;
+                        final matchGender =
+                            _filterCriteria.gender == 'Both' ||
+                            pg.gender == _filterCriteria.gender ||
+                            pg.gender == 'Both';
+
+                        if (_filterCriteria.facilities.isNotEmpty) {
+                          return isNotExact && matchCount > 0;
+                        } else {
+                          return isNotExact && (inPrice || matchGender);
+                        }
+                      }).toList();
+
+                      referencePgs.sort(
+                        (a, b) => b
+                            .matchingFacilitiesCount(_filterCriteria.facilities)
+                            .compareTo(
+                              a.matchingFacilitiesCount(
+                                _filterCriteria.facilities,
+                              ),
+                            ),
+                      );
+
+                      if (exactMatches.isEmpty && referencePgs.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF1FBFA),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.home_work_outlined,
+                                  size: 50,
+                                  color: Color(0xFF13B99D),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              const Text(
+                                'No PGs Found',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF091A2A),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Try changing search query or reset filters',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF758595),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                    _filterCriteria = const PGFilterCriteria();
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF13B99D),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Text('Reset All'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView(
+                        padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+                          if (exactMatches.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 4,
+                                bottom: 8,
+                                top: 4,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF13B99D),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${exactMatches.length}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Exact Matches',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF091A2A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            _buildGridFromList(exactMatches),
+                            const SizedBox(height: 16),
+                          ],
+                          if (referencePgs.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 4,
+                                bottom: 4,
+                                top: 6,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade700,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${referencePgs.length}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Reference PGs (Matching Amenities)',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF091A2A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4, bottom: 8),
+                              child: Text(
+                                'These accommodations fulfill some of your requested amenities',
+                                style: TextStyle(
+                                  fontSize: 11.5,
                                   color: Color(0xFF758595),
                                 ),
                               ),
                             ),
-                          GestureDetector(
-                            onTap: _openFilterSheet,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: _filterCriteria.hasActiveFilters
-                                    ? const Color(0xFF13B99D)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.tune_rounded,
-                                color: _filterCriteria.hasActiveFilters
-                                    ? Colors.white
-                                    : const Color(0xFF091A2A),
-                                size: 20,
-                              ),
-                            ),
-                          ),
+                            _buildGridFromList(referencePgs),
+                          ],
                         ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Active Filter Tags Row
-            if (_filterCriteria.hasActiveFilters) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    children: [
-                      if (_filterCriteria.gender != 'Both')
-                        _buildActiveFilterChip(
-                          'Gender: ${_filterCriteria.gender}',
-                          () {
-                            setState(() {
-                              _filterCriteria = _filterCriteria.copyWith(
-                                gender: 'Both',
-                              );
-                            });
-                          },
-                        ),
-                      if (_filterCriteria.minPrice > 3000 ||
-                          _filterCriteria.maxPrice < 10000)
-                        _buildActiveFilterChip(
-                          '₹${_filterCriteria.minPrice.toInt()} - ₹${_filterCriteria.maxPrice.toInt()}',
-                          () {
-                            setState(() {
-                              _filterCriteria = _filterCriteria.copyWith(
-                                minPrice: 3000,
-                                maxPrice: 10000,
-                              );
-                            });
-                          },
-                        ),
-                      for (final facility in _filterCriteria.facilities)
-                        _buildActiveFilterChip(facility, () {
-                          final updated = List<String>.from(
-                            _filterCriteria.facilities,
-                          )..remove(facility);
-                          setState(() {
-                            _filterCriteria = _filterCriteria.copyWith(
-                              facilities: updated,
-                            );
-                          });
-                        }),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _filterCriteria = const PGFilterCriteria();
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(left: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            'Clear All',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-
-            // PGs Grid List
-            Expanded(
-              child: ValueListenableBuilder<List<PGAccommodation>>(
-                valueListenable: _dataService.pgsNotifier,
-                builder: (context, pgs, child) {
-                  // Filter by city
-                  var list = pgs
-                      .where(
-                        (pg) =>
-                            pg.city.toLowerCase() ==
-                            _currentCity.toLowerCase(),
-                      )
-                      .toList();
-
-                  // Filter by list type
-                  if (widget.listType == PGListType.popular) {
-                    list = list
-                        .where((pg) => pg.isPopular || pg.rating >= 4.5)
-                        .toList();
-                  } else if (widget.listType == PGListType.nearby) {
-                    list = list
-                        .where((pg) => pg.isNearby || !pg.isPopular)
-                        .toList();
-                  } else if (widget.categoryFilter != null &&
-                      widget.categoryFilter!.isNotEmpty) {
-                    list = list
-                        .where((pg) => pg.category == widget.categoryFilter)
-                        .toList();
-                  }
-
-                  // Search query filter
-                  if (_searchQuery.isNotEmpty) {
-                    final q = _searchQuery.toLowerCase().trim();
-                    list = list
-                        .where(
-                          (pg) =>
-                              pg.name.toLowerCase().contains(q) ||
-                              pg.location.toLowerCase().contains(q) ||
-                              pg.category.toLowerCase().contains(q) ||
-                              pg.facilities.any((f) => f.toLowerCase().contains(q)),
-                        )
-                        .toList();
-                  }
-
-                  // If user applied filters
-                  if (_filterCriteria.hasActiveFilters) {
-                    final exactMatches = list.where((pg) {
-                      final inPrice =
-                          pg.price >= _filterCriteria.minPrice &&
-                          pg.price <= _filterCriteria.maxPrice;
-                      final matchGender =
-                          _filterCriteria.gender == 'Both' ||
-                          pg.gender == _filterCriteria.gender ||
-                          pg.gender == 'Both';
-                      final matchesAllFacilities = _filterCriteria.facilities
-                          .every((f) => pg.hasFacility(f));
-                      return inPrice && matchGender && matchesAllFacilities;
-                    }).toList();
-
-                    final referencePgs = list.where((pg) {
-                      final isNotExact = !exactMatches.contains(pg);
-                      final matchCount = pg.matchingFacilitiesCount(
-                        _filterCriteria.facilities,
                       );
-                      final inPrice =
-                          pg.price >= _filterCriteria.minPrice &&
-                          pg.price <= _filterCriteria.maxPrice;
-                      final matchGender =
-                          _filterCriteria.gender == 'Both' ||
-                          pg.gender == _filterCriteria.gender ||
-                          pg.gender == 'Both';
+                    }
 
-                      if (_filterCriteria.facilities.isNotEmpty) {
-                        return isNotExact && matchCount > 0;
-                      } else {
-                        return isNotExact && (inPrice || matchGender);
-                      }
-                    }).toList();
-
-                    referencePgs.sort(
-                      (a, b) => b
-                          .matchingFacilitiesCount(_filterCriteria.facilities)
-                          .compareTo(
-                            a.matchingFacilitiesCount(
-                              _filterCriteria.facilities,
-                            ),
-                          ),
-                    );
-
-                    if (exactMatches.isEmpty && referencePgs.isEmpty) {
+                    if (list.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -982,190 +1187,53 @@ class _PGListPageState extends State<PGListPage> {
                                 color: Color(0xFF758595),
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                  _searchQuery = '';
-                                  _filterCriteria = const PGFilterCriteria();
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF13B99D),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: const Text('Reset All'),
-                            ),
                           ],
                         ),
                       );
                     }
 
-                    return ListView(
+                    return GridView.builder(
                       padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
                       physics: const BouncingScrollPhysics(),
-                      children: [
-                        if (exactMatches.isNotEmpty) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 4,
-                              bottom: 8,
-                              top: 4,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF13B99D),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    '${exactMatches.length}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Exact Matches',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF091A2A),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          _buildGridFromList(exactMatches),
-                          const SizedBox(height: 16),
-                        ],
-                        if (referencePgs.isNotEmpty) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 4,
-                              bottom: 4,
-                              top: 6,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange.shade700,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    '${referencePgs.length}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Reference PGs (Matching Amenities)',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF091A2A),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 4, bottom: 8),
-                            child: Text(
-                              'These accommodations fulfill some of your requested amenities',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: Color(0xFF758595),
-                              ),
-                            ),
-                          ),
-                          _buildGridFromList(referencePgs),
-                        ],
-                      ],
-                    );
-                  }
-
-                  if (list.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF1FBFA),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.home_work_outlined,
-                              size: 50,
-                              color: Color(0xFF13B99D),
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          const Text(
-                            'No PGs Found',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF091A2A),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Try changing search query or reset filters',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF758595),
-                            ),
-                          ),
-                        ],
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 12,
+                        childAspectRatio:
+                            0.80, // Proportional ratio for reduced, even spacing
                       ),
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        return _buildGridPGCard(list[index]);
+                      },
                     );
-                  }
-
-                  return GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
-                    physics: const BouncingScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.65,
-                        ),
-                    itemCount: list.length,
-                    itemBuilder: (context, index) {
-                      return _buildGridPGCard(list[index]);
-                    },
-                  );
-                },
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+      // Optional bottom navigation bar matching dashboard
+      bottomNavigationBar: widget.showBottomNav
+          ? CustomBottomNavBar(
+              currentIndex: 0,
+              onTap: (index) {
+                if (index == 0) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          BottomNavScreen(initialIndex: index),
+                    ),
+                    (route) => false,
+                  );
+                }
+              },
+            )
+          : null,
     );
   }
 
@@ -1200,22 +1268,11 @@ class _PGListPageState extends State<PGListPage> {
                         topLeft: Radius.circular(18),
                         topRight: Radius.circular(18),
                       ),
-                      child: Image.network(
-                        pg.imageUrl,
+                      child: AppImage(
+                        imageUrl: pg.imageUrl,
                         height: 105,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 105,
-                          color: const Color(0xFFEBFDFB),
-                          child: const Center(
-                            child: Icon(
-                              Icons.home_work_rounded,
-                              color: Color(0xFF13B99D),
-                              size: 36,
-                            ),
-                          ),
-                        ),
                       ),
                     ),
                     Positioned(
@@ -1246,13 +1303,15 @@ class _PGListPageState extends State<PGListPage> {
                   ],
                 ),
 
-                // Content
+                // Content Section with equal, uniform spacing between all elements
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // 1. PG Name & Rating Row
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -1268,7 +1327,9 @@ class _PGListPageState extends State<PGListPage> {
                                 ),
                               ),
                             ),
+                            const SizedBox(width: 2),
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
                                   Icons.star_rounded,
@@ -1288,7 +1349,8 @@ class _PGListPageState extends State<PGListPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 2),
+
+                        // 2. Price & Location Row
                         Row(
                           children: [
                             Text(
@@ -1308,6 +1370,7 @@ class _PGListPageState extends State<PGListPage> {
                             ),
                             const Spacer(),
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
                                   Icons.location_on,
@@ -1326,77 +1389,88 @@ class _PGListPageState extends State<PGListPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        // Amenities Row
-                        Row(
-                          children: [
-                            if (pg.hasWifi)
-                              Container(
-                                margin: const EdgeInsets.only(right: 3),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                  vertical: 1.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEBFDFB),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text(
-                                  'Wifi',
-                                  style: TextStyle(
-                                    fontSize: 8,
-                                    color: Color(0xFF13B99D),
-                                    fontWeight: FontWeight.bold,
+
+                        // 3. Amenities Row (Wifi, AC, Food)
+                        SizedBox(
+                          height: 18,
+                          child: Row(
+                            children: [
+                              if (pg.hasWifi)
+                                Container(
+                                  margin: const EdgeInsets.only(right: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEBFDFB),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'Wifi',
+                                    style: TextStyle(
+                                      fontSize: 8.5,
+                                      color: Color(0xFF13B99D),
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            if (pg.hasAC)
-                              Container(
-                                margin: const EdgeInsets.only(right: 3),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                  vertical: 1.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF0F5),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text(
-                                  'AC',
-                                  style: TextStyle(
-                                    fontSize: 8,
-                                    color: Colors.pink,
-                                    fontWeight: FontWeight.bold,
+                              if (pg.hasAC)
+                                Container(
+                                  margin: const EdgeInsets.only(right: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF0F5),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'AC',
+                                    style: TextStyle(
+                                      fontSize: 8.5,
+                                      color: Colors.pink,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            if (pg.hasFood)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                  vertical: 1.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF0FDF4),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text(
-                                  'Food',
-                                  style: TextStyle(
-                                    fontSize: 8,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
+                              if (pg.hasFood)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF0FDF4),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'Food',
+                                    style: TextStyle(
+                                      fontSize: 8.5,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
-                        const Spacer(),
+
+                        // 4. Book Now Button
                         SizedBox(
                           width: double.infinity,
-                          height: 26,
+                          height: 30,
                           child: ElevatedButton(
-                            onPressed: () => _showBookingDialog(pg),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PgDetailScreen(pg: pg),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF13B99D),
                               foregroundColor: Colors.white,
@@ -1409,7 +1483,7 @@ class _PGListPageState extends State<PGListPage> {
                             child: const Text(
                               'Book Now',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1423,7 +1497,7 @@ class _PGListPageState extends State<PGListPage> {
             ),
           ),
         );
-      },  
+      },
     );
   }
 }

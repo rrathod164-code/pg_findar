@@ -1,0 +1,7 @@
+{
+  "dart.hotReloadOnSave": "always",
+  "dart.openDevTools": "flutter",
+  "dart.promptToRunIfNoDevices": true,
+  "dart.debugExternalPackageLibraries": false,
+  "dart.debugSdkLibraries": false
+}

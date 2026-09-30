@@ -9,10 +9,17 @@ import '../models/pg_model.dart';
 /// ============================================================================
 
 class ApiService {
+  // In-memory registered users storage (email/username -> password)
+  static final Map<String, String> registeredUsers = {};
+
   // Singleton instance
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
   ApiService._internal() {
+    _initSampleData();
+  }
+
+  void reloadSampleData() {
     _initSampleData();
   }
 
@@ -23,6 +30,24 @@ class ApiService {
   final ValueNotifier<List<String>> savedPgIdsNotifier = ValueNotifier([]);
   final ValueNotifier<List<PGBooking>> bookingsNotifier = ValueNotifier([]);
   final ValueNotifier<List<UserReview>> userReviewsNotifier = ValueNotifier([]);
+
+  // In-memory User Profile (No backend needed)
+  final ValueNotifier<String> userNameNotifier = ValueNotifier('User');
+  final ValueNotifier<String> userEmailNotifier = ValueNotifier('user@gmail.com');
+  final ValueNotifier<String> userPasswordNotifier = ValueNotifier('123456');
+
+  /// Update user profile details
+  void updateProfile({
+    required String name,
+    required String email,
+    String? password,
+  }) {
+    userNameNotifier.value = name.trim();
+    userEmailNotifier.value = email.trim();
+    if (password != null && password.trim().isNotEmpty) {
+      userPasswordNotifier.value = password.trim();
+    }
+  }
 
   // --------------------------------------------------------------------------
   // Initial Mock PG Data
@@ -38,8 +63,7 @@ class ApiService {
         rating: 4.8,
         category: 'Boys PG',
         gender: 'Boys',
-        imageUrl:
-            'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'assets/images/GreenVally.png',
         hasWifi: true,
         hasAC: true,
         hasFood: true,
@@ -60,8 +84,7 @@ class ApiService {
         rating: 4.9,
         category: 'Girls PG',
         gender: 'Girls',
-        imageUrl:
-            'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'assets/images/Sunshine.png',
         hasWifi: true,
         hasAC: true,
         hasFood: true,
@@ -82,8 +105,7 @@ class ApiService {
         rating: 4.5,
         category: 'Hostels',
         gender: 'Both',
-        imageUrl:
-            'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'assets/images/Comfert.png',
         hasWifi: true,
         hasAC: false,
         hasFood: true,
@@ -97,20 +119,19 @@ class ApiService {
       ),
       PGAccommodation(
         id: '4',
-        name: 'Royal Palace Hostel',
-        location: 'Yagnik Road, Rajkot',
+        name: 'Royal PG',
+        location: 'Rajkot , Gujarat',
         city: 'Rajkot',
-        price: 8000,
+        price: 6500,
         rating: 4.7,
-        category: 'Hostels',
+        category: 'Boys PG',
         gender: 'Boys',
-        imageUrl:
-            'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'assets/images/royal.png',
         hasWifi: true,
         hasAC: true,
         hasFood: true,
         hasParking: true,
-        hasLaundry: true,
+        hasLaundry: false,
         hasTV: false,
         hasFridge: false,
         hasGeyser: true,
@@ -122,12 +143,11 @@ class ApiService {
         name: 'Shanti Girls PG',
         location: 'Astron Chowk, Rajkot',
         city: 'Rajkot',
-        price: 6000,
+        price: 7000,
         rating: 4.6,
         category: 'Girls PG',
         gender: 'Girls',
-        imageUrl:
-            'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'assets/images/Shanti.png',
         hasWifi: true,
         hasAC: false,
         hasFood: true,
@@ -148,8 +168,7 @@ class ApiService {
         rating: 4.5,
         category: 'Flats',
         gender: 'Both',
-        imageUrl:
-            'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'assets/images/metro.png',
         hasWifi: true,
         hasAC: true,
         hasFood: false,
@@ -176,13 +195,48 @@ class ApiService {
       ),
       PGBooking(
         id: 'b2',
-        pg: pgsNotifier.value[1],
+        pg: pgsNotifier.value[3], // Royal PG
         checkInDate: DateTime(2025, 3, 5),
         checkOutDate: DateTime(2025, 5, 5),
         status: 'Cancelled',
         roomType: 'Single Sharing',
         totalPaid: 0,
         customDateRange: '5 Mar 2025 - 5 May 2025',
+      ),
+      PGBooking(
+        id: 'b3',
+        pg: pgsNotifier.value[0],
+        checkInDate: DateTime(2024, 12, 1),
+        checkOutDate: DateTime(2025, 3, 1),
+        status: 'completed',
+        roomType: 'Double Sharing',
+        totalPaid: 19500,
+        customDateRange: '1 Dec 2024 - 1 Mar 2025',
+      ),
+    ];
+
+    userReviewsNotifier.value = [
+      UserReview(
+        id: 'rev_1',
+        pgId: '1',
+        pgName: 'Green Valley PG',
+        location: 'Kalawad Road, Rajkot',
+        roomType: 'Double Sharing',
+        rating: 5.0,
+        comment:
+            'The rooms are extremely clean and spacious. The high-speed Wi-Fi was amazing for my remote work, and hot delicious food is served on time daily!',
+        createdAt: DateTime(2025, 5, 12),
+      ),
+      UserReview(
+        id: 'rev_2',
+        pgId: '3',
+        pgName: 'Royal PG',
+        location: 'University Road, Rajkot',
+        roomType: 'Triple Sharing',
+        rating: 4.0,
+        comment:
+            'Overall a great stay. The air conditioning works perfectly, though laundry service was occasionally delayed. Prime location close to transit hubs.',
+        createdAt: DateTime(2025, 3, 28),
       ),
     ];
   }

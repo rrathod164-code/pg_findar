@@ -2,21 +2,45 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Flutter (Chrome)",
+      "name": "Flutter: Run App (Selected Device)",
       "request": "launch",
       "type": "dart",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "Flutter: Run on Android (Phone)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "android"
+    },
+    {
+      "name": "Flutter: Run on Chrome (Web)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
       "deviceId": "chrome"
     },
     {
-      "name": "Flutter (Windows)",
+      "name": "Flutter: Run on Edge (Web)",
       "request": "launch",
       "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "edge"
+    },
+    {
+      "name": "Flutter: Run on Windows (Desktop)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
       "deviceId": "windows"
     },
     {
-      "name": "Flutter (Default)",
+      "name": "Flutter: Run Release Mode",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "release"
     }
   ]
 }

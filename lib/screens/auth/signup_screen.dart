@@ -1,5 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:pg_findar/widgets/dashboard_background.dart';
+import '../../services/api_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -21,6 +23,10 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _agreeToTerms = false;
   bool _isLoading = false;
   bool _showTermsError = false;
+  String? _nameError;
+  String? _emailError;
+  String? _passwordError;
+  String? _confirmPasswordError;
 
   // Flutter in-build validator methods
   String? _validateName(String? value) {
@@ -72,11 +78,17 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _handleSignUp() {
     setState(() {
+      _nameError = _validateName(_nameController.text);
+      _emailError = _validateEmail(_emailController.text);
+      _passwordError = _validatePassword(_passwordController.text);
+      _confirmPasswordError = _validateConfirmPassword(_confirmPasswordController.text);
       _showTermsError = !_agreeToTerms;
     });
 
-    // Use Flutter's built-in Form validation
-    final isFormValid = _formKey.currentState?.validate() ?? false;
+    final isFormValid = _nameError == null &&
+        _emailError == null &&
+        _passwordError == null &&
+        _confirmPasswordError == null;
 
     if (isFormValid && !_showTermsError) {
       setState(() {
@@ -89,6 +101,15 @@ class _SignUpPageState extends State<SignUpPage> {
         setState(() {
           _isLoading = false;
         });
+
+        // Save credentials in-memory so the user can immediately log in
+        final regEmail = _emailController.text.trim().toLowerCase();
+        final regName = _nameController.text.trim().toLowerCase();
+        final regPassword = _passwordController.text;
+        ApiService.registeredUsers[regEmail] = regPassword;
+        if (regName.isNotEmpty) {
+          ApiService.registeredUsers[regName] = regPassword;
+        }
 
         // Show successful signup snackbar
         ScaffoldMessenger.of(context).showSnackBar(
@@ -115,25 +136,6 @@ class _SignUpPageState extends State<SignUpPage> {
         // Pop back to login screen
         Navigator.pop(context);
       });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: const [
-              Icon(Icons.warning_amber_rounded, color: Colors.white),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text('Please correct the highlighted fields above.'),
-              ),
-            ],
-          ),
-          backgroundColor: const Color.fromARGB(255, 242, 180, 180),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
     }
   }
 
@@ -143,90 +145,9 @@ class _SignUpPageState extends State<SignUpPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background Gradient matching login page
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFF1FBFA), Color(0xFFB9F2E9)],
-              ),
-            ),
-          ),
-
-          // Translucent Decorative Circles (mockup-style blobs)
-          // 1. Top right large circle
-          Positioned(
-            top: -screenHeight * 0.1,
-            right: -screenWidth * 0.2,
-            child: Container(
-              width: screenWidth * 0.7,
-              height: screenWidth * 0.7,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          // 2. Middle right circle next to subtitle
-          Positioned(
-            top: screenHeight * 0.16,
-            right: screenWidth * 0.1,
-            child: Container(
-              width: 76,
-              height: 76,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          // 3. Middle left circle next to Full Name
-          Positioned(
-            top: screenHeight * 0.35,
-            left: -screenWidth * 0.1,
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          // 4. Right side circle next to Password / Confirm Password
-          Positioned(
-            top: screenHeight * 0.35,
-            right: -screenWidth * 0.15,
-            child: Container(
-              width: 110,
-              height: 110,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          // 5. Bottom right circle
-          Positioned(
-            bottom: -30,
-            right: -20,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.08),
-              ),
-            ),
-          ),
-
-          // Scrollable sign up form
-          SafeArea(
+      backgroundColor: const Color(0xFFFBFDFD),
+      body: DashboardBackground(
+        child: SafeArea(
             child: Center(
               child: SingleChildScrollView(
                 child: Padding(
@@ -271,7 +192,6 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
@@ -285,28 +205,69 @@ class _SignUpPageState extends State<SignUpPage> {
                             controller: _nameController,
                             keyboardType: TextInputType.name,
                             textCapitalization: TextCapitalization.words,
-                            validator: _validateName,
-                            decoration: const InputDecoration(
+                            onChanged: (_) {
+                              if (_nameError != null) {
+                                setState(() => _nameError = null);
+                              }
+                            },
+                            validator: (_) => _nameError,
+                            decoration: InputDecoration(
+                              errorText: _nameError,
+                              filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Enter your full name',
-                              hintStyle: TextStyle(
+                              hintStyle: const TextStyle(
                                 color: Color(0xFFB0BAC5),
                                 fontSize: 14,
                               ),
-                              prefixIcon: Icon(
+                              prefixIcon: const Icon(
                                 Icons.person_outline_rounded,
                                 color: Color(0xFF091A2A),
                                 size: 20,
                               ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 12,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF13B99D),
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorStyle: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
                                 horizontal: 16,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 14),
 
                         // Email Field
                         const Text(
@@ -320,7 +281,6 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
@@ -333,28 +293,69 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            validator: _validateEmail,
-                            decoration: const InputDecoration(
+                            onChanged: (_) {
+                              if (_emailError != null) {
+                                setState(() => _emailError = null);
+                              }
+                            },
+                            validator: (_) => _emailError,
+                            decoration: InputDecoration(
+                              errorText: _emailError,
+                              filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Enter your email',
-                              hintStyle: TextStyle(
+                              hintStyle: const TextStyle(
                                 color: Color(0xFFB0BAC5),
                                 fontSize: 14,
                               ),
-                              prefixIcon: Icon(
+                              prefixIcon: const Icon(
                                 Icons.mail_outline_rounded,
                                 color: Color(0xFF091A2A),
                                 size: 20,
                               ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 12,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF13B99D),
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorStyle: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
                                 horizontal: 16,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 14),
 
                         // Password Field
                         const Text(
@@ -368,7 +369,6 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
@@ -381,8 +381,23 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            validator: _validatePassword,
+                            onChanged: (_) {
+                              if (_passwordError != null) {
+                                setState(() => _passwordError = null);
+                              }
+                              if (_confirmPasswordError != null &&
+                                  _confirmPasswordController.text.isNotEmpty) {
+                                if (_passwordController.text ==
+                                    _confirmPasswordController.text) {
+                                  setState(() => _confirmPasswordError = null);
+                                }
+                              }
+                            },
+                            validator: (_) => _passwordError,
                             decoration: InputDecoration(
+                              errorText: _passwordError,
+                              filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Create a password',
                               hintStyle: const TextStyle(
                                 color: Color(0xFFB0BAC5),
@@ -407,16 +422,49 @@ class _SignUpPageState extends State<SignUpPage> {
                                   });
                                 },
                               ),
-                              border: InputBorder.none,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF13B99D),
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorStyle: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
                               contentPadding: const EdgeInsets.symmetric(
-                                vertical: 12,
+                                vertical: 16,
                                 horizontal: 16,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
 
                         // Minimum 8 characters info line
                         Row(
@@ -442,7 +490,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ],
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 14),
 
                         // Confirm Password Field
                         const Text(
@@ -456,7 +504,6 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
@@ -469,8 +516,16 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: TextFormField(
                             controller: _confirmPasswordController,
                             obscureText: _obscureConfirmPassword,
-                            validator: _validateConfirmPassword,
+                            onChanged: (_) {
+                              if (_confirmPasswordError != null) {
+                                setState(() => _confirmPasswordError = null);
+                              }
+                            },
+                            validator: (_) => _confirmPasswordError,
                             decoration: InputDecoration(
+                              errorText: _confirmPasswordError,
+                              filled: true,
+                              fillColor: Colors.white,
                               hintText: 'Confirm your password',
                               hintStyle: const TextStyle(
                                 color: Color(0xFFB0BAC5),
@@ -496,16 +551,49 @@ class _SignUpPageState extends State<SignUpPage> {
                                   });
                                 },
                               ),
-                              border: InputBorder.none,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF13B99D),
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.redAccent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorStyle: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
                               contentPadding: const EdgeInsets.symmetric(
-                                vertical: 12,
+                                vertical: 16,
                                 horizontal: 16,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
 
                         // Terms and Conditions checkbox row
                         Row(
@@ -519,7 +607,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 checkColor: Colors.white,
                                 side: BorderSide(
                                   color: _showTermsError
-                                      ? const Color(0xFFD32F2F)
+                                      ? Colors.redAccent
                                       : const Color(0xFF13B99D),
                                   width: 1.5,
                                 ),
@@ -573,8 +661,20 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                           ],
                         ),
+                        if (_showTermsError)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 6, left: 4),
+                            child: Text(
+                              'Please agree to the Terms & Conditions',
+                              style: TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
 
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
 
                         // Sign Up button
                         SizedBox(
@@ -651,8 +751,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
-        ],
-      ),
+        ),
     );
   }
 }
