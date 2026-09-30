@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/pg_model.dart';
 
 /// ============================================================================
-/// COMPLETE BACKEND & MOCK API SERVICE
+/// SAMPLE UI PRESENTATION DATA & STATE
 /// ============================================================================
-/// Centralized service handling all mock API calls, auth simulations,
-/// and reactive state notifiers for the PG Finder application.
+/// Provides sample mock data for UI presentation and interactive demo.
+/// 100% Pure Flutter Frontend UI — No backend or local storage required.
 /// ============================================================================
 
 class ApiService {
-  // In-memory registered users storage (email/username -> password)
-  static final Map<String, String> registeredUsers = {};
-
   // Singleton instance
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
@@ -242,29 +239,7 @@ class ApiService {
   }
 
   // --------------------------------------------------------------------------
-  // Authentication Backend Methods (Mock API)
-  // --------------------------------------------------------------------------
-
-  /// Simulate User Login
-  Future<bool> login(String email, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return email.isNotEmpty && password.isNotEmpty;
-  }
-
-  /// Simulate User Sign Up
-  Future<bool> signUp(String name, String email, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return name.isNotEmpty && email.isNotEmpty && password.isNotEmpty;
-  }
-
-  /// Simulate Password Reset Request
-  Future<bool> forgotPassword(String email) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return email.isNotEmpty;
-  }
-
-  // --------------------------------------------------------------------------
-  // Accommodation & Booking Backend Methods (Mock API)
+  // Interactive UI Methods (Pure In-Memory Presentation)
   // --------------------------------------------------------------------------
 
   /// Toggle PG in Favorites list

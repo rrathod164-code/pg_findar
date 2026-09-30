@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
-import '../widgets/dashboard_background.dart';
+import '../../models/pg_model.dart';
+import '../../resources/theme.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/dashboard_background.dart';
 import 'payment_success_screen.dart';
 
 /// ============================================================================
@@ -42,7 +43,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ? widget.pg!.imageUrl
         : 'assets/images/GreenVally.png';
 
-    const Color primaryGreen = Color(0xFF10B981);
+    const Color primaryGreen = AppColors.primary;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -108,7 +109,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: const Color(0xFFD1FAE5), // Soft green border
+                      color: AppColors.primaryLight,
                       width: 1.2,
                     ),
                   ),
@@ -327,7 +328,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8FAF3),
+                          color: AppColors.primaryLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(

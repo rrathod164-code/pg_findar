@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import '../../models/pg_model.dart';
 import '../../services/api_service.dart';
 import '../../widgets/bottom_nav_bar.dart';
@@ -78,7 +79,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                 child: Icon(
                   isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
                   color: isFilled
-                      ? const Color(0xFF10B981)
+                      ? AppColors.primary
                       : const Color(0xFFCBD5E1),
                   size: 22,
                 ),
@@ -207,7 +208,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                               child: const Icon(
                                 Icons.rate_review_outlined,
                                 size: 48,
-                                color: Color(0xFF10B981),
+                                color: AppColors.primary,
                               ),
                             ),
                             const SizedBox(height: 16),

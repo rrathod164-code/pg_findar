@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import '../../services/api_service.dart';
+import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
 import 'booking_screen.dart';
 import 'edit_profile_screen.dart';
@@ -18,14 +20,15 @@ import '../../widgets/logout_dialog.dart';
 /// ============================================================================
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onBack;
+  const ProfileScreen({super.key, this.onBack});
 
   @override
   Widget build(BuildContext context) {
     final double topPadding = MediaQuery.of(context).padding.top;
 
     // Curved mint header background color matching your design
-    const Color headerMint = Color(0xFF90ECCB);
+    final Color headerMint = AppColors.primaryTint;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -38,9 +41,9 @@ class ProfileScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(20, topPadding + 14, 20, 26),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: headerMint,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(36),
                   bottomRight: Radius.circular(36),
                 ),
@@ -48,11 +51,22 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Back Arrow Button (Pops screen if opened via Navigator.push)
+                  // Back Arrow Button (Returns to Home tab or pops screen)
                   GestureDetector(
                     onTap: () {
-                      if (Navigator.canPop(context)) {
+                      if (onBack != null) {
+                        onBack!();
+                      } else if (Navigator.canPop(context)) {
                         Navigator.pop(context);
+                      } else {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const BottomNavScreen(initialIndex: 0),
+                          ),
+                          (route) => false,
+                        );
                       }
                     },
                     child: const Icon(
@@ -91,7 +105,7 @@ class ProfileScreen extends StatelessWidget {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
-                                color: const Color(0xFF13B99D),
+                                color: AppColors.primary,
                                 child: const Icon(
                                   Icons.person,
                                   color: Colors.white,
@@ -342,7 +356,7 @@ class ProfileScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(
                   Icons.email_outlined,
-                  color: Color(0xFF10B981),
+                  color: AppColors.primary,
                 ),
                 title: const Text('support@pgfinder.com'),
                 onTap: () => Navigator.pop(context),
@@ -350,7 +364,7 @@ class ProfileScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(
                   Icons.phone_outlined,
-                  color: Color(0xFF10B981),
+                  color: AppColors.primary,
                 ),
                 title: const Text('+91 98765 43210'),
                 onTap: () => Navigator.pop(context),

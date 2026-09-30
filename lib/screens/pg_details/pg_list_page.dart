@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/widgets/app_image.dart';
-import 'package:pg_findar/widgets/dashboard_background.dart';
-import '../models/pg_model.dart';
-import '../services/data_service.dart';
+import '../../models/pg_model.dart';
+import '../../resources/theme.dart';
+import '../../services/data_service.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/dashboard_background.dart';
+import '../../widgets/filter_bottom_sheet.dart';
 import 'pg_detail_screen.dart';
-import 'widgets/filter_bottom_sheet.dart';
-import '../widgets/bottom_nav_bar.dart';
 
 enum PGListType { popular, nearby, category, all }
 
@@ -173,7 +174,7 @@ class _PGListPageState extends State<PGListPage> {
                             const Icon(
                               Icons.location_on,
                               size: 14,
-                              color: Color(0xFF13B99D),
+                              color: AppColors.primary,
                             ),
                             const SizedBox(width: 2),
                             Text(
@@ -195,7 +196,7 @@ class _PGListPageState extends State<PGListPage> {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFEBFDFB),
+                                color: AppColors.primaryLight,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -203,7 +204,7 @@ class _PGListPageState extends State<PGListPage> {
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF13B99D),
+                                  color: AppColors.primary,
                                 ),
                               ),
                             ),
@@ -281,7 +282,7 @@ class _PGListPageState extends State<PGListPage> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF13B99D),
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -299,7 +300,7 @@ class _PGListPageState extends State<PGListPage> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF13B99D),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -333,15 +334,15 @@ class _PGListPageState extends State<PGListPage> {
       decoration: BoxDecoration(
         color: isAvailable
             ? (isUserRequested
-                  ? const Color(0xFF13B99D)
-                  : const Color(0xFFF1FBFA))
+                  ? AppColors.primary
+                  : AppColors.primaryLight)
             : Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isAvailable
               ? (isUserRequested
-                    ? const Color(0xFF13B99D)
-                    : const Color(0xFF13B99D).withValues(alpha: 0.3))
+                    ? AppColors.primary
+                    : AppColors.primary.withValues(alpha: 0.3))
               : Colors.transparent,
         ),
       ),
@@ -352,7 +353,7 @@ class _PGListPageState extends State<PGListPage> {
             icon,
             size: 14,
             color: isAvailable
-                ? (isUserRequested ? Colors.white : const Color(0xFF13B99D))
+                ? (isUserRequested ? Colors.white : AppColors.primary)
                 : Colors.grey,
           ),
           const SizedBox(width: 4),
@@ -371,7 +372,7 @@ class _PGListPageState extends State<PGListPage> {
             Icon(
               Icons.check,
               size: 12,
-              color: isUserRequested ? Colors.white : const Color(0xFF13B99D),
+              color: isUserRequested ? Colors.white : AppColors.primary,
             ),
           ],
         ],
@@ -434,7 +435,7 @@ class _PGListPageState extends State<PGListPage> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF13B99D),
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -498,7 +499,7 @@ class _PGListPageState extends State<PGListPage> {
                           return Theme(
                             data: Theme.of(context).copyWith(
                               colorScheme: const ColorScheme.light(
-                                primary: Color(0xFF13B99D),
+                                primary: AppColors.primary,
                                 onPrimary: Colors.white,
                                 onSurface: Color(0xFF091A2A),
                               ),
@@ -535,7 +536,7 @@ class _PGListPageState extends State<PGListPage> {
                           ),
                           const Icon(
                             Icons.calendar_today_rounded,
-                            color: Color(0xFF13B99D),
+                            color: AppColors.primary,
                             size: 20,
                           ),
                         ],
@@ -566,7 +567,7 @@ class _PGListPageState extends State<PGListPage> {
                                 ),
                               ],
                             ),
-                            backgroundColor: const Color(0xFF13B99D),
+                            backgroundColor: AppColors.primary,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -575,7 +576,7 @@ class _PGListPageState extends State<PGListPage> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF13B99D),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -612,9 +613,9 @@ class _PGListPageState extends State<PGListPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFF1FBFA) : Colors.white,
+            color: isSelected ? AppColors.primaryLight : Colors.white,
             border: Border.all(
-              color: isSelected ? const Color(0xFF13B99D) : Colors.grey[300]!,
+              color: isSelected ? AppColors.primary : Colors.grey[300]!,
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(12),
@@ -627,7 +628,7 @@ class _PGListPageState extends State<PGListPage> {
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: isSelected
-                      ? const Color(0xFF13B99D)
+                      ? AppColors.primary
                       : const Color(0xFF091A2A),
                 ),
               ),
@@ -638,7 +639,7 @@ class _PGListPageState extends State<PGListPage> {
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: isSelected
-                      ? const Color(0xFF13B99D)
+                      ? AppColors.primary
                       : const Color(0xFF758595),
                 ),
               ),
@@ -654,10 +655,10 @@ class _PGListPageState extends State<PGListPage> {
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFFEBFDFB),
+        color: AppColors.primaryLight,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: const Color(0xFF13B99D).withValues(alpha: 0.3),
+          color: AppColors.primary.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -668,7 +669,7 @@ class _PGListPageState extends State<PGListPage> {
             style: const TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF13B99D),
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(width: 4),
@@ -677,7 +678,7 @@ class _PGListPageState extends State<PGListPage> {
             child: const Icon(
               Icons.close_rounded,
               size: 14,
-              color: Color(0xFF13B99D),
+              color: AppColors.primary,
             ),
           ),
         ],
@@ -705,7 +706,7 @@ class _PGListPageState extends State<PGListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
+      backgroundColor: AppColors.background,
       body: DashboardBackground(
         child: SafeArea(
           child: Column(
@@ -803,7 +804,7 @@ class _PGListPageState extends State<PGListPage> {
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
                                   color: _filterCriteria.hasActiveFilters
-                                      ? const Color(0xFF13B99D)
+                                      ? AppColors.primary
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -1003,13 +1004,13 @@ class _PGListPageState extends State<PGListPage> {
                               Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFFF1FBFA),
+                                  color: AppColors.primaryLight,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.home_work_outlined,
                                   size: 50,
-                                  color: Color(0xFF13B99D),
+                                  color: AppColors.primary,
                                 ),
                               ),
                               const SizedBox(height: 14),
@@ -1039,7 +1040,7 @@ class _PGListPageState extends State<PGListPage> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF13B99D),
+                                  backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -1071,7 +1072,7 @@ class _PGListPageState extends State<PGListPage> {
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF13B99D),
+                                      color: AppColors.primary,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -1161,13 +1162,13 @@ class _PGListPageState extends State<PGListPage> {
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: const BoxDecoration(
-                                color: Color(0xFFF1FBFA),
+                                color: AppColors.primaryLight,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.home_work_outlined,
                                 size: 50,
-                                color: Color(0xFF13B99D),
+                                color: AppColors.primary,
                               ),
                             ),
                             const SizedBox(height: 14),
@@ -1358,7 +1359,7 @@ class _PGListPageState extends State<PGListPage> {
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF13B99D),
+                                color: AppColors.primary,
                               ),
                             ),
                             const Text(
@@ -1403,14 +1404,14 @@ class _PGListPageState extends State<PGListPage> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEBFDFB),
+                                    color: AppColors.primaryLight,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: const Text(
                                     'Wifi',
                                     style: TextStyle(
                                       fontSize: 8.5,
-                                      color: Color(0xFF13B99D),
+                                      color: AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -1472,7 +1473,7 @@ class _PGListPageState extends State<PGListPage> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF13B99D),
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               elevation: 0,
                               padding: EdgeInsets.zero,

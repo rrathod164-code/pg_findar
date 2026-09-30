@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../resources/theme.dart';
 import '../screens/auth/login_screen.dart';
 
 /// ============================================================================
@@ -73,7 +74,7 @@ class LogoutDialog extends StatelessWidget {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFFFF4D4F), // Red / Coral color matching design
+                color: AppColors.error, // Red / Coral color matching design
               ),
             ),
 
@@ -87,7 +88,7 @@ class LogoutDialog extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF6B7280), // Muted grey text
+                color: AppColors.textGrey, // Muted grey text
                 height: 1.4, // Line spacing
                 fontWeight: FontWeight.normal,
               ),
@@ -154,7 +155,7 @@ class LogoutDialog extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF4D4F), // Red button
+                        backgroundColor: AppColors.error, // Red button
                         foregroundColor: Colors.white, // White text
                         elevation: 0,
                         shape: RoundedRectangleBorder(

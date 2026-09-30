@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
-import '../widgets/dashboard_background.dart';
-import '../widgets/write_review_dialog.dart';
-import 'book_visit_screen.dart';
+import '../../models/pg_model.dart';
+import '../../resources/theme.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/dashboard_background.dart';
+import '../../widgets/write_review_dialog.dart';
+import '../booking/book_visit_screen.dart';
 
 /// ============================================================================
 /// PG DETAIL SCREEN (BEGINNER-FRIENDLY, NON-SCROLLING, PROPORTIONAL UI)
@@ -31,7 +32,7 @@ class PgDetailScreen extends StatelessWidget {
         ? pg!.imageUrl
         : 'assets/images/GreenVally.png';
 
-    const Color primaryGreenColor = Color(0xFF10B981);
+    final Color primaryGreenColor = AppColors.primary;
     final double screenHeight = MediaQuery.of(context).size.height;
 
     // Balanced image height: around 28% of screen (cuts only a tiny amount, not big size)
@@ -172,7 +173,7 @@ class PgDetailScreen extends StatelessWidget {
                                 children: [
                                   const Icon(
                                     Icons.star_rounded,
-                                    color: Color(0xFFFFC107),
+                                    color: AppColors.starAmber,
                                     size: 21,
                                   ),
                                   const SizedBox(width: 2),
@@ -181,7 +182,7 @@ class PgDetailScreen extends StatelessWidget {
                                     style: const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2EBA80),
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ],
@@ -234,7 +235,7 @@ class PgDetailScreen extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8FAF3),
+                            color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(
@@ -243,7 +244,7 @@ class PgDetailScreen extends StatelessWidget {
                               Icon(
                                 Icons.check,
                                 size: 16,
-                                color: Color(0xFF10B981),
+                                color: AppColors.primary,
                               ),
                               SizedBox(width: 4),
                               Text(

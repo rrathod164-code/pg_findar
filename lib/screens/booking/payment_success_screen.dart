@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
-import '../widgets/bottom_nav_bar.dart';
-import '../widgets/dashboard_background.dart';
+import '../../models/pg_model.dart';
+import '../../resources/theme.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/dashboard_background.dart';
 
 /// ============================================================================
 /// PAYMENT SUCCESS SCREEN (BEGINNER-FRIENDLY UI)
@@ -38,7 +39,7 @@ class PaymentSuccessScreen extends StatelessWidget {
         ? pg!.imageUrl
         : 'assets/images/GreenVally.png';
 
-    const Color primaryGreen = Color(0xFF10B981);
+    const Color primaryGreen = AppColors.primary;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -58,7 +59,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     width: 95,
                     height: 95,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF9DE6D0), // Soft green outer circle
+                      color: AppColors.primary.withValues(alpha: 0.25), // Soft green outer circle
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -197,7 +198,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD3F7EC), // Mint tinted background
+                    color: AppColors.primaryLight, // Mint tinted background
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Row(
@@ -232,7 +233,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                       Container(
                         width: 1.2,
                         height: 38,
-                        color: const Color(0xFF9DE0CC),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         margin: const EdgeInsets.symmetric(horizontal: 10),
                       ),
 
@@ -450,13 +451,13 @@ class PaymentSuccessScreen extends StatelessWidget {
             Container(
               width: 38,
               height: 38,
-              decoration: const BoxDecoration(
-                color: Color(0xFF90E4CC), // Soft mint circle
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight, // Soft mint circle
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFF047857), // Dark emerald icon
+                color: AppColors.primaryDark, // Dark emerald icon
                 size: 20,
               ),
             ),
@@ -464,7 +465,7 @@ class PaymentSuccessScreen extends StatelessWidget {
               Container(
                 width: 1.5,
                 height: 22,
-                color: const Color(0xFF65CBAF), // Connecting line
+                color: AppColors.primary.withValues(alpha: 0.4), // Connecting line
               ),
           ],
         ),
@@ -504,7 +505,7 @@ class PaymentSuccessScreen extends StatelessWidget {
         if (showCheckmark)
           const Padding(
             padding: EdgeInsets.only(top: 6),
-            child: Icon(Icons.check_circle, color: Color(0xFF10B981), size: 20),
+            child: Icon(Icons.check_circle, color: AppColors.primary, size: 20),
           ),
       ],
     );

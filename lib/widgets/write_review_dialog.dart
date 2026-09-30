@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/pg_model.dart';
+import '../resources/theme.dart';
 import '../services/api_service.dart';
 
 /// ============================================================================
@@ -75,12 +76,10 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
   late String _selectedLocation;
   final ApiService _apiService = ApiService();
 
-  // Orange color matching the screenshot stars
-  static const Color starOrange = Color(0xFFD97706);
-  // Dark teal header & cancel text color
-  static const Color tealDark = Color(0xFF0F3E36);
-  // Submit button green color
-  static const Color submitGreen = Color(0xFF00B074);
+  // Rating stars, header and submit button colors centralized from AppColors
+  static const Color starOrange = AppColors.starAmber;
+  static const Color tealDark = AppColors.primaryDark;
+  static const Color submitGreen = AppColors.primary;
 
   @override
   void initState() {

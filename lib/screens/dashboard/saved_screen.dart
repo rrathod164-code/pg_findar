@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/app_image.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
 import '../../models/pg_model.dart';
-import '../pg_detail_screen.dart';
+import '../pg_details/pg_detail_screen.dart';
 
 /// ============================================================================
 /// SAVED SCREEN (STATIC SAVED PGS)
@@ -187,7 +188,7 @@ class SavedScreen extends StatelessWidget {
                         '₹${pg.price.toInt()}/month',
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF13B99D),
+                          color: AppColors.primary,
                         ),
                       ),
                     ],

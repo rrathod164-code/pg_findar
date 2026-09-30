@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import '../../models/pg_model.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
-import '../book_visit_screen.dart';
-import '../pg_detail_screen.dart';
+import '../booking/book_visit_screen.dart';
+import '../pg_details/pg_detail_screen.dart';
 import '../../widgets/write_review_dialog.dart';
 
 /// ============================================================================
@@ -180,11 +181,11 @@ class BookingScreen extends StatelessWidget {
 
     // Status pill colors
     final Color badgeBg = isCancelled
-        ? const Color(0xFFFEE2E2)
-        : const Color(0xFFD1FAE5);
+        ? AppColors.errorLight
+        : AppColors.successLight;
     final Color badgeText = isCancelled
-        ? const Color(0xFFEF4444)
-        : const Color(0xFF10B981);
+        ? AppColors.error
+        : AppColors.success;
     final String badgeLabel = isCancelled
         ? 'Cancelled'
         : (isCompleted ? 'completed' : booking.status);
@@ -339,7 +340,7 @@ class BookingScreen extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF10B981),
+                                color: AppColors.primary,
                               ),
                             ),
                           ],
@@ -378,8 +379,8 @@ class BookingScreen extends StatelessWidget {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF10B981),
-                  side: const BorderSide(color: Color(0xFF10B981), width: 1.2),
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary, width: 1.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -408,9 +409,9 @@ class BookingScreen extends StatelessWidget {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF10B981),
+                        foregroundColor: AppColors.primary,
                         side: const BorderSide(
-                          color: Color(0xFF10B981),
+                          color: AppColors.primary,
                           width: 1.2,
                         ),
                         shape: RoundedRectangleBorder(
@@ -444,7 +445,7 @@ class BookingScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF10B981),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(

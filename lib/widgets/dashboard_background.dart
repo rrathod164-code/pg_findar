@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 
 /// Reusable background theme widget matching the User Dashboard design.
-/// Features the signature soft canvas (Color(0xFFFBFDFD)) with translucent
-/// mint/teal accent circles (Color(0xFFE2F7F4)) for a clean, cohesive look.
+/// Features the signature soft canvas with translucent brand accent circles
+/// for a clean, cohesive look derived dynamically from [AppColors].
 class DashboardBackground extends StatelessWidget {
   final Widget child;
 
@@ -11,6 +12,7 @@ class DashboardBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final primaryColor = AppColors.primary;
 
     return Stack(
       children: [
@@ -18,7 +20,7 @@ class DashboardBackground extends StatelessWidget {
         Container(
           width: double.infinity,
           height: double.infinity,
-          color: const Color.fromARGB(255, 215, 241, 241),
+          color: const Color.fromARGB(255, 185, 245, 237),
         ),
 
         // 1. Top Right Accent Circle
@@ -31,12 +33,7 @@ class DashboardBackground extends StatelessWidget {
               height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color.fromARGB(
-                  255,
-                  155,
-                  235,
-                  223,
-                ).withValues(alpha: 0.7),
+                color: primaryColor.withValues(alpha: 0.16),
               ),
             ),
           ),
@@ -52,12 +49,7 @@ class DashboardBackground extends StatelessWidget {
               height: 140,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color.fromARGB(
-                  255,
-                  155,
-                  235,
-                  223,
-                ).withValues(alpha: 0.5),
+                color: primaryColor.withValues(alpha: 0.10),
               ),
             ),
           ),
@@ -73,12 +65,7 @@ class DashboardBackground extends StatelessWidget {
               height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color.fromARGB(
-                  255,
-                  155,
-                  235,
-                  223,
-                ).withValues(alpha: 0.4),
+                color: primaryColor.withValues(alpha: 0.08),
               ),
             ),
           ),

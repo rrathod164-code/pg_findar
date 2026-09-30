@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
-import '../widgets/dashboard_background.dart';
+import '../../models/pg_model.dart';
+import '../../resources/theme.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/dashboard_background.dart';
 import 'payment_screen.dart';
 
 /// ============================================================================
@@ -91,7 +92,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF10B981), // Emerald green
+              primary: AppColors.primary,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -135,7 +136,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     // Total price calculation
     final int totalPrice = _calculateTotalPrice(monthlyPrice);
 
-    const Color primaryGreen = Color(0xFF10B981);
+    const Color primaryGreen = AppColors.primary;
 
     return Scaffold(
       backgroundColor: Colors.transparent,

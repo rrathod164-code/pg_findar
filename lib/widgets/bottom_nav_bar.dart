@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import '../screens/dashboard/home_screen.dart';
 import '../screens/dashboard/saved_screen.dart';
 import '../screens/dashboard/booking_screen.dart';
@@ -21,32 +22,44 @@ class BottomNavScreen extends StatefulWidget {
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
   late int _currentIndex;
-
   late final List<Widget> _screens;
+
+  void _switchToTab(int index) {
+    if (mounted) {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
-    _screens = const [
-      HomeScreen(),
-      SavedScreen(),
-      BookingScreen(),
-      ProfileScreen(),
+    _screens = [
+      const HomeScreen(),
+      const SavedScreen(),
+      const BookingScreen(),
+      ProfileScreen(onBack: () => _switchToTab(0)),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_currentIndex != 0) {
+          _switchToTab(0);
+        }
+      },
+      child: Scaffold(
+        body: IndexedStack(index: _currentIndex, children: _screens),
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: _currentIndex,
+          onTap: _switchToTab,
+        ),
       ),
     );
   }
@@ -83,8 +96,8 @@ class CustomBottomNavBar extends StatelessWidget {
         onTap: onTap,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF13B99D),
-        unselectedItemColor: const Color(0xFF758595),
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textGrey,
         selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 12,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import '../../services/api_service.dart';
 import '../../widgets/dashboard_background.dart';
 
@@ -21,8 +22,8 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  // Primary brand green matching your app's theme
-  static const Color primaryGreen = Color(0xFF00B074);
+  // Primary brand color linked to central theme
+  static const Color primaryGreen = AppColors.primary;
 
   // Controllers for the input text fields
   late final TextEditingController _nameController;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'resorce/theme.dart';
+import 'resources/theme.dart';
 import 'screens/auth/intro_screen.dart';
 
 /// ============================================================================

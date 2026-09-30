@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
 import '../../models/pg_model.dart';
 import '../../services/api_service.dart';
 import '../../widgets/app_image.dart';
-import '../pg_detail_screen.dart';
-import '../pg_list_page.dart';
+import '../pg_details/pg_detail_screen.dart';
+import '../pg_details/pg_list_page.dart';
 
 /// ============================================================================
 /// HOME SCREEN (EXPLORE & BOOK PGS)
@@ -105,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF13B99D),
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -169,9 +170,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Theme(
                             data: Theme.of(context).copyWith(
                               colorScheme: const ColorScheme.light(
-                                primary: Color(0xFF13B99D),
+                                primary: AppColors.primary,
                                 onPrimary: Colors.white,
-                                onSurface: Color(0xFF091A2A),
+                                onSurface: AppColors.textDark,
                               ),
                             ),
                             child: child!,
@@ -206,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const Icon(
                             Icons.calendar_today_rounded,
-                            color: Color(0xFF13B99D),
+                            color: AppColors.primary,
                             size: 20,
                           ),
                         ],
@@ -237,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            backgroundColor: const Color(0xFF13B99D),
+                            backgroundColor: AppColors.primary,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -246,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF13B99D),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -283,9 +284,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFF1FBFA) : Colors.white,
+            color: isSelected ? AppColors.primaryLight : Colors.white,
             border: Border.all(
-              color: isSelected ? const Color(0xFF13B99D) : Colors.grey[300]!,
+              color: isSelected ? AppColors.primary : Colors.grey[300]!,
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(12),
@@ -298,8 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: isSelected
-                      ? const Color(0xFF13B99D)
-                      : const Color(0xFF091A2A),
+                      ? AppColors.primary
+                      : AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 4),
@@ -309,8 +310,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: isSelected
-                      ? const Color(0xFF13B99D)
-                      : const Color(0xFF758595),
+                      ? AppColors.primary
+                      : AppColors.textGrey,
                 ),
               ),
             ],
@@ -327,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const double horizontalPadding = 16.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
+      backgroundColor: AppColors.background,
       body: DashboardBackground(
         child: SafeArea(
           child: SingleChildScrollView(
@@ -406,13 +407,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ListTile(
                                       leading: const Icon(
                                         Icons.location_on,
-                                        color: Color(0xFF13B99D),
+                                        color: AppColors.primary,
                                       ),
                                       title: const Text('Rajkot, Gujarat'),
                                       trailing: _selectedCity == 'Rajkot'
                                           ? const Icon(
                                               Icons.check,
-                                              color: Color(0xFF13B99D),
+                                              color: AppColors.primary,
                                             )
                                           : null,
                                       onTap: () {
@@ -425,13 +426,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ListTile(
                                       leading: const Icon(
                                         Icons.location_on,
-                                        color: Color(0xFF13B99D),
+                                        color: AppColors.primary,
                                       ),
                                       title: const Text('Ahmedabad, Gujarat'),
                                       trailing: _selectedCity == 'Ahmedabad'
                                           ? const Icon(
                                               Icons.check,
-                                              color: Color(0xFF13B99D),
+                                              color: AppColors.primary,
                                             )
                                           : null,
                                       onTap: () {
@@ -529,7 +530,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: EdgeInsets.only(right: 6),
                           child: Icon(
                             Icons.tune_rounded,
-                            color: Color(0xFF13B99D),
+                            color: AppColors.primary,
                             size: 20,
                           ),
                         ),
@@ -578,7 +579,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: const Text(
                           'See All',
                           style: TextStyle(
-                            color: Color(0xFF13B99D),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -600,7 +601,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _buildCategoryItem(
                           title: 'Boys PG',
                           icon: Icons.person_rounded,
-                          color: const Color(0xFFEBFDFB),
+                          color: AppColors.primaryLight,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -665,7 +666,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: const Text(
                           'See All',
                           style: TextStyle(
-                            color: Color(0xFF13B99D),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -770,7 +771,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: const Text(
                           'See All',
                           style: TextStyle(
-                            color: Color(0xFF13B99D),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -1025,7 +1026,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF13B99D),
+                        color: AppColors.primary,
                       ),
                     ),
                     const Text(
@@ -1071,14 +1072,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6F8F5),
+                        color: AppColors.primaryLight,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         pg.gender,
                         style: const TextStyle(
                           fontSize: 9,
-                          color: Color(0xFF13B99D),
+                          color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1130,7 +1131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF13B99D),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: EdgeInsets.zero,
