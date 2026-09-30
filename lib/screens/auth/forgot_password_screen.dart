@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/widgets/dashboard_background.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -72,77 +73,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background Gradient matching login and signup screens
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFF1FBFA), Color(0xFFB9F2E9)],
-              ),
-            ),
-          ),
-
-          // Translucent Decorative Circles (matching Login & SignUp)
-          // 1. Top right large circle
-          Positioned(
-            top: -screenHeight * 0.1,
-            right: -screenWidth * 0.2,
-            child: Container(
-              width: screenWidth * 0.7,
-              height: screenWidth * 0.7,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          // 2. Middle right circle next to subtitle
-          Positioned(
-            top: screenHeight * 0.18,
-            right: screenWidth * 0.1,
-            child: Container(
-              width: 76,
-              height: 76,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          // 3. Middle left circle next to description
-          Positioned(
-            top: screenHeight * 0.35,
-            left: -screenWidth * 0.1,
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          // 4. Bottom right circle
-          Positioned(
-            bottom: -30,
-            right: -20,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF13B99D).withValues(alpha: 0.08),
-              ),
-            ),
-          ),
-
-          // Main Screen Content
-          SafeArea(
+      backgroundColor: const Color(0xFFFBFDFD),
+      body: DashboardBackground(
+        child: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
@@ -395,8 +328,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
             ),
           ),
-        ],
-      ),
+        ),
     );
   }
 }

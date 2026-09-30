@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import '../../models/pg_model.dart';
 import '../../services/api_service.dart';
-import '../auth/login_screen.dart';
+import '../../widgets/dashboard_background.dart';
+import 'booking_screen.dart';
+import 'edit_profile_screen.dart';
+import 'my_reviews_screen.dart';
+import 'saved_screen.dart';
+import '../../widgets/logout_dialog.dart';
 
 /// ============================================================================
-/// PROFILE SCREEN (USER PROFILE, STATS & LOGOUT)
+/// MORE / PROFILE SCREEN (BEGINNER-FRIENDLY UI)
 /// ============================================================================
-/// Displays user avatar, statistics (Active Bookings, Saved Listings),
-/// profile options, and log out flow.
+/// Matches your exact design with:
+/// - Curved mint header with avatar, "Hi , User" and "user@gmail.com"
+/// - Options: Edit profile, My booking, Favourite, My Review, Help & Support, Logout
+/// - Unified DashboardBackground
+/// - Pure Flutter UI code with clean comments, no backend needed!
 /// ============================================================================
 
 class ProfileScreen extends StatelessWidget {
@@ -15,277 +22,354 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ApiService apiService = ApiService();
+    final double topPadding = MediaQuery.of(context).padding.top;
+
+    // Curved mint header background color matching your design
+    const Color headerMint = Color(0xFF90ECCB);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
-      appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF091A2A),
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
+      backgroundColor: Colors.transparent,
+      body: DashboardBackground(
         child: Column(
           children: [
-            const SizedBox(height: 24),
-            // Avatar and info
-            Center(
+            // ================================================================
+            // 1. TOP CURVED MINT HEADER (Back button, Avatar & User info)
+            // ================================================================
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.fromLTRB(20, topPadding + 14, 20, 26),
+              decoration: const BoxDecoration(
+                color: headerMint,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(36),
+                  bottomRight: Radius.circular(36),
+                ),
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF13B99D), Color(0xFF5ED5A8)],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF13B99D).withValues(alpha: 0.2),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
+                  // Back Arrow Button (Pops screen if opened via Navigator.push)
+                  GestureDetector(
+                    onTap: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // Avatar & Info Row
+                  Row(
+                    children: [
+                      // Circular Avatar with border & shadow
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            width: 2.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'U',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/user_avatar.png',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: const Color(0xFF13B99D),
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 38,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'User 13',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'user13@gmail.com',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF758595),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 30),
+                      const SizedBox(width: 18),
 
-            // Statistics Row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<List<PGBooking>>(
-                      valueListenable: apiService.bookingsNotifier,
-                      builder: (context, bookings, child) {
-                        final active = bookings
-                            .where((b) => b.status != 'Cancelled')
-                            .length;
-                        return _buildStatCard('Active Bookings',
-                            active.toString(), Icons.home_work_outlined);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ValueListenableBuilder<List<String>>(
-                      valueListenable: apiService.savedPgIdsNotifier,
-                      builder: (context, saved, child) {
-                        return _buildStatCard('Saved Listings',
-                            saved.length.toString(), Icons.favorite_border_rounded);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Profile Options List
-            _buildProfileListTile(
-                context, 'Edit Profile', Icons.edit_outlined, () {}),
-            _buildProfileListTile(
-                context, 'My Preferred Location', Icons.pin_drop_outlined, () {}),
-            _buildProfileListTile(
-                context, 'Notifications', Icons.notifications_none_rounded, () {}),
-            _buildProfileListTile(
-                context, 'Privacy Policy', Icons.security_rounded, () {}),
-            _buildProfileListTile(
-                context, 'Help & Support', Icons.support_agent_rounded, () {}),
-
-            const SizedBox(height: 12),
-            const Divider(),
-            const SizedBox(height: 12),
-
-            // Logout Option
-            _buildProfileListTile(
-              context,
-              'Log Out',
-              Icons.logout_rounded,
-              () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Log Out'),
-                    content: const Text(
-                        'Are you sure you want to log out of the PG Finder application?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel',
-                            style: TextStyle(color: Color(0xFF758595))),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoginScreen()),
-                            (route) => false,
-                          );
-                        },
-                        child: const Text(
-                          'Log Out',
-                          style: TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
+                      // User Name & Email (Reactive: updates immediately when profile is edited!)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ValueListenableBuilder<String>(
+                            valueListenable: ApiService().userNameNotifier,
+                            builder: (context, userName, _) {
+                              return Text(
+                                'Hi , $userName',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 4),
+                          ValueListenableBuilder<String>(
+                            valueListenable: ApiService().userEmailNotifier,
+                            builder: (context, userEmail, _) {
+                              return Text(
+                                userEmail,
+                                style: const TextStyle(
+                                  fontSize: 14.5,
+                                  color: Color(0xFF6B8780),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                );
-              },
-              textColor: Colors.red,
-              iconColor: Colors.red,
+                ],
+              ),
             ),
-            const SizedBox(height: 40),
+
+            // ================================================================
+            // 2. MENU OPTIONS LIST (With Dividers)
+            // ================================================================
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                child: Column(
+                  children: [
+                    // 1. Edit Profile
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.edit_outlined,
+                      title: 'Edit profile',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfileScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFD6E6E2),
+                    ),
+
+                    // 2. My Booking
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.calendar_today_outlined,
+                      title: 'My booking',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BookingScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFD6E6E2),
+                    ),
+
+                    // 3. Favourite
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.favorite_border_rounded,
+                      title: 'Favourite',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SavedScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFD6E6E2),
+                    ),
+
+                    // 4. My Review
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.star_border_rounded,
+                      title: 'My Review',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyReviewsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFD6E6E2),
+                    ),
+
+                    // 5. Help & Support
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.help_outline_rounded,
+                      title: 'Help & Support',
+                      onTap: () => _showHelpSupportModal(context),
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFD6E6E2),
+                    ),
+
+                    // 6. Logout (Red text)
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.login_outlined,
+                      title: 'Logout',
+                      titleColor: const Color(0xFFEF4444),
+                      onTap: () => _showLogoutDialog(context),
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFD6E6E2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1FBFA),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: const Color(0xFF13B99D), size: 20),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF091A2A),
-                ),
-              ),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF758595),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileListTile(
-    BuildContext context,
-    String title,
-    IconData icon,
-    VoidCallback onTap, {
-    Color textColor = const Color(0xFF091A2A),
-    Color iconColor = const Color(0xFF758595),
+  // --------------------------------------------------------------------------
+  // HELPER: Reusable Menu Item Row with Chevron Icon
+  // --------------------------------------------------------------------------
+  Widget _buildMenuItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color titleColor = Colors.black,
+    Color iconColor = Colors.black,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 6),
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        elevation: 1,
-        shadowColor: Colors.black.withValues(alpha: 0.08),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-            child: Row(
-              children: [
-                Icon(icon, color: iconColor, size: 20),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                      fontSize: 14.5,
-                    ),
-                  ),
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: iconColor),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: titleColor,
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: Colors.grey[400],
-                  size: 20,
-                ),
-              ],
+              ),
             ),
-          ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: Colors.black,
+            ),
+          ],
         ),
       ),
     );
   }
+
+  // --------------------------------------------------------------------------
+  // MODAL: Help & Support Bottom Sheet
+  // --------------------------------------------------------------------------
+  void _showHelpSupportModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Help & Support',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Need assistance with your booking or PG finding?',
+                style: TextStyle(color: Colors.black87, fontSize: 14),
+              ),
+              const SizedBox(height: 14),
+              ListTile(
+                leading: const Icon(
+                  Icons.email_outlined,
+                  color: Color(0xFF10B981),
+                ),
+                title: const Text('support@pgfinder.com'),
+                onTap: () => Navigator.pop(context),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.phone_outlined,
+                  color: Color(0xFF10B981),
+                ),
+                title: const Text('+91 98765 43210'),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // DIALOG: Logout Confirmation Dialog
+  // --------------------------------------------------------------------------
+  void _showLogoutDialog(BuildContext context) {
+    LogoutDialog.show(context);
+  }
 }
 
-// Alias for compatibility
+// Aliases for compatibility
+typedef MoreScreen = ProfileScreen;
 typedef ProfileTab = ProfileScreen;

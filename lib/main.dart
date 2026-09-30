@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'resorce/theme.dart';
 import 'screens/auth/intro_screen.dart';
 
 /// ============================================================================
@@ -19,15 +20,7 @@ class PGFinderApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PG Finder',
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFFBFDFD),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF13B99D),
-          primary: const Color(0xFF13B99D),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
       home: const IntroScreen(),
     );
   }

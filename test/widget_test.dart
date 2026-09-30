@@ -122,9 +122,15 @@ void main() {
     expect(find.text('Please enter your email or username'), findsOneWidget);
     expect(find.text('Please enter your password'), findsOneWidget);
 
-    // Enter valid email and password
+    // Enter valid email and verify error text clears immediately
     await tester.enterText(find.byType(TextFormField).first, 'user13');
+    await tester.pump();
+    expect(find.text('Please enter your email or username'), findsNothing);
+
     await tester.enterText(find.byType(TextFormField).last, '1234');
+    await tester.pump();
+    expect(find.text('Please enter your password'), findsNothing);
+
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pump();
 
@@ -160,6 +166,42 @@ void main() {
     // Fast-forward delay
     await tester.pump(const Duration(milliseconds: 1500));
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('Sign Up screen empty validation flow', (WidgetTester tester) async {
+    setTestScreenSize(tester);
+    await tester.pumpWidget(const MaterialApp(home: SignUpScreen()));
+
+    // Tap Sign Up with empty inputs
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Sign Up'));
+    await tester.pump();
+
+    // Verify all field errors are displayed
+    expect(find.text('Please enter your full name'), findsOneWidget);
+    expect(find.text('Please enter your email'), findsOneWidget);
+    expect(find.text('Please create a password'), findsOneWidget);
+    expect(find.text('Please confirm your password'), findsOneWidget);
+    expect(find.text('Please agree to the Terms & Conditions'), findsOneWidget);
+
+    // Verify the bottom warning snackbar is REMOVED
+    expect(find.text('Please correct the highlighted fields above.'), findsNothing);
+
+    // Enter fields one by one to ensure errors clear immediately as user types
+    await tester.enterText(find.byType(TextFormField).at(0), 'John Doe');
+    await tester.pump();
+    expect(find.text('Please enter your full name'), findsNothing);
+
+    await tester.enterText(find.byType(TextFormField).at(1), 'j');
+    await tester.pump();
+    expect(find.text('Please enter your email'), findsNothing);
+
+    await tester.enterText(find.byType(TextFormField).at(2), '1');
+    await tester.pump();
+    expect(find.text('Please create a password'), findsNothing);
+
+    await tester.enterText(find.byType(TextFormField).at(3), '1');
+    await tester.pump();
+    expect(find.text('Please confirm your password'), findsNothing);
   });
 
   testWidgets('Sign Up screen form interaction', (WidgetTester tester) async {
@@ -205,7 +247,7 @@ void main() {
 
     // Test ProfileScreen
     await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
-    expect(find.text('User 13'), findsOneWidget);
+    expect(find.text('Hi , User'), findsOneWidget);
   });
 
   testWidgets('BottomNavScreen switches between tabs', (WidgetTester tester) async {
@@ -228,6 +270,6 @@ void main() {
     // Switch to Profile
     await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
-    expect(find.text('User 13'), findsOneWidget);
+    expect(find.text('Hi , User'), findsOneWidget);
   });
 }

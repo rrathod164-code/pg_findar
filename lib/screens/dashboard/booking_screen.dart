@@ -1,223 +1,603 @@
 import 'package:flutter/material.dart';
 import '../../models/pg_model.dart';
-import '../../services/api_service.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/dashboard_background.dart';
+import '../book_visit_screen.dart';
+import '../pg_detail_screen.dart';
+import '../../widgets/write_review_dialog.dart';
 
 /// ============================================================================
-/// BOOKING SCREEN (USER BOOKINGS HISTORY & STATUS)
+/// BOOKING SCREEN (USER PAST & ACTIVE BOOKINGS)
 /// ============================================================================
-/// Displays user's active and past bookings with real-time status updates,
-/// room type, check-in dates, and cancel options.
+/// Matches your exact design screenshot:
+/// - "My Bookings" title & "View and manage your past bookings" subtitle
+/// - "Your Past Bookings" section header
+/// - Cards with PG photo, status badge (completed / Cancelled), dates, price,
+///   total paid, amenities chips, and action buttons:
+///     * [View Details] (outline teal)
+///     * [Book Again]   (solid teal)
+///     * [Review]       (outline orange)
+/// - Unified DashboardBackground with mint circles and soft background
+/// - Pure Flutter UI code with clean comments, no backend needed!
 /// ============================================================================
 
 class BookingScreen extends StatelessWidget {
   const BookingScreen({super.key});
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+  // --------------------------------------------------------------------------
+  // STATIC BOOKINGS DATA (Pure Frontend, Beginner Friendly)
+  // --------------------------------------------------------------------------
+  static final List<PGBooking> staticBookings = [
+    PGBooking(
+      id: 'b1',
+      pg: PGAccommodation(
+        id: '2',
+        name: 'Sunshine Residency',
+        location: '150 Feet Ring Road, Rajkot',
+        city: 'Rajkot',
+        price: 7500,
+        rating: 4.9,
+        category: 'Girls PG',
+        gender: 'Girls',
+        imageUrl: 'assets/images/Sunshine.png',
+        hasWifi: true,
+        hasAC: true,
+        hasFood: true,
+        hasParking: false,
+        hasLaundry: true,
+        hasTV: true,
+        hasFridge: true,
+        hasGeyser: true,
+        isPopular: true,
+        isNearby: false,
+      ),
+      checkInDate: DateTime(2025, 5, 10),
+      checkOutDate: DateTime(2025, 6, 10),
+      status: 'completed',
+      roomType: 'Double Sharing',
+      totalPaid: 13000,
+      customDateRange: '10 May 2025 - 10 Jun 2025',
+    ),
+    PGBooking(
+      id: 'b2',
+      pg: PGAccommodation(
+        id: '1',
+        name: 'Green Valley PG',
+        location: 'Kalawad Road, Rajkot',
+        city: 'Rajkot',
+        price: 6500,
+        rating: 4.8,
+        category: 'Boys PG',
+        gender: 'Boys',
+        imageUrl: 'assets/images/GreenVally.png',
+        hasWifi: true,
+        hasAC: true,
+        hasFood: true,
+        hasParking: true,
+        hasLaundry: true,
+        hasTV: true,
+        hasFridge: true,
+        hasGeyser: true,
+        isPopular: true,
+        isNearby: false,
+      ),
+      checkInDate: DateTime(2024, 12, 1),
+      checkOutDate: DateTime(2025, 3, 1),
+      status: 'completed',
+      roomType: 'Double Sharing',
+      totalPaid: 19500,
+      customDateRange: '1 Dec 2024 - 1 Mar 2025',
+    ),
+    PGBooking(
+      id: 'b3',
+      pg: PGAccommodation(
+        id: '3',
+        name: 'Royal Living PG',
+        location: 'University Road, Rajkot',
+        city: 'Rajkot',
+        price: 6000,
+        rating: 4.7,
+        category: 'Boys PG',
+        gender: 'Boys',
+        imageUrl: 'assets/images/royal.png',
+        hasWifi: true,
+        hasAC: true,
+        hasFood: true,
+        hasParking: true,
+        hasLaundry: true,
+        hasTV: true,
+        hasFridge: true,
+        hasGeyser: true,
+        isPopular: true,
+        isNearby: true,
+      ),
+      checkInDate: DateTime(2025, 3, 5),
+      checkOutDate: DateTime(2025, 5, 5),
+      status: 'Cancelled',
+      roomType: 'Single Sharing',
+      totalPaid: 0,
+      customDateRange: '5 Mar 2025 - 5 May 2025',
+    ),
+  ];
+
+  // --------------------------------------------------------------------------
+  // HELPER: Format Amenities Pills Row
+  // --------------------------------------------------------------------------
+  Widget _buildAmenitiesChips(PGAccommodation pg) {
+    final List<String> tags = [];
+    if (pg.hasAC) tags.add('AC');
+    if (pg.hasWifi) tags.add('Wi-Fi');
+    if (pg.hasFood) tags.add('Food');
+    if (pg.hasLaundry) tags.add('Laundry');
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      children: [
+        for (final tag in tags.take(4))
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              tag,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ),
+        if (tags.length > 3)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Text(
+              '+1 more',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // HELPER: Booking Card matching design
+  // --------------------------------------------------------------------------
+  Widget _buildBookingCard(BuildContext context, PGBooking booking) {
+    final pg = booking.pg;
+    final bool isCancelled = booking.status.toLowerCase() == 'cancelled';
+    final bool isCompleted = booking.status.toLowerCase() == 'completed';
+
+    // Status pill colors
+    final Color badgeBg = isCancelled
+        ? const Color(0xFFFEE2E2)
+        : const Color(0xFFD1FAE5);
+    final Color badgeText = isCancelled
+        ? const Color(0xFFEF4444)
+        : const Color(0xFF10B981);
+    final String badgeLabel = isCancelled
+        ? 'Cancelled'
+        : (isCompleted ? 'completed' : booking.status);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row: Image on left, Details on right
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // PG Room Thumbnail Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: AppImage(
+                  imageUrl: pg.imageUrl,
+                  width: 90,
+                  height: 90,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Booking details column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row: PG Name & Status Badge
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            pg.name,
+                            style: const TextStyle(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF091A2A),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 3.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: badgeBg,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Text(
+                            badgeLabel,
+                            style: TextStyle(
+                              color: badgeText,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 3),
+
+                    // Location Pin & Text
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: Color(0xFF6B7280),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          pg.location.contains(',')
+                              ? pg.location
+                              : '${pg.location} , Gujarat',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: Color(0xFF4B5563),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 3),
+
+                    // Calendar & Dates
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 12,
+                          color: Color(0xFF6B7280),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          booking.customDateRange ??
+                              '${booking.checkInDate.day}/${booking.checkInDate.month}/${booking.checkInDate.year}',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: Color(0xFF4B5563),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 3),
+
+                    // Price per month on left & Total Paid on right
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '₹ ${pg.price.toInt()} / month',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            const Text(
+                              'Total Paid',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                color: Color(0xFF9CA3AF),
+                              ),
+                            ),
+                            Text(
+                              '₹${booking.totalPaid.toInt()}',
+                              style: const TextStyle(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF10B981),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // Amenities chips (AC, Wi-Fi, Food, etc.)
+                    _buildAmenitiesChips(pg),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          const SizedBox(height: 10),
+
+          // Action Buttons Row matching the screenshot:
+          // If completed: [View Details] [Book Again] [Review]
+          // If cancelled: [View Details] (full width)
+          if (isCancelled)
+            SizedBox(
+              width: double.infinity,
+              height: 36,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PgDetailScreen(pg: pg),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF10B981),
+                  side: const BorderSide(color: Color(0xFF10B981), width: 1.2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+                child: const Text(
+                  'View Details',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+          else
+            Row(
+              children: [
+                // 1. View Details (White with teal border)
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PgDetailScreen(pg: pg),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF10B981),
+                        side: const BorderSide(
+                          color: Color(0xFF10B981),
+                          width: 1.2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // 2. Book Again (Solid teal background)
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookVisitScreen(pg: pg),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Text(
+                        'Book Again',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // 3. Review (White with orange/coral border)
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        WriteReviewDialog.show(
+                          context,
+                          pg: pg,
+                          bookingId: booking.id,
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFF97316),
+                        side: const BorderSide(
+                          color: Color(0xFFF97316),
+                          width: 1.2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Text(
+                        'Review',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final ApiService apiService = ApiService();
+    final bool canPop = Navigator.canPop(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
-      appBar: AppBar(
-        title: const Text(
-          'My Bookings',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF091A2A),
+      backgroundColor: Colors.transparent,
+      body: DashboardBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ==============================================================
+              // TOP HEADER: Title, Subtitle, and Back Button if pushed
+              // ==============================================================
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (canPop) ...[
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              margin: const EdgeInsets.only(right: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.06),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back,
+                                color: Color(0xFF091A2A),
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                        const Text(
+                          'My Bookings',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF091A2A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'View and manage your past bookings',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: Color(0xFF5B6E7D),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Your Past Bookings',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF091A2A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ==============================================================
+              // STATIC BOOKINGS LIST
+              // ==============================================================
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: staticBookings.length,
+                  itemBuilder: (context, index) {
+                    return _buildBookingCard(context, staticBookings[index]);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: ValueListenableBuilder<List<PGBooking>>(
-        valueListenable: apiService.bookingsNotifier,
-        builder: (context, bookings, child) {
-          if (bookings.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF1FBFA),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.book_online_rounded,
-                      size: 60,
-                      color: Color(0xFF13B99D),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No Bookings yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Go to Home and book your first PG accommodation!',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF758595),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: bookings.length,
-            itemBuilder: (context, index) {
-              final booking = bookings[index];
-              final pg = booking.pg;
-
-              Color statusColor = Colors.orange;
-              IconData statusIcon = Icons.hourglass_empty_rounded;
-              if (booking.status == 'Approved') {
-                statusColor = const Color(0xFF13B99D);
-                statusIcon = Icons.check_circle_rounded;
-              } else if (booking.status == 'Cancelled') {
-                statusColor = Colors.red;
-                statusIcon = Icons.cancel_rounded;
-              }
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          pg.imageUrl,
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                            width: 64,
-                            height: 64,
-                            color: const Color(0xFFEBFDFB),
-                            child: const Icon(
-                              Icons.home_work_rounded,
-                              color: Color(0xFF13B99D),
-                            ),
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        pg.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF091A2A),
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 4),
-                          Text('Sharing: ${booking.roomType}',
-                              style: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Check-in: ${_formatDate(booking.checkInDate)}',
-                            style: const TextStyle(
-                                fontSize: 12, color: Color(0xFF758595)),
-                          ),
-                        ],
-                      ),
-                      trailing: Text(
-                        '₹${pg.price.toInt()}/mo',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF091A2A),
-                        ),
-                      ),
-                    ),
-                    const Divider(height: 1, thickness: 1),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(statusIcon, color: statusColor, size: 16),
-                              const SizedBox(width: 4),
-                              Text(
-                                booking.status == 'Pending'
-                                    ? 'Pending Approval'
-                                    : booking.status,
-                                style: TextStyle(
-                                  color: statusColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              if (booking.status == 'Pending') ...[
-                                const SizedBox(width: 8),
-                                const SizedBox(
-                                  width: 12,
-                                  height: 12,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation(
-                                        Color(0xFF13B99D)),
-                                  ),
-                                ),
-                              ]
-                            ],
-                          ),
-                          if (booking.status != 'Cancelled')
-                            TextButton(
-                              onPressed: () {
-                                apiService.cancelBooking(booking.id);
-                              },
-                              style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red),
-                              child: const Text(
-                                'Cancel Booking',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
       ),
     );
   }
