@@ -5,6 +5,8 @@ import '../screens/dashboard/saved_screen.dart';
 import '../screens/dashboard/booking_screen.dart';
 import '../screens/dashboard/profile_screen.dart';
 
+export 'owner_bottom_nav_bar.dart';
+
 /// ============================================================================
 /// NAVIGATION SCAFFOLD & CUSTOM BOTTOM BAR
 /// ============================================================================
@@ -136,3 +138,4 @@ class CustomBottomNavBar extends StatelessWidget {
 // Aliases for compatibility
 typedef UserDashboardPage = BottomNavScreen;
 typedef DashboardScreen = BottomNavScreen;
+

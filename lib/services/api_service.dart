@@ -269,6 +269,10 @@ class ApiService {
     String roomType, {
     double? totalPaid,
     String? dateRange,
+    String? roomNumber,
+    String? floor,
+    String? userName,
+    String? userPhone,
   }) {
     final newBooking = PGBooking(
       id: 'book_${DateTime.now().millisecondsSinceEpoch}',
@@ -278,11 +282,40 @@ class ApiService {
       status: 'Pending',
       totalPaid: totalPaid ?? pg.price * 2,
       customDateRange: dateRange,
+      roomNumber: roomNumber ?? 'Room 102',
+      floor: floor ?? '1st Floor',
+      userName: userName ?? 'Guest Tenant',
+      userPhone: userPhone ?? '+91 98765 43210',
     );
 
     final currentBookings = List<PGBooking>.from(bookingsNotifier.value);
     currentBookings.insert(0, newBooking);
     bookingsNotifier.value = currentBookings;
+  }
+
+  /// Alias for booking a PG
+  void addBooking({
+    required PGAccommodation pg,
+    required DateTime checkInDate,
+    String roomType = 'Double Sharing',
+    double? totalPaid,
+    String? dateRange,
+    String? roomNumber,
+    String? floor,
+    String? userName,
+    String? userPhone,
+  }) {
+    bookPG(
+      pg,
+      checkInDate,
+      roomType,
+      totalPaid: totalPaid,
+      dateRange: dateRange,
+      roomNumber: roomNumber,
+      floor: floor,
+      userName: userName,
+      userPhone: userPhone,
+    );
   }
 
   /// Cancel an existing booking
@@ -317,6 +350,65 @@ class ApiService {
     final currentReviews = List<UserReview>.from(userReviewsNotifier.value);
     currentReviews.removeWhere((r) => r.id == reviewId);
     userReviewsNotifier.value = currentReviews;
+  }
+
+  // ========================================================
+  // OWNER / ORGANIZER OPERATIONS
+  // ========================================================
+
+  // Add a new PG accommodation (Owner functionality)
+  void addPG(PGAccommodation pg) {
+    final currentPgs = List<PGAccommodation>.from(pgsNotifier.value);
+    currentPgs.insert(0, pg);
+    pgsNotifier.value = currentPgs;
+  }
+
+  // Remove a PG accommodation (Owner functionality)
+  void removePG(String pgId) {
+    final currentPgs = List<PGAccommodation>.from(pgsNotifier.value);
+    currentPgs.removeWhere((pg) => pg.id == pgId);
+    pgsNotifier.value = currentPgs;
+  }
+
+  // Update a booking's status (Approve, Reject, Cancel, etc.)
+  void updateBookingStatus(String bookingId, String status) {
+    final currentBookings = List<PGBooking>.from(bookingsNotifier.value);
+    final index = currentBookings.indexWhere((b) => b.id == bookingId);
+    if (index != -1) {
+      currentBookings[index] = currentBookings[index].copyWith(status: status);
+      bookingsNotifier.value = currentBookings;
+    }
+  }
+
+  // Upload or update room details for a specific PG (Owner functionality)
+  void addOrUpdateRoom(String pgId, PGRoom room) {
+    final currentPgs = List<PGAccommodation>.from(pgsNotifier.value);
+    final pgIndex = currentPgs.indexWhere((p) => p.id == pgId);
+    if (pgIndex != -1) {
+      final pg = currentPgs[pgIndex];
+      final currentRooms = List<PGRoom>.from(pg.roomsList);
+      final roomIndex = currentRooms.indexWhere((r) => r.id == room.id);
+      if (roomIndex != -1) {
+        currentRooms[roomIndex] = room;
+      } else {
+        currentRooms.add(room);
+      }
+      currentPgs[pgIndex] = pg.copyWith(rooms: currentRooms);
+      pgsNotifier.value = currentPgs;
+    }
+  }
+
+  // Delete a room from a specific PG (Owner functionality)
+  void deleteRoom(String pgId, String roomId) {
+    final currentPgs = List<PGAccommodation>.from(pgsNotifier.value);
+    final pgIndex = currentPgs.indexWhere((p) => p.id == pgId);
+    if (pgIndex != -1) {
+      final pg = currentPgs[pgIndex];
+      final currentRooms = List<PGRoom>.from(pg.roomsList);
+      currentRooms.removeWhere((r) => r.id == roomId);
+      currentPgs[pgIndex] = pg.copyWith(rooms: currentRooms);
+      pgsNotifier.value = currentPgs;
+    }
   }
 }
 

@@ -20,7 +20,7 @@ class DashboardBackground extends StatelessWidget {
         Container(
           width: double.infinity,
           height: double.infinity,
-          color: const Color.fromARGB(255, 185, 245, 237),
+          color: const Color.fromARGB(255, 200, 250, 244),
         ),
 
         // 1. Top Right Accent Circle

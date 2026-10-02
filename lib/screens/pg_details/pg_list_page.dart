@@ -128,11 +128,13 @@ class _PGListPageState extends State<PGListPage> {
             right: 24,
             bottom: MediaQuery.of(context).viewInsets.bottom + 24,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
                 child: Container(
                   width: 48,
                   height: 5,
@@ -321,7 +323,8 @@ class _PGListPageState extends State<PGListPage> {
               ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }
@@ -406,11 +409,13 @@ class _PGListPageState extends State<PGListPage> {
                 right: 24,
                 bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
                     child: Container(
                       width: 50,
                       height: 5,
@@ -594,7 +599,8 @@ class _PGListPageState extends State<PGListPage> {
                   ),
                 ],
               ),
-            );
+            ),
+          );
           },
         );
       },

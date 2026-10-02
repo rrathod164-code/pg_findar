@@ -49,13 +49,13 @@ class _LoginPageState extends State<LoginPage> {
       Widget nextScreen;
       String roleName;
 
-      if (loginInput == 'admin13' || loginInput == 'admin@pgfindar.com') {
-        nextScreen = const AdminDashboardPage();
-        roleName = 'Admin';
-      } else if (loginInput == 'organizer13' ||
+      if (loginInput == 'owner' ||
+          loginInput == 'owner13' ||
+          loginInput == 'owner@pgfindar.com' ||
+          loginInput == 'organizer13' ||
           loginInput == 'organizer@pgfindar.com') {
-        nextScreen = const OrganizerDashboardPage();
-        roleName = 'Organizer';
+        nextScreen = const OwnerDashboardPage();
+        roleName = 'Owner';
       } else {
         // Defaults to UserDashboard
         nextScreen = const BottomNavScreen();
@@ -123,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: Form(
                         key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -562,147 +563,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               );
             },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Placeholders for Admin and Organizer Dashboards
-class AdminDashboardPage extends StatelessWidget {
-  const AdminDashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        title: const Text(
-          'Admin Dashboard',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: DashboardBackground(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.admin_panel_settings_rounded,
-                    size: 50,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Admin Panel - PG Finder',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Logged in as admin13. Manage bookings and listings here.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: AppColors.textGrey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class OrganizerDashboardPage extends StatelessWidget {
-  const OrganizerDashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        title: const Text(
-          'Organizer Dashboard',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: DashboardBackground(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.business_center_rounded,
-                    size: 50,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Organizer Panel - PG Finder',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Logged in as organizer13. List PGs and approve booking requests here.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: AppColors.textGrey),
-                ),
-              ],
-            ),
           ),
         ),
       ),

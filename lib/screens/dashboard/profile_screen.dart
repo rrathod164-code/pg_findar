@@ -339,37 +339,40 @@ class ProfileScreen extends StatelessWidget {
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Help & Support',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Need assistance with your booking or PG finding?',
-                style: TextStyle(color: Colors.black87, fontSize: 14),
-              ),
-              const SizedBox(height: 14),
-              ListTile(
-                leading: const Icon(
-                  Icons.email_outlined,
-                  color: AppColors.primary,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Help & Support',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                title: const Text('support@pgfinder.com'),
-                onTap: () => Navigator.pop(context),
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.phone_outlined,
-                  color: AppColors.primary,
+                const SizedBox(height: 12),
+                const Text(
+                  'Need assistance with your booking or PG finding?',
+                  style: TextStyle(color: Colors.black87, fontSize: 14),
                 ),
-                title: const Text('+91 98765 43210'),
-                onTap: () => Navigator.pop(context),
-              ),
-            ],
+                const SizedBox(height: 14),
+                ListTile(
+                  leading: const Icon(
+                    Icons.email_outlined,
+                    color: AppColors.primary,
+                  ),
+                  title: const Text('support@pgfinder.com'),
+                  onTap: () => Navigator.pop(context),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.phone_outlined,
+                    color: AppColors.primary,
+                  ),
+                  title: const Text('+91 98765 43210'),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
           ),
         );
       },

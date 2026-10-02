@@ -26,6 +26,55 @@ class PGAccommodation {
   final bool hasGeyser;
   final bool isPopular;
   final bool isNearby;
+  final String organizerId;
+  String get ownerId => organizerId;
+  final List<PGRoom>? rooms;
+
+  List<PGRoom> get roomsList {
+    if (rooms != null && rooms!.isNotEmpty) return rooms!;
+    return [
+      PGRoom(
+        id: '${id}_r101',
+        roomNumber: 'Room 101',
+        floor: '1st Floor',
+        sharingType: 'Single Sharing',
+        totalBeds: 1,
+        occupiedBeds: 0,
+        price: price + 2000,
+        amenities: const ['Attached Bath', 'AC', 'Balcony'],
+      ),
+      PGRoom(
+        id: '${id}_r102',
+        roomNumber: 'Room 102',
+        floor: '1st Floor',
+        sharingType: 'Double Sharing',
+        totalBeds: 2,
+        occupiedBeds: 1,
+        price: price,
+        amenities: const ['Attached Bath', 'Wi-Fi', 'Study Desk'],
+      ),
+      PGRoom(
+        id: '${id}_r201',
+        roomNumber: 'Room 201',
+        floor: '2nd Floor',
+        sharingType: 'Triple Sharing',
+        totalBeds: 3,
+        occupiedBeds: 1,
+        price: price > 2000 ? price - 1500 : price,
+        amenities: const ['Spacious Balcony', 'Wardrobe', 'Wi-Fi'],
+      ),
+      PGRoom(
+        id: '${id}_r202',
+        roomNumber: 'Room 202',
+        floor: '2nd Floor',
+        sharingType: 'Double Sharing',
+        totalBeds: 2,
+        occupiedBeds: 2,
+        price: price,
+        amenities: const ['Attached Bath', 'AC'],
+      ),
+    ];
+  }
 
   PGAccommodation({
     required this.id,
@@ -47,6 +96,8 @@ class PGAccommodation {
     this.hasGeyser = false,
     this.isPopular = false,
     this.isNearby = false,
+    this.organizerId = 'organizer13',
+    this.rooms,
   });
 
   /// Returns a list of all active facilities for this PG
@@ -147,6 +198,54 @@ class PGAccommodation {
       isNearby: map['isNearby'] ?? false,
     );
   }
+
+  PGAccommodation copyWith({
+    String? id,
+    String? name,
+    String? location,
+    String? city,
+    double? price,
+    double? rating,
+    String? category,
+    String? gender,
+    String? imageUrl,
+    bool? hasWifi,
+    bool? hasAC,
+    bool? hasFood,
+    bool? hasParking,
+    bool? hasLaundry,
+    bool? hasTV,
+    bool? hasFridge,
+    bool? hasGeyser,
+    bool? isPopular,
+    bool? isNearby,
+    String? organizerId,
+    List<PGRoom>? rooms,
+  }) {
+    return PGAccommodation(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      location: location ?? this.location,
+      city: city ?? this.city,
+      price: price ?? this.price,
+      rating: rating ?? this.rating,
+      category: category ?? this.category,
+      gender: gender ?? this.gender,
+      imageUrl: imageUrl ?? this.imageUrl,
+      hasWifi: hasWifi ?? this.hasWifi,
+      hasAC: hasAC ?? this.hasAC,
+      hasFood: hasFood ?? this.hasFood,
+      hasParking: hasParking ?? this.hasParking,
+      hasLaundry: hasLaundry ?? this.hasLaundry,
+      hasTV: hasTV ?? this.hasTV,
+      hasFridge: hasFridge ?? this.hasFridge,
+      hasGeyser: hasGeyser ?? this.hasGeyser,
+      isPopular: isPopular ?? this.isPopular,
+      isNearby: isNearby ?? this.isNearby,
+      organizerId: organizerId ?? this.organizerId,
+      rooms: rooms ?? this.rooms,
+    );
+  }
 }
 
 class PGFilterCriteria {
@@ -194,6 +293,58 @@ class PGFilterCriteria {
 }
 
 /// ============================================================================
+/// ============================================================================
+/// PG ROOM DATA MODEL
+/// ============================================================================
+class PGRoom {
+  final String id;
+  final String roomNumber;
+  final String floor;
+  final String sharingType; // 'Single Sharing', 'Double Sharing', 'Triple Sharing'
+  final int totalBeds;
+  final int occupiedBeds;
+  final double price;
+  final List<String> amenities;
+
+  const PGRoom({
+    required this.id,
+    required this.roomNumber,
+    required this.floor,
+    required this.sharingType,
+    required this.totalBeds,
+    this.occupiedBeds = 0,
+    required this.price,
+    this.amenities = const ['Attached Bath', 'Wi-Fi'],
+  });
+
+  int get availableBeds => totalBeds - occupiedBeds;
+  bool get isAvailable => availableBeds > 0;
+  bool get isFull => occupiedBeds >= totalBeds;
+
+  PGRoom copyWith({
+    String? id,
+    String? roomNumber,
+    String? floor,
+    String? sharingType,
+    int? totalBeds,
+    int? occupiedBeds,
+    double? price,
+    List<String>? amenities,
+  }) {
+    return PGRoom(
+      id: id ?? this.id,
+      roomNumber: roomNumber ?? this.roomNumber,
+      floor: floor ?? this.floor,
+      sharingType: sharingType ?? this.sharingType,
+      totalBeds: totalBeds ?? this.totalBeds,
+      occupiedBeds: occupiedBeds ?? this.occupiedBeds,
+      price: price ?? this.price,
+      amenities: amenities ?? this.amenities,
+    );
+  }
+}
+
+/// ============================================================================
 /// PG BOOKING DATA MODEL
 /// ============================================================================
 /// Represents a booking created by the user for a PG property.
@@ -208,6 +359,10 @@ class PGBooking {
   final String roomType; // 'Single Sharing', 'Double Sharing', 'Triple Sharing'
   final double totalPaid;
   final String? customDateRange;
+  final String userName;
+  final String userPhone;
+  final String roomNumber;
+  final String floor;
 
   PGBooking({
     required this.id,
@@ -218,6 +373,10 @@ class PGBooking {
     this.roomType = 'Double Sharing',
     this.totalPaid = 0,
     this.customDateRange,
+    this.userName = 'Guest Tenant',
+    this.userPhone = '+91 98765 43210',
+    this.roomNumber = 'Room 102',
+    this.floor = '1st Floor',
   });
 
   String get dateRangeFormatted {
@@ -241,6 +400,11 @@ class PGBooking {
   PGBooking copyWith({
     String? status,
     double? totalPaid,
+    String? userName,
+    String? userPhone,
+    String? roomNumber,
+    String? floor,
+    String? roomType,
   }) {
     return PGBooking(
       id: id,
@@ -248,9 +412,13 @@ class PGBooking {
       checkInDate: checkInDate,
       checkOutDate: checkOutDate,
       status: status ?? this.status,
-      roomType: roomType,
+      roomType: roomType ?? this.roomType,
       totalPaid: totalPaid ?? this.totalPaid,
       customDateRange: customDateRange,
+      userName: userName ?? this.userName,
+      userPhone: userPhone ?? this.userPhone,
+      roomNumber: roomNumber ?? this.roomNumber,
+      floor: floor ?? this.floor,
     );
   }
 

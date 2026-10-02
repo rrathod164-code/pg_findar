@@ -13,6 +13,8 @@ import 'package:pg_findar/screens/dashboard/home_screen.dart';
 import 'package:pg_findar/screens/dashboard/saved_screen.dart';
 import 'package:pg_findar/screens/dashboard/booking_screen.dart';
 import 'package:pg_findar/screens/dashboard/profile_screen.dart';
+import 'package:pg_findar/screens/pg_details/pg_detail_screen.dart';
+import 'package:pg_findar/models/pg_model.dart';
 
 final List<int> _kTransparentImage = <int>[
   0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49,
@@ -271,5 +273,66 @@ void main() {
     await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     expect(find.text('Hi , User'), findsOneWidget);
+  });
+
+  testWidgets('OwnerDashboardPage renders and navigates tabs without overflow or image errors', (WidgetTester tester) async {
+    setTestScreenSize(tester);
+    await tester.pumpWidget(const MaterialApp(home: OwnerDashboardPage()));
+    await tester.pumpAndSettle();
+
+    // Verify Owner Dashboard Home tab
+    expect(find.text('Good Morning,'), findsOneWidget);
+    expect(find.text('Renisha!'), findsOneWidget);
+
+    // Switch to Properties Tab
+    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Properties')));
+    await tester.pumpAndSettle();
+    expect(find.text('Add PG'), findsOneWidget);
+
+    // Switch to Bookings Tab
+    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Bookings')));
+    await tester.pumpAndSettle();
+    expect(find.text('Booking Requests'), findsOneWidget);
+
+    // Switch to Profile Tab
+    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Profile')));
+    await tester.pumpAndSettle();
+    expect(find.text('Owner Profile'), findsOneWidget);
+  });
+
+  testWidgets('PgDetailScreen renders properly on compact screens without overflow', (WidgetTester tester) async {
+    // Set a compact mobile screen size
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final dummyPg = PGAccommodation(
+      id: '99',
+      name: 'Test PG Residency',
+      location: 'Test Road, City',
+      city: 'Rajkot',
+      price: 5500,
+      rating: 4.8,
+      category: 'Boys PG',
+      gender: 'Boys',
+      imageUrl: 'assets/images/GreenVally.png',
+      hasWifi: true,
+      hasAC: true,
+      hasFood: true,
+      hasParking: true,
+      hasLaundry: true,
+      hasTV: true,
+      hasFridge: true,
+      hasGeyser: true,
+      isPopular: true,
+      isNearby: true,
+    );
+
+    await tester.pumpWidget(MaterialApp(home: PgDetailScreen(pg: dummyPg)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Test PG Residency'), findsOneWidget);
+    expect(find.text('Book a PG'), findsOneWidget);
   });
 }

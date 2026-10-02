@@ -19,6 +19,7 @@ class PaymentSuccessScreen extends StatelessWidget {
   final int members;
   final String dateString;
   final String transactionId;
+  final PGRoom? selectedRoom;
 
   const PaymentSuccessScreen({
     super.key,
@@ -28,6 +29,7 @@ class PaymentSuccessScreen extends StatelessWidget {
     this.members = 1,
     this.dateString = '25 July 2026',
     this.transactionId = 'TXN9876543210',
+    this.selectedRoom,
   });
 
   @override
@@ -179,6 +181,39 @@ class PaymentSuccessScreen extends StatelessWidget {
                               Icons.person_outline,
                               '$members Member${members > 1 ? 's' : ''}',
                             ),
+                            const SizedBox(height: 2),
+
+                            // Room & Sharing row
+                            _buildDetailRow(
+                              Icons.meeting_room_outlined,
+                              '${selectedRoom?.roomNumber ?? 'Room 102'} (${selectedRoom?.floor ?? '1st Floor'}) • ${selectedRoom?.sharingType ?? 'Double Sharing'}',
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Pending Owner Approval Badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEF3C7),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: const Color(0xFFFDE68A)),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.schedule_rounded, size: 12, color: Color(0xFFD97706)),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Pending Owner Approval',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFB45309),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -285,20 +320,20 @@ class PaymentSuccessScreen extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                // Step 1: Booking Confirmed
+                // Step 1: Room Requested
                 _buildStepItem(
-                  icon: Icons.bookmark_outline,
-                  title: 'Booking Confirmed',
-                  subtitle: 'We have sent your booking details',
+                  icon: Icons.meeting_room_outlined,
+                  title: 'Room Requested',
+                  subtitle: '${selectedRoom?.roomNumber ?? 'Room 102'} request sent to owner',
                   showCheckmark: true,
                   showBottomLine: true,
                 ),
 
-                // Step 2: Owner Will Contact You
+                // Step 2: Owner Approves Request
                 _buildStepItem(
-                  icon: Icons.chat_bubble_outline_rounded,
-                  title: 'Owner Will Contact You',
-                  subtitle: 'The PG owner will contact you soon',
+                  icon: Icons.verified_user_outlined,
+                  title: 'Owner Approves Request',
+                  subtitle: 'Owner will verify & confirm your room assignment',
                   showCheckmark: false,
                   showBottomLine: true,
                 ),

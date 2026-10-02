@@ -122,7 +122,10 @@ class SavedScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: ListTile(
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                  child: ListTile(
                   onTap: () {
                     Navigator.push(
                       context,
@@ -206,6 +209,7 @@ class SavedScreen extends StatelessWidget {
                       size: 20,
                     ),
                   ),
+                ),
                 ),
               );
             },
