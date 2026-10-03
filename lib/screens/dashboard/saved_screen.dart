@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/app_image.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
-import '../../models/pg_model.dart';
+import '../../services/api_service.dart';
 import '../pg_details/pg_detail_screen.dart';
 
 /// ============================================================================
@@ -219,6 +219,3 @@ class SavedScreen extends StatelessWidget {
     );
   }
 }
-
-// Alias for compatibility
-typedef SavedTab = SavedScreen;

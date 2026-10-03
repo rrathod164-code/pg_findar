@@ -66,7 +66,7 @@ class IntroScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
+                          builder: (context) => const LoginPage(),
                         ),
                       );
                     },
@@ -95,6 +95,3 @@ class IntroScreen extends StatelessWidget {
     );
   }
 }
-
-// Alias for compatibility
-typedef Introduction = IntroScreen;

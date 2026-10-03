@@ -16,14 +16,16 @@ import '../screens/auth/login_screen.dart';
 /// ============================================================================
 
 class LogoutDialog extends StatelessWidget {
-  const LogoutDialog({super.key});
+  final VoidCallback? onLogout;
+
+  const LogoutDialog({super.key, this.onLogout});
 
   /// Helper function: Call `LogoutDialog.show(context)` from anywhere in your app!
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {VoidCallback? onLogout}) {
     return showDialog(
       context: context,
       barrierDismissible: true, // User can tap outside to close
-      builder: (BuildContext dialogContext) => const LogoutDialog(),
+      builder: (BuildContext dialogContext) => LogoutDialog(onLogout: onLogout),
     );
   }
 
@@ -31,9 +33,7 @@ class LogoutDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       // Rounded corners for the dialog box
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       // Background color of the popup
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
@@ -144,15 +144,18 @@ class LogoutDialog extends StatelessWidget {
                         // 1. First close the popup dialog
                         Navigator.pop(context);
 
-                        // 2. Navigate back to LoginPage and remove all previous screens
-                        // so user cannot press the phone back button to return to dashboard
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                          (route) => false,
-                        );
+                        // 2. Perform custom logout callback if provided, or default to LoginPage navigation
+                        if (onLogout != null) {
+                          onLogout!();
+                        } else {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                            (route) => false,
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.error, // Red button

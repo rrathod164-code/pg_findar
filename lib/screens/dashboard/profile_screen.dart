@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
-import '../../services/api_service.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
 import 'booking_screen.dart';
@@ -119,36 +118,26 @@ class ProfileScreen extends StatelessWidget {
 
                       const SizedBox(width: 18),
 
-                      // User Name & Email (Reactive: updates immediately when profile is edited!)
+                      // User Name & Email (Static UI)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ValueListenableBuilder<String>(
-                            valueListenable: ApiService().userNameNotifier,
-                            builder: (context, userName, _) {
-                              return Text(
-                                'Hi , $userName',
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              );
-                            },
+                        children: const [
+                          Text(
+                            'Hi , User',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
-                          const SizedBox(height: 4),
-                          ValueListenableBuilder<String>(
-                            valueListenable: ApiService().userEmailNotifier,
-                            builder: (context, userEmail, _) {
-                              return Text(
-                                userEmail,
-                                style: const TextStyle(
-                                  fontSize: 14.5,
-                                  color: Color(0xFF6B8780),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              );
-                            },
+                          SizedBox(height: 4),
+                          Text(
+                            'user@gmail.com',
+                            style: TextStyle(
+                              fontSize: 14.5,
+                              color: Color(0xFF6B8780),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
@@ -386,7 +375,3 @@ class ProfileScreen extends StatelessWidget {
     LogoutDialog.show(context);
   }
 }
-
-// Aliases for compatibility
-typedef MoreScreen = ProfileScreen;
-typedef ProfileTab = ProfileScreen;

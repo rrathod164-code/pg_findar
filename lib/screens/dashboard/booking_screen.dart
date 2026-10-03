@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
-import '../../models/pg_model.dart';
+import '../../services/api_service.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
 import '../booking/book_visit_screen.dart';
 import '../pg_details/pg_detail_screen.dart';
 import '../../widgets/write_review_dialog.dart';
-import '../../services/api_service.dart';
 
 /// ============================================================================
 /// BOOKING SCREEN (USER PAST & ACTIVE BOOKINGS)
@@ -701,22 +700,14 @@ class BookingScreen extends StatelessWidget {
               ),
 
               // ==============================================================
-              // BOOKINGS LIST (CONNECTED TO REALTIME DATASERVICE)
+              // BOOKINGS LIST (STATIC DATA)
               // ==============================================================
               Expanded(
-                child: ValueListenableBuilder<List<PGBooking>>(
-                  valueListenable: DataService().bookingsNotifier,
-                  builder: (context, liveBookings, _) {
-                    final displayBookings =
-                        liveBookings.isNotEmpty ? liveBookings : staticBookings;
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: displayBookings.length,
-                      itemBuilder: (context, index) {
-                        return _buildBookingCard(
-                            context, displayBookings[index]);
-                      },
-                    );
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: staticBookings.length,
+                  itemBuilder: (context, index) {
+                    return _buildBookingCard(context, staticBookings[index]);
                   },
                 ),
               ),
@@ -727,6 +718,3 @@ class BookingScreen extends StatelessWidget {
     );
   }
 }
-
-// Alias for compatibility
-typedef BookingTab = BookingScreen;

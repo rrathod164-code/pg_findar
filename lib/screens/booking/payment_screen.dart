@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../models/pg_model.dart';
 import '../../resources/theme.dart';
 import '../../services/api_service.dart';
 import '../../widgets/app_image.dart';
@@ -426,20 +425,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             totalBeds: 2,
                             price: 6500,
                           );
-
-                      // Add booking into DataService so it displays in student bookings & owner dashboard
-                      DataService().addBooking(
-                        pg: widget.pg ?? DataService().pgsNotifier.value.first,
-                        checkInDate: widget.checkInDate ?? DateTime.now(),
-                        roomType: room.sharingType,
-                        totalPaid: widget.totalAmount.toDouble(),
-                        dateRange:
-                            '${widget.duration} • Check-in: ${widget.checkInDate?.day ?? DateTime.now().day}/${widget.checkInDate?.month ?? DateTime.now().month}/${widget.checkInDate?.year ?? DateTime.now().year}',
-                        roomNumber: room.roomNumber,
-                        floor: room.floor,
-                        userName: 'Student User',
-                        userPhone: '+91 98765 43210',
-                      );
 
                       // Navigate to the Payment Success confirmation screen
                       Navigator.pushReplacement(

@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/models/pg_model.dart';
 import 'package:pg_findar/services/api_service.dart';
 import 'package:pg_findar/widgets/app_image.dart';
-import 'package:pg_findar/widgets/dashboard_background.dart';
 
-class OwnerPropertiesTab extends StatefulWidget {
-  const OwnerPropertiesTab({super.key});
+class OwnerPropertiesScreen extends StatefulWidget {
+  const OwnerPropertiesScreen({super.key});
 
   @override
-  State<OwnerPropertiesTab> createState() => _OwnerPropertiesTabState();
+  State<OwnerPropertiesScreen> createState() => _OwnerPropertiesScreenState();
 }
 
-class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
+class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   void _showAddPropertyDialog(BuildContext context) {
     final nameController = TextEditingController();
     final locationController = TextEditingController();
@@ -322,7 +320,6 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
                             ],
                           );
 
-                          DataService().addPG(newPG);
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -386,7 +383,6 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
                 ),
               ),
               onPressed: () {
-                DataService().removePG(pg.id);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -439,7 +435,6 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
                 ),
               ),
               onPressed: () {
-                DataService().deleteRoom(pg.id, room.id);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -785,27 +780,6 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
                             );
                             return;
                           }
-
-                          final rent = double.tryParse(priceController.text) ??
-                              pg.price;
-                          final totalBeds =
-                              int.tryParse(bedsController.text) ?? 2;
-
-                          final newOrUpdatedRoom = PGRoom(
-                            id: roomToEdit?.id ??
-                                'room_${DateTime.now().millisecondsSinceEpoch}',
-                            roomNumber: roomNo,
-                            floor: selectedFloor,
-                            sharingType: selectedSharing,
-                            totalBeds: totalBeds,
-                            occupiedBeds: occupiedBeds > totalBeds
-                                ? totalBeds
-                                : occupiedBeds,
-                            price: rent,
-                            amenities: selectedAmenities,
-                          );
-
-                          DataService().addOrUpdateRoom(pg.id, newOrUpdatedRoom);
                           Navigator.pop(context);
 
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -847,16 +821,10 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return ValueListenableBuilder<List<PGAccommodation>>(
-          valueListenable: DataService().pgsNotifier,
-          builder: (context, pgs, _) {
-            final pg = pgs.firstWhere(
-              (p) => p.id == initialPg.id,
-              orElse: () => initialPg,
-            );
-            final rooms = pg.roomsList;
+        final pg = initialPg;
+        final rooms = pg.roomsList;
 
-            return SafeArea(
+        return SafeArea(
               child: Container(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.85,
@@ -1155,16 +1123,12 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
                 ),
               ),
             );
-          },
-        );
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final dataService = DataService();
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -1202,15 +1166,14 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
           ),
         ],
       ),
-      body: DashboardBackground(
-        child: SafeArea(
-          top: false,
-          child: ValueListenableBuilder<List<PGAccommodation>>(
-        valueListenable: dataService.pgsNotifier,
-        builder: (context, pgs, _) {
-          final myProperties = pgs
-              .where((p) => p.organizerId == 'organizer13' || p.organizerId == 'owner13')
-              .toList();
+      body: SafeArea(
+        top: false,
+        child: Builder(
+          builder: (context) {
+            final pgs = ApiService.samplePGs;
+            final myProperties = pgs
+                .where((p) => p.organizerId == 'organizer13' || p.organizerId == 'owner13')
+                .toList();
 
           if (myProperties.isEmpty) {
             return Center(
@@ -1532,8 +1495,7 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
         },
       ),
     ),
-  ),
-  floatingActionButton: FloatingActionButton.extended(
+    floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF13B99D),
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_business_rounded),
@@ -1546,6 +1508,3 @@ class _OwnerPropertiesTabState extends State<OwnerPropertiesTab> {
     );
   }
 }
-
-// Alias for compatibility
-typedef OwnerPropertiesScreen = OwnerPropertiesTab;

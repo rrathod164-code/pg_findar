@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
-import '../../services/api_service.dart';
 import '../../widgets/dashboard_background.dart';
 
 /// ============================================================================
@@ -38,10 +37,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill controllers with current user profile values from ApiService
-    final api = ApiService();
-    _nameController = TextEditingController(text: api.userNameNotifier.value);
-    _emailController = TextEditingController(text: api.userEmailNotifier.value);
+    // Pre-fill controllers with default user profile values
+    _nameController = TextEditingController(text: 'User');
+    _emailController = TextEditingController(text: 'user@gmail.com');
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
   }
@@ -83,12 +81,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
 
-    // 4. Update the profile in ApiService (In-memory, no backend needed)
-    ApiService().updateProfile(
-      name: newName,
-      email: newEmail,
-      password: newPassword.isNotEmpty ? newPassword : null,
-    );
 
     // 5. Show success message
     ScaffoldMessenger.of(context).showSnackBar(

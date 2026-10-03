@@ -1,6 +1,52 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
 import '../resources/theme.dart';
+
+/// ============================================================================
+/// PG FILTER CRITERIA
+/// ============================================================================
+class PGFilterCriteria {
+  final double minPrice;
+  final double maxPrice;
+  final String gender; // 'Boys', 'Girls', 'Both'
+  final List<String> facilities; // ['Wifi', 'AC', 'Food', 'Parking', 'Laundry', 'TV', 'Fridge', 'Gyser']
+
+  const PGFilterCriteria({
+    this.minPrice = 3000,
+    this.maxPrice = 10000,
+    this.gender = 'Both',
+    this.facilities = const [],
+  });
+
+  bool get isDefault =>
+      minPrice == 3000 &&
+      maxPrice == 10000 &&
+      gender == 'Both' &&
+      facilities.isEmpty;
+
+  bool get hasActiveFilters => !isDefault;
+
+  int get activeFiltersCount {
+    int count = 0;
+    if (minPrice > 3000 || maxPrice < 10000) count++;
+    if (gender != 'Both') count++;
+    count += facilities.length;
+    return count;
+  }
+
+  PGFilterCriteria copyWith({
+    double? minPrice,
+    double? maxPrice,
+    String? gender,
+    List<String>? facilities,
+  }) {
+    return PGFilterCriteria(
+      minPrice: minPrice ?? this.minPrice,
+      maxPrice: maxPrice ?? this.maxPrice,
+      gender: gender ?? this.gender,
+      facilities: facilities ?? this.facilities,
+    );
+  }
+}
 
 class FilterBottomSheet extends StatefulWidget {
   final PGFilterCriteria initialCriteria;

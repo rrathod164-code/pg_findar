@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
-import '../../models/pg_model.dart';
 import '../../services/api_service.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
@@ -22,8 +21,6 @@ class MyReviewsScreen extends StatefulWidget {
 }
 
 class _MyReviewsScreenState extends State<MyReviewsScreen> {
-  final ApiService _apiService = ApiService();
-
   // --------------------------------------------------------------------------
   // WIDGET: Single Review Card Matching Screenshot
   // --------------------------------------------------------------------------
@@ -188,12 +185,12 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
               const SizedBox(height: 8),
 
               // ==============================================================
-              // REVIEWS LIST: Reactive List of Review Cards
+              // REVIEWS LIST: Static List of Review Cards
               // ==============================================================
               Expanded(
-                child: ValueListenableBuilder<List<UserReview>>(
-                  valueListenable: _apiService.userReviewsNotifier,
-                  builder: (context, reviews, child) {
+                child: Builder(
+                  builder: (context) {
+                    final reviews = ApiService.sampleReviews;
                     if (reviews.isEmpty) {
                       return Center(
                         child: Column(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
-import '../../models/pg_model.dart';
 import '../../services/api_service.dart';
 import '../../widgets/app_image.dart';
 import '../pg_details/pg_detail_screen.dart';
@@ -22,7 +21,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final ApiService _apiService = ApiService();
   final TextEditingController _searchController = TextEditingController();
 
   String _selectedCity = 'Rajkot';
@@ -34,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _apiService.reloadSampleData();
   }
 
   @override
@@ -222,7 +219,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        _apiService.bookPG(pg, selectedDate, selectedRoomType);
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -354,20 +350,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ValueListenableBuilder<String>(
-                              valueListenable: _apiService.userNameNotifier,
-                              builder: (context, userName, _) {
-                                return Text(
-                                  'Hello, $userName',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF091A2A),
-                                  ),
-                                );
-                              },
+                            const Text(
+                              'Hello, User',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF091A2A),
+                              ),
                             ),
                             const SizedBox(height: 4),
                             const Text(
@@ -680,9 +671,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // Popular PGs ListView
-                ValueListenableBuilder<List<PGAccommodation>>(
-                  valueListenable: _apiService.pgsNotifier,
-                  builder: (context, pgs, child) {
+                Builder(
+                  builder: (context) {
+                    final pgs = ApiService.samplePGs;
                     final filteredPgs = pgs.where((pg) {
                       final matchesCity =
                           pg.city.toLowerCase() == _selectedCity.toLowerCase();
@@ -785,9 +776,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // Nearby PGs ListView
-                ValueListenableBuilder<List<PGAccommodation>>(
-                  valueListenable: _apiService.pgsNotifier,
-                  builder: (context, pgs, child) {
+                Builder(
+                  builder: (context) {
+                    final pgs = ApiService.samplePGs;
                     final filteredPgs = pgs.where((pg) {
                       final matchesCity =
                           pg.city.toLowerCase() == _selectedCity.toLowerCase();
@@ -1159,6 +1150,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-// Alias for compatibility
-typedef HomeTab = HomeScreen;

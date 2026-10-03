@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
 import '../resources/theme.dart';
 import '../services/api_service.dart';
 
@@ -74,7 +73,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
   late String _selectedPgId;
   late String _selectedPgName;
   late String _selectedLocation;
-  final ApiService _apiService = ApiService();
 
   // Rating stars, header and submit button colors centralized from AppColors
   static const Color starOrange = AppColors.starAmber;
@@ -99,7 +97,7 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
   }
 
   List<PGAccommodation> _getAvailablePGs() {
-    final list = List<PGAccommodation>.from(_apiService.pgsNotifier.value);
+    final list = List<PGAccommodation>.from(ApiService.samplePGs);
     if (!list.any((p) => p.id == _selectedPgId)) {
       list.insert(
         0,
@@ -131,19 +129,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
       return;
     }
 
-    final newReview = UserReview(
-      id: widget.existingReview?.id ??
-          'rev_${DateTime.now().millisecondsSinceEpoch}',
-      bookingId: widget.bookingId ?? widget.existingReview?.bookingId,
-      pgId: _selectedPgId,
-      pgName: _selectedPgName,
-      location: _selectedLocation,
-      rating: _rating,
-      comment: text,
-      createdAt: widget.existingReview?.createdAt ?? DateTime.now(),
-    );
-
-    _apiService.addReview(newReview);
     Navigator.of(context).pop();
 
     ScaffoldMessenger.of(context).showSnackBar(

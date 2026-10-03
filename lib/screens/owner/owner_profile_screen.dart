@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
-import 'package:pg_findar/screens/auth/login_screen.dart';
-import '../../widgets/dashboard_background.dart';
+import '../../widgets/logout_dialog.dart';
 
 /// ============================================================================
 /// OWNER PROFILE SCREEN (MATCHING USER DASHBOARD LOOK & FEEL)
@@ -10,13 +9,13 @@ import '../../widgets/dashboard_background.dart';
 /// - Curved mint header with avatar, owner name, and email
 /// - "Verified PG Owner" badge
 /// - Clean menu items with dividers and rounded action styling
-/// - DashboardBackground with translucent decorative accent orbs
+/// - Unified DashboardBackground derived from the root owner dashboard
 /// ============================================================================
 
-class OwnerProfileTab extends StatelessWidget {
+class OwnerProfileScreen extends StatelessWidget {
   final VoidCallback? onLogout;
 
-  const OwnerProfileTab({super.key, this.onLogout});
+  const OwnerProfileScreen({super.key, this.onLogout});
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +24,7 @@ class OwnerProfileTab extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: DashboardBackground(
-        child: Column(
+      body: Column(
           children: [
             // ================================================================
             // 1. TOP CURVED MINT HEADER (Avatar & Owner info)
@@ -263,8 +261,7 @@ class OwnerProfileTab extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   // --------------------------------------------------------------------------
@@ -392,51 +389,6 @@ class OwnerProfileTab extends StatelessWidget {
   }
 
   void _handleLogout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogCtx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text(
-            'Logout?',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
-          ),
-          content: const Text(
-            'Are you sure you want to log out of the Owner panel?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogCtx),
-              child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                if (onLogout != null) {
-                  onLogout!();
-                } else {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginPage(),
-                    ),
-                    (route) => false,
-                  );
-                }
-              },
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
+    LogoutDialog.show(context, onLogout: onLogout);
   }
 }
-
-// Alias for compatibility
-typedef OwnerProfileScreen = OwnerProfileTab;

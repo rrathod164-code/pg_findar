@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/widgets/dashboard_background.dart';
 
-class OwnerEarningsTab extends StatelessWidget {
-  const OwnerEarningsTab({super.key});
+class OwnerEarningsScreen extends StatelessWidget {
+  const OwnerEarningsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +20,9 @@ class OwnerEarningsTab extends StatelessWidget {
           ),
         ),
       ),
-      body: DashboardBackground(
-        child: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -159,8 +157,7 @@ class OwnerEarningsTab extends StatelessWidget {
         ),
       ),
     ),
-  ),
-);
+  );
   }
 
   Widget _buildMonthlyItem(String month, String amount, String sub) {
@@ -211,6 +208,3 @@ class OwnerEarningsTab extends StatelessWidget {
     );
   }
 }
-
-// Alias for compatibility
-typedef OwnerEarningsScreen = OwnerEarningsTab;

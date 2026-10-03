@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../models/pg_model.dart';
 import '../../resources/theme.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
@@ -562,20 +561,10 @@ class PgDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return ValueListenableBuilder<List<PGAccommodation>>(
-          valueListenable: DataService().pgsNotifier,
-          builder: (context, pgs, _) {
-            final currentPg = pgs.firstWhere(
-              (p) => p.id == pg?.id,
-              orElse: () =>
-                  pg ??
-                  (pgs.isNotEmpty
-                      ? pgs.first
-                      : DataService().pgsNotifier.value.first),
-            );
-            final rooms = currentPg.roomsList;
+        final currentPg = pg ?? ApiService.samplePGs.first;
+        final rooms = currentPg.roomsList;
 
-            return SafeArea(
+        return SafeArea(
               child: Container(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.85,
@@ -775,7 +764,5 @@ class PgDetailScreen extends StatelessWidget {
         );
       },
     );
-  },
-);
-}
+  }
 }

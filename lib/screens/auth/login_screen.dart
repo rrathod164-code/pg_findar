@@ -569,6 +569,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-// Alias for compatibility
-typedef LoginScreen = LoginPage;

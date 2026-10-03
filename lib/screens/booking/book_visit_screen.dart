@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../models/pg_model.dart';
 import '../../resources/theme.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
@@ -56,13 +55,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     super.initState();
     _checkInDate = DateTime.now();
 
-    final pgs = DataService().pgsNotifier.value;
-    final currentPg = pgs.firstWhere(
-      (p) => p.id == widget.pg?.id,
-      orElse: () =>
-          widget.pg ??
-          (pgs.isNotEmpty ? pgs.first : DataService().pgsNotifier.value.first),
-    );
+    final currentPg = widget.pg ?? ApiService.samplePGs.first;
     _rooms = currentPg.roomsList;
 
     if (widget.initialRoom != null) {

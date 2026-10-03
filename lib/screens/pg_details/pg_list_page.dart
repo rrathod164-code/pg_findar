@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/pg_model.dart';
 import '../../resources/theme.dart';
-import '../../services/data_service.dart';
+import '../../services/api_service.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
@@ -35,7 +34,6 @@ class PGListPage extends StatefulWidget {
 }
 
 class _PGListPageState extends State<PGListPage> {
-  final DataService _dataService = DataService();
   final TextEditingController _searchController = TextEditingController();
 
   String _searchQuery = '';
@@ -554,7 +552,6 @@ class _PGListPageState extends State<PGListPage> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        _dataService.bookPG(pg, selectedDate, selectedRoomType);
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -912,9 +909,9 @@ class _PGListPageState extends State<PGListPage> {
 
               // PGs Grid List
               Expanded(
-                child: ValueListenableBuilder<List<PGAccommodation>>(
-                  valueListenable: _dataService.pgsNotifier,
-                  builder: (context, pgs, child) {
+                child: Builder(
+                  builder: (context) {
+                    final pgs = ApiService.samplePGs;
                     // Filter by city
                     var list = pgs
                         .where(
@@ -1245,12 +1242,7 @@ class _PGListPageState extends State<PGListPage> {
   }
 
   Widget _buildGridPGCard(PGAccommodation pg) {
-    return ValueListenableBuilder<List<String>>(
-      valueListenable: _dataService.savedPgIdsNotifier,
-      builder: (context, savedIds, child) {
-        final isFavorited = savedIds.contains(pg.id);
-
-        return GestureDetector(
+    return GestureDetector(
           onTap: () => _showPGDetailsDialog(pg),
           child: Container(
             decoration: BoxDecoration(
@@ -1285,25 +1277,16 @@ class _PGListPageState extends State<PGListPage> {
                     Positioned(
                       top: 6,
                       right: 6,
-                      child: GestureDetector(
-                        onTap: () {
-                          _dataService.toggleFavorite(pg.id);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isFavorited
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: isFavorited
-                                ? Colors.red
-                                : const Color(0xFF758595),
-                            size: 16,
-                          ),
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.favorite_border_rounded,
+                          color: Color(0xFF758595),
+                          size: 16,
                         ),
                       ),
                     ),
@@ -1504,7 +1487,5 @@ class _PGListPageState extends State<PGListPage> {
             ),
           ),
         );
-      },
-    );
   }
 }

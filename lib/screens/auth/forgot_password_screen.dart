@@ -323,6 +323,3 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 }
-
-// Alias for compatibility
-typedef ForgotPasswordScreen = ForgotPasswordPage;

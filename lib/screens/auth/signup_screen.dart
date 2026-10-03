@@ -697,6 +697,3 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
-
-// Alias for compatibility
-typedef SignUpScreen = SignUpPage;

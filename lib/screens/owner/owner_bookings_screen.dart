@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/models/pg_model.dart';
 import 'package:pg_findar/services/api_service.dart';
-import 'package:pg_findar/widgets/dashboard_background.dart';
 
-class OwnerBookingsTab extends StatefulWidget {
-  const OwnerBookingsTab({super.key});
+class OwnerBookingsScreen extends StatefulWidget {
+  const OwnerBookingsScreen({super.key});
 
   @override
-  State<OwnerBookingsTab> createState() => _OwnerBookingsTabState();
+  State<OwnerBookingsScreen> createState() => _OwnerBookingsScreenState();
 }
 
-class _OwnerBookingsTabState extends State<OwnerBookingsTab> {
+class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
   String _selectedFilter = 'All'; // 'All', 'Pending', 'Confirmed', 'Completed'
 
   @override
   Widget build(BuildContext context) {
-    final dataService = DataService();
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -32,10 +28,9 @@ class _OwnerBookingsTabState extends State<OwnerBookingsTab> {
           ),
         ),
       ),
-      body: DashboardBackground(
-        child: SafeArea(
-          top: false,
-          child: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
             children: [
               // Filter Chips
               Padding(
@@ -58,9 +53,9 @@ class _OwnerBookingsTabState extends State<OwnerBookingsTab> {
           ),
 
           Expanded(
-            child: ValueListenableBuilder<List<PGBooking>>(
-              valueListenable: dataService.bookingsNotifier,
-              builder: (context, bookings, _) {
+            child: Builder(
+              builder: (context) {
+                final bookings = ApiService.sampleBookings;
                 var filtered = bookings;
                 if (_selectedFilter == 'Pending') {
                   filtered = bookings
@@ -227,10 +222,6 @@ class _OwnerBookingsTabState extends State<OwnerBookingsTab> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      dataService.updateBookingStatus(
-                                        booking.id,
-                                        'Cancelled',
-                                      );
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -254,10 +245,6 @@ class _OwnerBookingsTabState extends State<OwnerBookingsTab> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      dataService.updateBookingStatus(
-                                        booking.id,
-                                        'Confirmed',
-                                      );
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -285,8 +272,7 @@ class _OwnerBookingsTabState extends State<OwnerBookingsTab> {
         ],
       ),
     ),
-  ),
-);
+  );
   }
 
   Widget _buildFilterChip(String label) {
@@ -355,6 +341,3 @@ class _OwnerBookingsTabState extends State<OwnerBookingsTab> {
     );
   }
 }
-
-// Alias for compatibility
-typedef OwnerBookingsScreen = OwnerBookingsTab;
