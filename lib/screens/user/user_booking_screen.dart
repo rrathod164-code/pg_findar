@@ -1,10 +1,62 @@
 import 'package:flutter/material.dart';
-import '../../models/pg_model.dart';
+import 'package:pg_findar/resources/theme.dart';
+import 'user_home_screen.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
-import '../book_visit_screen.dart';
-import '../pg_detail_screen.dart';
+import '../booking/book_visit_screen.dart';
+import '../pg_details/pg_detail_screen.dart';
 import '../../widgets/write_review_dialog.dart';
+
+/// ============================================================================
+/// PG BOOKING DATA MODEL
+/// ============================================================================
+class PGBooking {
+  final String id;
+  final PGAccommodation pg;
+  final DateTime checkInDate;
+  final DateTime? checkOutDate;
+  final String status; // 'completed', 'Cancelled', 'Pending', 'Approved'
+  final String roomType; // 'Single Sharing', 'Double Sharing', 'Triple Sharing'
+  final double totalPaid;
+  final String? customDateRange;
+  final String userName;
+  final String userPhone;
+  final String roomNumber;
+  final String floor;
+
+  PGBooking({
+    required this.id,
+    required this.pg,
+    required this.checkInDate,
+    this.checkOutDate,
+    required this.status,
+    this.roomType = 'Double Sharing',
+    this.totalPaid = 0,
+    this.customDateRange,
+    this.userName = 'Guest Tenant',
+    this.userPhone = '+91 98765 43210',
+    this.roomNumber = 'Room 102',
+    this.floor = '1st Floor',
+  });
+
+  String get dateRangeFormatted {
+    if (customDateRange != null && customDateRange!.isNotEmpty) {
+      return customDateRange!;
+    }
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final inStr =
+        '${checkInDate.day} ${months[checkInDate.month - 1]} ${checkInDate.year}';
+    if (checkOutDate != null) {
+      final outStr =
+          '${checkOutDate!.day} ${months[checkOutDate!.month - 1]} ${checkOutDate!.year}';
+      return '$inStr - $outStr';
+    }
+    return inStr;
+  }
+}
 
 /// ============================================================================
 /// BOOKING SCREEN (USER PAST & ACTIVE BOOKINGS)
@@ -23,6 +75,9 @@ import '../../widgets/write_review_dialog.dart';
 
 class BookingScreen extends StatelessWidget {
   const BookingScreen({super.key});
+
+  // Getter for sampleBookings
+  static List<PGBooking> get sampleBookings => staticBookings;
 
   // --------------------------------------------------------------------------
   // STATIC BOOKINGS DATA (Pure Frontend, Beginner Friendly)
@@ -175,19 +230,34 @@ class BookingScreen extends StatelessWidget {
   // --------------------------------------------------------------------------
   Widget _buildBookingCard(BuildContext context, PGBooking booking) {
     final pg = booking.pg;
-    final bool isCancelled = booking.status.toLowerCase() == 'cancelled';
-    final bool isCompleted = booking.status.toLowerCase() == 'completed';
+    final String statusLower = booking.status.toLowerCase();
+    final bool isCancelled = statusLower == 'cancelled';
+    final bool isPending = statusLower == 'pending';
+    final bool isConfirmed =
+        statusLower == 'confirmed' || statusLower == 'approved';
 
     // Status pill colors
-    final Color badgeBg = isCancelled
-        ? const Color(0xFFFEE2E2)
-        : const Color(0xFFD1FAE5);
-    final Color badgeText = isCancelled
-        ? const Color(0xFFEF4444)
-        : const Color(0xFF10B981);
-    final String badgeLabel = isCancelled
-        ? 'Cancelled'
-        : (isCompleted ? 'completed' : booking.status);
+    final Color badgeBg;
+    final Color badgeText;
+    final String badgeLabel;
+
+    if (isPending) {
+      badgeBg = const Color(0xFFFFF6E0);
+      badgeText = const Color(0xFFE67E22);
+      badgeLabel = 'Pending Approval';
+    } else if (isConfirmed) {
+      badgeBg = AppColors.successLight;
+      badgeText = AppColors.success;
+      badgeLabel = 'Confirmed';
+    } else if (isCancelled) {
+      badgeBg = AppColors.errorLight;
+      badgeText = AppColors.error;
+      badgeLabel = 'Cancelled';
+    } else {
+      badgeBg = AppColors.successLight;
+      badgeText = AppColors.success;
+      badgeLabel = 'Completed';
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -274,13 +344,43 @@ class BookingScreen extends StatelessWidget {
                           color: Color(0xFF6B7280),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          pg.location.contains(',')
-                              ? pg.location
-                              : '${pg.location} , Gujarat',
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            color: Color(0xFF4B5563),
+                        Expanded(
+                          child: Text(
+                            pg.location.contains(',')
+                                ? pg.location
+                                : '${pg.location} , Gujarat',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              color: Color(0xFF4B5563),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 3),
+
+                    // Room & Sharing Type
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.meeting_room_outlined,
+                          size: 13,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            '${booking.roomNumber} (${booking.floor}) • ${booking.roomType}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
                       ],
@@ -297,13 +397,17 @@ class BookingScreen extends StatelessWidget {
                           color: Color(0xFF6B7280),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          booking.customDateRange ??
-                              '${booking.checkInDate.day}/${booking.checkInDate.month}/${booking.checkInDate.year}',
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            color: Color(0xFF4B5563),
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            booking.customDateRange ??
+                                '${booking.checkInDate.day}/${booking.checkInDate.month}/${booking.checkInDate.year}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              color: Color(0xFF4B5563),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -339,7 +443,7 @@ class BookingScreen extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF10B981),
+                                color: AppColors.primary,
                               ),
                             ),
                           ],
@@ -362,8 +466,9 @@ class BookingScreen extends StatelessWidget {
           const SizedBox(height: 10),
 
           // Action Buttons Row matching the screenshot:
-          // If completed: [View Details] [Book Again] [Review]
           // If cancelled: [View Details] (full width)
+          // If pending: [View Details] + [Awaiting Approval]
+          // If completed/confirmed: [View Details] [Book Again] [Review]
           if (isCancelled)
             SizedBox(
               width: double.infinity,
@@ -378,8 +483,8 @@ class BookingScreen extends StatelessWidget {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF10B981),
-                  side: const BorderSide(color: Color(0xFF10B981), width: 1.2),
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary, width: 1.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -390,6 +495,71 @@ class BookingScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                 ),
               ),
+            )
+          else if (isPending)
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PgDetailScreen(pg: pg),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(
+                          color: AppColors.primary,
+                          width: 1.2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFFDE68A)),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.schedule, size: 14, color: Color(0xFFB45309)),
+                        SizedBox(width: 4),
+                        Text(
+                          'Awaiting Approval',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFB45309),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             )
           else
             Row(
@@ -408,9 +578,9 @@ class BookingScreen extends StatelessWidget {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF10B981),
+                        foregroundColor: AppColors.primary,
                         side: const BorderSide(
-                          color: Color(0xFF10B981),
+                          color: AppColors.primary,
                           width: 1.2,
                         ),
                         shape: RoundedRectangleBorder(
@@ -444,7 +614,7 @@ class BookingScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF10B981),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -584,7 +754,7 @@ class BookingScreen extends StatelessWidget {
               ),
 
               // ==============================================================
-              // STATIC BOOKINGS LIST
+              // BOOKINGS LIST (STATIC DATA)
               // ==============================================================
               Expanded(
                 child: ListView.builder(
@@ -602,6 +772,3 @@ class BookingScreen extends StatelessWidget {
     );
   }
 }
-
-// Alias for compatibility
-typedef BookingTab = BookingScreen;

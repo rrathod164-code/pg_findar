@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
-import '../../services/api_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -23,49 +23,6 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _agreeToTerms = false;
   bool _isLoading = false;
   bool _showTermsError = false;
-  String? _nameError;
-  String? _emailError;
-  String? _passwordError;
-  String? _confirmPasswordError;
-
-  // Flutter in-build validator methods
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your full name';
-    }
-    return null;
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your email';
-    }
-    final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegExp.hasMatch(value.trim())) {
-      return 'Please enter a valid email address';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please create a password';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    return null;
-  }
-
-  String? _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
-    }
-    if (value != _passwordController.text) {
-      return 'Passwords do not match';
-    }
-    return null;
-  }
 
   @override
   void dispose() {
@@ -78,19 +35,16 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _handleSignUp() {
     setState(() {
-      _nameError = _validateName(_nameController.text);
-      _emailError = _validateEmail(_emailController.text);
-      _passwordError = _validatePassword(_passwordController.text);
-      _confirmPasswordError = _validateConfirmPassword(_confirmPasswordController.text);
       _showTermsError = !_agreeToTerms;
     });
 
-    final isFormValid = _nameError == null &&
-        _emailError == null &&
-        _passwordError == null &&
-        _confirmPasswordError == null;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
-    if (isFormValid && !_showTermsError) {
+    if (!_agreeToTerms) {
+      return;
+    }
       setState(() {
         _isLoading = true;
       });
@@ -101,15 +55,6 @@ class _SignUpPageState extends State<SignUpPage> {
         setState(() {
           _isLoading = false;
         });
-
-        // Save credentials in-memory so the user can immediately log in
-        final regEmail = _emailController.text.trim().toLowerCase();
-        final regName = _nameController.text.trim().toLowerCase();
-        final regPassword = _passwordController.text;
-        ApiService.registeredUsers[regEmail] = regPassword;
-        if (regName.isNotEmpty) {
-          ApiService.registeredUsers[regName] = regPassword;
-        }
 
         // Show successful signup snackbar
         ScaffoldMessenger.of(context).showSnackBar(
@@ -125,7 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ],
             ),
-            backgroundColor: const Color(0xFF13B99D),
+            backgroundColor: AppColors.primary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -136,7 +81,6 @@ class _SignUpPageState extends State<SignUpPage> {
         // Pop back to login screen
         Navigator.pop(context);
       });
-    }
   }
 
   @override
@@ -145,7 +89,7 @@ class _SignUpPageState extends State<SignUpPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
+      backgroundColor: AppColors.background,
       body: DashboardBackground(
         child: SafeArea(
             child: Center(
@@ -154,18 +98,19 @@ class _SignUpPageState extends State<SignUpPage> {
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
                   child: Form(
                     key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: screenHeight * 0.02),
 
-                        // Title
+                         // Title
                         const Text(
                           'Create Your Account',
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF091A2A),
+                            color: AppColors.textDark,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -173,7 +118,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           'Sign up to get started',
                           style: TextStyle(
                             fontSize: 15,
-                            color: Color(0xFF758595),
+                            color: AppColors.textGrey,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -186,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF091A2A),
+                            color: AppColors.textDark,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -205,24 +150,23 @@ class _SignUpPageState extends State<SignUpPage> {
                             controller: _nameController,
                             keyboardType: TextInputType.name,
                             textCapitalization: TextCapitalization.words,
-                            onChanged: (_) {
-                              if (_nameError != null) {
-                                setState(() => _nameError = null);
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your full name';
                               }
+                              return null;
                             },
-                            validator: (_) => _nameError,
                             decoration: InputDecoration(
-                              errorText: _nameError,
                               filled: true,
                               fillColor: Colors.white,
                               hintText: 'Enter your full name',
                               hintStyle: const TextStyle(
-                                color: Color(0xFFB0BAC5),
+                                color: AppColors.inputHint,
                                 fontSize: 14,
                               ),
                               prefixIcon: const Icon(
                                 Icons.person_outline_rounded,
-                                color: Color(0xFF091A2A),
+                                color: AppColors.textDark,
                                 size: 20,
                               ),
                               border: OutlineInputBorder(
@@ -236,7 +180,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: const BorderSide(
-                                  color: Color(0xFF13B99D),
+                                  color: AppColors.primary,
                                   width: 1.5,
                                 ),
                               ),
@@ -275,7 +219,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF091A2A),
+                            color: AppColors.textDark,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -293,24 +237,29 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            onChanged: (_) {
-                              if (_emailError != null) {
-                                setState(() => _emailError = null);
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your email';
                               }
+                              final emailRegExp = RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              );
+                              if (!emailRegExp.hasMatch(value.trim())) {
+                                return 'Please enter a valid email address';
+                              }
+                              return null;
                             },
-                            validator: (_) => _emailError,
                             decoration: InputDecoration(
-                              errorText: _emailError,
                               filled: true,
                               fillColor: Colors.white,
                               hintText: 'Enter your email',
                               hintStyle: const TextStyle(
-                                color: Color(0xFFB0BAC5),
+                                color: AppColors.inputHint,
                                 fontSize: 14,
                               ),
                               prefixIcon: const Icon(
                                 Icons.mail_outline_rounded,
-                                color: Color(0xFF091A2A),
+                                color: AppColors.textDark,
                                 size: 20,
                               ),
                               border: OutlineInputBorder(
@@ -324,7 +273,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: const BorderSide(
-                                  color: Color(0xFF13B99D),
+                                  color: AppColors.primary,
                                   width: 1.5,
                                 ),
                               ),
@@ -363,7 +312,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF091A2A),
+                            color: AppColors.textDark,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -381,31 +330,26 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            onChanged: (_) {
-                              if (_passwordError != null) {
-                                setState(() => _passwordError = null);
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please create a password';
                               }
-                              if (_confirmPasswordError != null &&
-                                  _confirmPasswordController.text.isNotEmpty) {
-                                if (_passwordController.text ==
-                                    _confirmPasswordController.text) {
-                                  setState(() => _confirmPasswordError = null);
-                                }
+                              if (value.length < 8) {
+                                return 'Password must be at least 8 characters';
                               }
+                              return null;
                             },
-                            validator: (_) => _passwordError,
                             decoration: InputDecoration(
-                              errorText: _passwordError,
                               filled: true,
                               fillColor: Colors.white,
                               hintText: 'Create a password',
                               hintStyle: const TextStyle(
-                                color: Color(0xFFB0BAC5),
+                                color: AppColors.inputHint,
                                 fontSize: 14,
                               ),
                               prefixIcon: const Icon(
                                 Icons.lock_outline_rounded,
-                                color: Color(0xFF091A2A),
+                                color: AppColors.textDark,
                                 size: 20,
                               ),
                               suffixIcon: IconButton(
@@ -413,7 +357,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   _obscurePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
-                                  color: const Color(0xFF091A2A),
+                                  color: AppColors.textDark,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -433,7 +377,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: const BorderSide(
-                                  color: Color(0xFF13B99D),
+                                  color: AppColors.primary,
                                   width: 1.5,
                                 ),
                               ),
@@ -472,18 +416,14 @@ class _SignUpPageState extends State<SignUpPage> {
                             Icon(
                               Icons.info_outline_rounded,
                               size: 14,
-                              color: const Color(
-                                0xFF758595,
-                              ).withValues(alpha: 0.8),
+                              color: AppColors.textGrey.withValues(alpha: 0.8),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Minimum 8 characters',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: const Color(
-                                  0xFF758595,
-                                ).withValues(alpha: 0.8),
+                                color: AppColors.textGrey.withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -498,7 +438,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF091A2A),
+                            color: AppColors.textDark,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -516,24 +456,26 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: TextFormField(
                             controller: _confirmPasswordController,
                             obscureText: _obscureConfirmPassword,
-                            onChanged: (_) {
-                              if (_confirmPasswordError != null) {
-                                setState(() => _confirmPasswordError = null);
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please confirm your password';
                               }
+                              if (value != _passwordController.text) {
+                                return 'Passwords do not match';
+                              }
+                              return null;
                             },
-                            validator: (_) => _confirmPasswordError,
                             decoration: InputDecoration(
-                              errorText: _confirmPasswordError,
                               filled: true,
                               fillColor: Colors.white,
                               hintText: 'Confirm your password',
                               hintStyle: const TextStyle(
-                                color: Color(0xFFB0BAC5),
+                                color: AppColors.inputHint,
                                 fontSize: 14,
                               ),
                               prefixIcon: const Icon(
                                 Icons.lock_outline_rounded,
-                                color: Color(0xFF091A2A),
+                                color: AppColors.textDark,
                                 size: 20,
                               ),
                               suffixIcon: IconButton(
@@ -541,7 +483,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   _obscureConfirmPassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
-                                  color: const Color(0xFF091A2A),
+                                  color: AppColors.textDark,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -562,7 +504,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: const BorderSide(
-                                  color: Color(0xFF13B99D),
+                                  color: AppColors.primary,
                                   width: 1.5,
                                 ),
                               ),
@@ -603,12 +545,12 @@ class _SignUpPageState extends State<SignUpPage> {
                               height: 24,
                               child: Checkbox(
                                 value: _agreeToTerms,
-                                activeColor: const Color(0xFF13B99D),
+                                activeColor: AppColors.primary,
                                 checkColor: Colors.white,
                                 side: BorderSide(
                                   color: _showTermsError
                                       ? Colors.redAccent
-                                      : const Color(0xFF13B99D),
+                                      : AppColors.primary,
                                   width: 1.5,
                                 ),
                                 shape: RoundedRectangleBorder(
@@ -631,14 +573,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                   text: 'I agree to the ',
                                   style: const TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFF758595),
+                                    color: AppColors.textGrey,
                                     fontFamily: 'Roboto',
                                   ),
                                   children: [
                                     TextSpan(
                                       text: 'Terms & Conditions',
                                       style: const TextStyle(
-                                        color: Color(0xFF13B99D),
+                                        color: AppColors.primary,
                                         fontWeight: FontWeight.w600,
                                       ),
                                       recognizer: TapGestureRecognizer()
@@ -683,7 +625,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleSignUp,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF13B99D),
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -722,7 +664,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 "Already have an account? ",
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Color(0xFF758595),
+                                  color: AppColors.textGrey,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -735,7 +677,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF13B99D),
+                                    color: AppColors.primary,
                                   ),
                                 ),
                               ),
@@ -755,6 +697,3 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
-
-// Alias for compatibility
-typedef SignUpScreen = SignUpPage;

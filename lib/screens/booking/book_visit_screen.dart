@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
-import '../widgets/dashboard_background.dart';
+import '../../resources/theme.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/dashboard_background.dart';
 import 'payment_screen.dart';
+import '../user/user_home_screen.dart';
 
 /// ============================================================================
 /// BOOK A VISIT SCREEN (BEGINNER-FRIENDLY UI)
@@ -13,8 +14,9 @@ import 'payment_screen.dart';
 
 class BookVisitScreen extends StatefulWidget {
   final PGAccommodation? pg;
+  final PGRoom? initialRoom;
 
-  const BookVisitScreen({super.key, this.pg});
+  const BookVisitScreen({super.key, this.pg, this.initialRoom});
 
   @override
   State<BookVisitScreen> createState() => _BookVisitScreenState();
@@ -45,10 +47,30 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     'Evening (4 PM - 8 PM)',
   ];
 
+  late List<PGRoom> _rooms;
+  late PGRoom _selectedRoom;
+
   @override
   void initState() {
     super.initState();
     _checkInDate = DateTime.now();
+
+    final currentPg = widget.pg ?? HomeScreen.samplePGs.first;
+    _rooms = currentPg.roomsList;
+
+    if (widget.initialRoom != null) {
+      _selectedRoom = _rooms.firstWhere(
+        (r) =>
+            r.id == widget.initialRoom!.id ||
+            r.roomNumber == widget.initialRoom!.roomNumber,
+        orElse: () => widget.initialRoom!,
+      );
+    } else {
+      _selectedRoom = _rooms.firstWhere(
+        (r) => r.isAvailable,
+        orElse: () => _rooms.first,
+      );
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -91,7 +113,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF10B981), // Emerald green
+              primary: AppColors.primary,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -126,7 +148,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     // PG details with defaults matching the design
     final String pgName = widget.pg?.name ?? 'Green Valley PG';
     final String pgLocation = widget.pg?.location ?? 'Kalawad Road, Rajkot';
-    final int monthlyPrice = widget.pg?.price.toInt() ?? 6500;
+    final int monthlyPrice = _selectedRoom.price.toInt();
     final String pgImage =
         (widget.pg?.imageUrl != null && widget.pg!.imageUrl.isNotEmpty)
         ? widget.pg!.imageUrl
@@ -135,7 +157,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     // Total price calculation
     final int totalPrice = _calculateTotalPrice(monthlyPrice);
 
-    const Color primaryGreen = Color(0xFF10B981);
+    const Color primaryGreen = AppColors.primary;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -250,7 +272,196 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 18),
+
+                // ==============================================================
+                // 2.5 SELECT ROOM & SHARING (TRANSPARENT ROOM IDENTIFIER)
+                // ==============================================================
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSectionLabel('Select Room & Sharing'),
+                    Text(
+                      '${_rooms.length} Rooms',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 104,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _rooms.length,
+                    separatorBuilder: (context, index) => const SizedBox(width: 10),
+                    itemBuilder: (context, index) {
+                      final room = _rooms[index];
+                      final isSelected = room.id == _selectedRoom.id;
+                      final isFull = room.isFull;
+
+                      return GestureDetector(
+                        onTap: isFull
+                            ? null
+                            : () {
+                                setState(() {
+                                  _selectedRoom = room;
+                                });
+                              },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 155,
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFFE8F8F4)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : (isFull
+                                      ? Colors.grey.shade200
+                                      : Colors.grey.shade300),
+                              width: isSelected ? 2 : 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isSelected
+                                    ? AppColors.primary.withValues(alpha: 0.1)
+                                    : Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    room.roomNumber,
+                                    style: TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: isFull
+                                          ? Colors.grey
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const Icon(
+                                      Icons.check_circle_rounded,
+                                      color: AppColors.primary,
+                                      size: 16,
+                                    )
+                                  else
+                                    Text(
+                                      room.floor,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primary.withValues(alpha: 0.15)
+                                      : const Color(0xFFF3F4F6),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  room.sharingType,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : const Color(0xFF374151),
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '₹${room.price.toInt()}/mo',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: isFull
+                                          ? Colors.grey
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    isFull
+                                        ? 'Full'
+                                        : '${room.availableBeds} bed left',
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: isFull
+                                          ? Colors.red
+                                          : const Color(0xFF10B981),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFDCFCE7)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.meeting_room_outlined,
+                        size: 15,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Selected: ${_selectedRoom.roomNumber} (${_selectedRoom.floor}) • ${_selectedRoom.sharingType}',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF166534),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 18),
 
                 // ==============================================================
                 // 3. CHECK-IN DATE FIELD
@@ -492,6 +703,8 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                             totalAmount: totalPrice,
                             duration: _selectedDuration,
                             members: _members,
+                            selectedRoom: _selectedRoom,
+                            checkInDate: _checkInDate,
                           ),
                         ),
                       );

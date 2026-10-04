@@ -1,5 +1,52 @@
 import 'package:flutter/material.dart';
-import '../../models/pg_model.dart';
+import '../resources/theme.dart';
+
+/// ============================================================================
+/// PG FILTER CRITERIA
+/// ============================================================================
+class PGFilterCriteria {
+  final double minPrice;
+  final double maxPrice;
+  final String gender; // 'Boys', 'Girls', 'Both'
+  final List<String> facilities; // ['Wifi', 'AC', 'Food', 'Parking', 'Laundry', 'TV', 'Fridge', 'Gyser']
+
+  const PGFilterCriteria({
+    this.minPrice = 3000,
+    this.maxPrice = 10000,
+    this.gender = 'Both',
+    this.facilities = const [],
+  });
+
+  bool get isDefault =>
+      minPrice == 3000 &&
+      maxPrice == 10000 &&
+      gender == 'Both' &&
+      facilities.isEmpty;
+
+  bool get hasActiveFilters => !isDefault;
+
+  int get activeFiltersCount {
+    int count = 0;
+    if (minPrice > 3000 || maxPrice < 10000) count++;
+    if (gender != 'Both') count++;
+    count += facilities.length;
+    return count;
+  }
+
+  PGFilterCriteria copyWith({
+    double? minPrice,
+    double? maxPrice,
+    String? gender,
+    List<String>? facilities,
+  }) {
+    return PGFilterCriteria(
+      minPrice: minPrice ?? this.minPrice,
+      maxPrice: maxPrice ?? this.maxPrice,
+      gender: gender ?? this.gender,
+      facilities: facilities ?? this.facilities,
+    );
+  }
+}
 
 class FilterBottomSheet extends StatefulWidget {
   final PGFilterCriteria initialCriteria;
@@ -81,7 +128,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFFEAF8F5), // Ambient mint background matching screenshot
+        color: AppColors.primaryLight,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
@@ -182,11 +229,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     // Price Slider
                     SliderTheme(
                       data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: const Color(0xFF13B99D),
+                        activeTrackColor: AppColors.primary,
                         inactiveTrackColor: const Color(0xFFD7EFEB),
                         trackHeight: 4.5,
                         thumbColor: const Color(0xFF9EABA9),
-                        overlayColor: const Color(0xFF13B99D).withValues(alpha: 0.15),
+                        overlayColor: AppColors.primary.withValues(alpha: 0.15),
                         thumbShape: const RoundSliderThumbShape(
                           enabledThumbRadius: 9,
                           elevation: 2,
@@ -276,7 +323,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       child: ElevatedButton(
                         onPressed: _applyFilters,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF13B99D),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -303,7 +350,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       child: ElevatedButton(
                         onPressed: _resetFilters,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF13B99D),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -345,7 +392,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFF13B99D) : Colors.black.withValues(alpha: 0.08),
+            color: isSelected ? AppColors.primary : Colors.black.withValues(alpha: 0.08),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [
@@ -364,7 +411,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               height: 14,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? const Color(0xFF13B99D) : const Color(0xFFCFD6DC),
+                color: isSelected ? AppColors.primary : const Color(0xFFCFD6DC),
               ),
             ),
             const SizedBox(width: 8),
@@ -399,7 +446,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF13B99D) : Colors.white,
+          color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: isSelected
               ? null
@@ -407,7 +454,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? const Color(0xFF13B99D).withValues(alpha: 0.3)
+                  ? AppColors.primary.withValues(alpha: 0.3)
                   : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 10 : 8,
               offset: const Offset(0, 4),

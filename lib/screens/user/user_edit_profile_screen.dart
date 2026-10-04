@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import 'package:pg_findar/resources/theme.dart';
 import '../../widgets/dashboard_background.dart';
 
 /// ============================================================================
@@ -21,8 +21,8 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  // Primary brand green matching your app's theme
-  static const Color primaryGreen = Color(0xFF00B074);
+  // Primary brand color linked to central theme
+  static const Color primaryGreen = AppColors.primary;
 
   // Controllers for the input text fields
   late final TextEditingController _nameController;
@@ -37,10 +37,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill controllers with current user profile values from ApiService
-    final api = ApiService();
-    _nameController = TextEditingController(text: api.userNameNotifier.value);
-    _emailController = TextEditingController(text: api.userEmailNotifier.value);
+    // Pre-fill controllers with default user profile values
+    _nameController = TextEditingController(text: 'User');
+    _emailController = TextEditingController(text: 'user@gmail.com');
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
   }
@@ -82,12 +81,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
 
-    // 4. Update the profile in ApiService (In-memory, no backend needed)
-    ApiService().updateProfile(
-      name: newName,
-      email: newEmail,
-      password: newPassword.isNotEmpty ? newPassword : null,
-    );
 
     // 5. Show success message
     ScaffoldMessenger.of(context).showSnackBar(

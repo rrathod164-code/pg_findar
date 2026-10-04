@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 
 /// Smart image widget that automatically determines whether to load
 /// a network image (http/https) or a local asset image, with fallback error handling.
@@ -23,11 +24,11 @@ class AppImage extends StatelessWidget {
     Widget defaultError(BuildContext context) => Container(
           width: width,
           height: height,
-          color: const Color(0xFFEBFDFB),
+          color: AppColors.primaryLight,
           child: const Center(
             child: Icon(
               Icons.home_work_rounded,
-              color: Color(0xFF13B99D),
+              color: AppColors.primary,
               size: 36,
             ),
           ),

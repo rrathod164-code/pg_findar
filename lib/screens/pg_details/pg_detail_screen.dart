@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
-import '../widgets/dashboard_background.dart';
-import '../widgets/write_review_dialog.dart';
-import 'book_visit_screen.dart';
+import '../../resources/theme.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/dashboard_background.dart';
+import '../../widgets/write_review_dialog.dart';
+import '../booking/book_visit_screen.dart';
+import '../user/user_home_screen.dart';
 
 /// ============================================================================
 /// PG DETAIL SCREEN (BEGINNER-FRIENDLY, NON-SCROLLING, PROPORTIONAL UI)
@@ -31,7 +32,7 @@ class PgDetailScreen extends StatelessWidget {
         ? pg!.imageUrl
         : 'assets/images/GreenVally.png';
 
-    const Color primaryGreenColor = Color(0xFF10B981);
+    final Color primaryGreenColor = AppColors.primary;
     final double screenHeight = MediaQuery.of(context).size.height;
 
     // Balanced image height: around 28% of screen (cuts only a tiny amount, not big size)
@@ -102,10 +103,19 @@ class PgDetailScreen extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(18, 10, 18, 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
                     // --------------------------------------------------------
                     // A. TITLE & RATING ROW
                     // --------------------------------------------------------
@@ -172,7 +182,7 @@ class PgDetailScreen extends StatelessWidget {
                                 children: [
                                   const Icon(
                                     Icons.star_rounded,
-                                    color: Color(0xFFFFC107),
+                                    color: AppColors.starAmber,
                                     size: 21,
                                   ),
                                   const SizedBox(width: 2),
@@ -181,7 +191,7 @@ class PgDetailScreen extends StatelessWidget {
                                     style: const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2EBA80),
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ],
@@ -206,55 +216,110 @@ class PgDetailScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              '₹$pgPrice',
-                              style: const TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const Text(
-                              '/month',
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF7FA8A2),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE8FAF3),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check,
-                                size: 16,
-                                color: Color(0xFF10B981),
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Verified',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  '₹$pgPrice',
+                                  style: const TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                const Text(
+                                  '/month',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF7FA8A2),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  onTap: () => _showRoomTypesBottomSheet(context, pg),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE8F8F4),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: const Color(0xFFB9EBDD),
+                                      ),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.meeting_room_outlined,
+                                          size: 14,
+                                          color: AppColors.primary,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Rooms',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryLight,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check,
+                                        size: 16,
+                                        color: AppColors.primary,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Verified',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -399,10 +464,15 @@ class PgDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
-    );
+    ),
+  ),
+],
+),
+),
+);
   }
 
   // --------------------------------------------------------------------------
@@ -476,6 +546,223 @@ class PgDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // HELPER: Show Transparent Room Types Bottom Sheet
+  // --------------------------------------------------------------------------
+  void _showRoomTypesBottomSheet(BuildContext context, PGAccommodation? pg) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        final currentPg = pg ?? HomeScreen.samplePGs.first;
+        final rooms = currentPg.roomsList;
+
+        return SafeArea(
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
+                ),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Available Rooms & Sharing',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Text(
+                  'Select your preferred room to know exact bed, floor & rent',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 14),
+                Expanded(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: rooms.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final room = rooms[index];
+                      final isFull = room.isFull;
+
+                      return Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isFull
+                                ? Colors.grey.shade200
+                                : const Color(0xFFE5E7EB),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: isFull
+                                    ? Colors.grey.shade100
+                                    : const Color(0xFFE8F8F4),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.meeting_room_rounded,
+                                color: isFull
+                                    ? Colors.grey
+                                    : AppColors.primary,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        room.roomNumber,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        room.floor,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${room.sharingType} • ${room.amenities.join(', ')}',
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      color: Color(0xFF4B5563),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    isFull
+                                        ? 'No beds available'
+                                        : '${room.availableBeds} of ${room.totalBeds} beds available',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: isFull
+                                          ? Colors.red
+                                          : const Color(0xFF10B981),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '₹${room.price.toInt()}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const Text(
+                                  '/month',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFF9CA3AF),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                ElevatedButton(
+                                  onPressed: isFull
+                                      ? null
+                                      : () {
+                                          Navigator.pop(context);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  BookVisitScreen(
+                                                pg: pg,
+                                                initialRoom: room,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    minimumSize: Size.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    'Select',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
