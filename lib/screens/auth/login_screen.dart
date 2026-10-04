@@ -3,7 +3,7 @@ import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
-import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/user_bottom_nav_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

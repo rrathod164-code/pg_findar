@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/services/api_service.dart';
+import 'package:pg_findar/screens/user/user_booking_screen.dart';
 
 class OwnerBookingsScreen extends StatefulWidget {
   const OwnerBookingsScreen({super.key});
@@ -55,7 +55,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
           Expanded(
             child: Builder(
               builder: (context) {
-                final bookings = ApiService.sampleBookings;
+                final bookings = BookingScreen.sampleBookings;
                 var filtered = bookings;
                 if (_selectedFilter == 'Pending') {
                   filtered = bookings

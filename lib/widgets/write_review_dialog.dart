@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../resources/theme.dart';
-import '../services/api_service.dart';
+import '../screens/user/user_home_screen.dart';
+import '../screens/user/user_my_reviews_screen.dart';
 
 /// ============================================================================
 /// WRITE A REVIEW POPUP DIALOG (BEGINNER-FRIENDLY UI)
@@ -97,7 +98,7 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
   }
 
   List<PGAccommodation> _getAvailablePGs() {
-    final list = List<PGAccommodation>.from(ApiService.samplePGs);
+    final list = List<PGAccommodation>.from(HomeScreen.samplePGs);
     if (!list.any((p) => p.id == _selectedPgId)) {
       list.insert(
         0,

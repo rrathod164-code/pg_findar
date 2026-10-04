@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pg_findar/screens/dashboard/profile_screen.dart';
+import 'package:pg_findar/screens/user/user_profile_screen.dart';
 void main() {
   testWidgets('Edit profile full flow updates user profile on ProfileScreen', (
     WidgetTester tester,

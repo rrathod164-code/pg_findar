@@ -4,7 +4,7 @@ import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
 import '../../widgets/write_review_dialog.dart';
 import '../booking/book_visit_screen.dart';
-import '../../services/api_service.dart';
+import '../user/user_home_screen.dart';
 
 /// ============================================================================
 /// PG DETAIL SCREEN (BEGINNER-FRIENDLY, NON-SCROLLING, PROPORTIONAL UI)
@@ -561,7 +561,7 @@ class PgDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        final currentPg = pg ?? ApiService.samplePGs.first;
+        final currentPg = pg ?? HomeScreen.samplePGs.first;
         final rooms = currentPg.roomsList;
 
         return SafeArea(

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import 'dashboard_background.dart';
-import '../screens/dashboard/home_screen.dart';
-import '../screens/dashboard/saved_screen.dart';
-import '../screens/dashboard/booking_screen.dart';
-import '../screens/dashboard/profile_screen.dart';
+import '../screens/user/user_home_screen.dart';
+import '../screens/user/user_saved_screen.dart';
+import '../screens/user/user_booking_screen.dart';
+import '../screens/user/user_profile_screen.dart';
 
 export 'owner_bottom_nav_bar.dart';
 

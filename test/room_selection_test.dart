@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pg_findar/services/api_service.dart';
+import 'package:pg_findar/screens/user/user_home_screen.dart';
+import 'package:pg_findar/screens/user/user_booking_screen.dart';
 
 void main() {
   group('Transparent Room Selection and Owner Approval Tests', () {
     test('PGAccommodation provides transparent room list with numbers and sharing', () {
-      final pgs = ApiService.samplePGs;
+      final pgs = HomeScreen.samplePGs;
       expect(pgs.isNotEmpty, true);
 
       final pg = pgs.first;
@@ -23,7 +24,7 @@ void main() {
     });
 
     test('Static bookings list contains valid booking details', () {
-      final bookings = ApiService.sampleBookings;
+      final bookings = BookingScreen.sampleBookings;
       expect(bookings.isNotEmpty, true);
 
       final booking = bookings.first;

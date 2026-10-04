@@ -3,7 +3,7 @@ import '../../resources/theme.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
 import 'payment_screen.dart';
-import '../../services/api_service.dart';
+import '../user/user_home_screen.dart';
 
 /// ============================================================================
 /// BOOK A VISIT SCREEN (BEGINNER-FRIENDLY UI)
@@ -55,7 +55,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     super.initState();
     _checkInDate = DateTime.now();
 
-    final currentPg = widget.pg ?? ApiService.samplePGs.first;
+    final currentPg = widget.pg ?? HomeScreen.samplePGs.first;
     _rooms = currentPg.roomsList;
 
     if (widget.initialRoom != null) {

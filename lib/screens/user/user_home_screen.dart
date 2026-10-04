@@ -1,10 +1,187 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
-import '../../services/api_service.dart';
 import '../../widgets/app_image.dart';
 import '../pg_details/pg_detail_screen.dart';
 import '../pg_details/pg_list_page.dart';
+
+/// ============================================================================
+/// PG ROOM DATA MODEL
+/// ============================================================================
+class PGRoom {
+  final String id;
+  final String roomNumber;
+  final String floor;
+  final String sharingType; // 'Single Sharing', 'Double Sharing', 'Triple Sharing'
+  final int totalBeds;
+  final int occupiedBeds;
+  final double price;
+  final List<String> amenities;
+
+  const PGRoom({
+    required this.id,
+    required this.roomNumber,
+    required this.floor,
+    required this.sharingType,
+    required this.totalBeds,
+    this.occupiedBeds = 0,
+    required this.price,
+    this.amenities = const ['Attached Bath', 'Wi-Fi'],
+  });
+
+  int get availableBeds => totalBeds - occupiedBeds;
+  bool get isAvailable => availableBeds > 0;
+  bool get isFull => occupiedBeds >= totalBeds;
+}
+
+/// ============================================================================
+/// PG ACCOMMODATION DATA MODEL
+/// ============================================================================
+class PGAccommodation {
+  final String id;
+  final String name;
+  final String location;
+  final String city;
+  final double price;
+  final double rating;
+  final String category; // 'Boys PG', 'Girls PG', 'Hostels', 'Flats' / 'Boys', 'Girls', 'Both'
+  final String gender; // 'Boys', 'Girls', 'Both'
+  final String imageUrl;
+  final bool hasWifi;
+  final bool hasAC;
+  final bool hasFood;
+  final bool hasParking;
+  final bool hasLaundry;
+  final bool hasTV;
+  final bool hasFridge;
+  final bool hasGeyser;
+  final bool isPopular;
+  final bool isNearby;
+  final String organizerId;
+  String get ownerId => organizerId;
+  final List<PGRoom>? rooms;
+
+  List<PGRoom> get roomsList {
+    if (rooms != null && rooms!.isNotEmpty) return rooms!;
+    return [
+      PGRoom(
+        id: '${id}_r101',
+        roomNumber: 'Room 101',
+        floor: '1st Floor',
+        sharingType: 'Single Sharing',
+        totalBeds: 1,
+        occupiedBeds: 0,
+        price: price + 2000,
+        amenities: const ['Attached Bath', 'AC', 'Balcony'],
+      ),
+      PGRoom(
+        id: '${id}_r102',
+        roomNumber: 'Room 102',
+        floor: '1st Floor',
+        sharingType: 'Double Sharing',
+        totalBeds: 2,
+        occupiedBeds: 1,
+        price: price,
+        amenities: const ['Attached Bath', 'Wi-Fi', 'Study Desk'],
+      ),
+      PGRoom(
+        id: '${id}_r201',
+        roomNumber: 'Room 201',
+        floor: '2nd Floor',
+        sharingType: 'Triple Sharing',
+        totalBeds: 3,
+        occupiedBeds: 1,
+        price: price > 2000 ? price - 1500 : price,
+        amenities: const ['Spacious Balcony', 'Wardrobe', 'Wi-Fi'],
+      ),
+      PGRoom(
+        id: '${id}_r202',
+        roomNumber: 'Room 202',
+        floor: '2nd Floor',
+        sharingType: 'Double Sharing',
+        totalBeds: 2,
+        occupiedBeds: 2,
+        price: price,
+        amenities: const ['Attached Bath', 'AC'],
+      ),
+    ];
+  }
+
+  PGAccommodation({
+    required this.id,
+    required this.name,
+    required this.location,
+    required this.city,
+    required this.price,
+    required this.rating,
+    required this.category,
+    required this.imageUrl,
+    this.gender = 'Both',
+    this.hasWifi = false,
+    this.hasAC = false,
+    this.hasFood = false,
+    this.hasParking = false,
+    this.hasLaundry = false,
+    this.hasTV = false,
+    this.hasFridge = false,
+    this.hasGeyser = false,
+    this.isPopular = false,
+    this.isNearby = false,
+    this.organizerId = 'organizer13',
+    this.rooms,
+  });
+
+  /// Returns a list of all active facilities for this PG
+  List<String> get facilities {
+    final List<String> list = [];
+    if (hasWifi) list.add('Wifi');
+    if (hasAC) list.add('AC');
+    if (hasFood) list.add('Food');
+    if (hasParking) list.add('Parking');
+    if (hasLaundry) list.add('Laundry');
+    if (hasTV) list.add('TV');
+    if (hasFridge) list.add('Fridge');
+    if (hasGeyser) list.add('Gyser');
+    return list;
+  }
+
+  /// Checks if this PG has a specific facility
+  bool hasFacility(String facility) {
+    switch (facility.toLowerCase()) {
+      case 'wifi':
+        return hasWifi;
+      case 'ac':
+        return hasAC;
+      case 'food':
+        return hasFood;
+      case 'parking':
+        return hasParking;
+      case 'laundry':
+        return hasLaundry;
+      case 'tv':
+        return hasTV;
+      case 'fridge':
+        return hasFridge;
+      case 'gyser':
+      case 'geyser':
+        return hasGeyser;
+      default:
+        return false;
+    }
+  }
+
+  /// Count how many of the selected facilities this PG fulfills
+  int matchingFacilitiesCount(List<String> selectedFacilities) {
+    if (selectedFacilities.isEmpty) return 0;
+    int count = 0;
+    for (final facility in selectedFacilities) {
+      if (hasFacility(facility)) {
+        count++;
+      }
+    }
+    return count;
+  }
+}
 
 /// ============================================================================
 /// HOME SCREEN (EXPLORE & BOOK PGS)
@@ -15,6 +192,136 @@ import '../pg_details/pg_list_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  // Static dummy/mock data for clean, static UI presentation
+  static final List<PGAccommodation> samplePGs = [
+    PGAccommodation(
+      id: '1',
+      name: 'Green Valley PG',
+      location: 'Kalawad Road, Rajkot',
+      city: 'Rajkot',
+      price: 6500,
+      rating: 4.8,
+      category: 'Boys PG',
+      gender: 'Boys',
+      imageUrl: 'assets/images/GreenVally.png',
+      hasWifi: true,
+      hasAC: true,
+      hasFood: true,
+      hasParking: true,
+      hasLaundry: true,
+      hasTV: true,
+      hasFridge: true,
+      hasGeyser: true,
+      isPopular: true,
+      isNearby: false,
+    ),
+    PGAccommodation(
+      id: '2',
+      name: 'Sunshine Residency',
+      location: '150 Feet Ring Road, Rajkot',
+      city: 'Rajkot',
+      price: 7500,
+      rating: 4.9,
+      category: 'Girls PG',
+      gender: 'Girls',
+      imageUrl: 'assets/images/Sunshine.png',
+      hasWifi: true,
+      hasAC: true,
+      hasFood: true,
+      hasParking: false,
+      hasLaundry: true,
+      hasTV: true,
+      hasFridge: true,
+      hasGeyser: true,
+      isPopular: true,
+      isNearby: false,
+    ),
+    PGAccommodation(
+      id: '3',
+      name: 'Comfort Stay PG',
+      location: 'University Road, Rajkot',
+      city: 'Rajkot',
+      price: 5500,
+      rating: 4.5,
+      category: 'Hostels',
+      gender: 'Both',
+      imageUrl: 'assets/images/Comfert.png',
+      hasWifi: true,
+      hasAC: false,
+      hasFood: true,
+      hasParking: true,
+      hasLaundry: true,
+      hasTV: true,
+      hasFridge: true,
+      hasGeyser: true,
+      isPopular: true,
+      isNearby: true,
+    ),
+    PGAccommodation(
+      id: '4',
+      name: 'Royal PG',
+      location: 'Rajkot , Gujarat',
+      city: 'Rajkot',
+      price: 6500,
+      rating: 4.7,
+      category: 'Boys PG',
+      gender: 'Boys',
+      imageUrl: 'assets/images/royal.png',
+      hasWifi: true,
+      hasAC: true,
+      hasFood: true,
+      hasParking: true,
+      hasLaundry: false,
+      hasTV: false,
+      hasFridge: false,
+      hasGeyser: true,
+      isPopular: false,
+      isNearby: true,
+    ),
+    PGAccommodation(
+      id: '5',
+      name: 'Shanti Girls PG',
+      location: 'Astron Chowk, Rajkot',
+      city: 'Rajkot',
+      price: 7000,
+      rating: 4.6,
+      category: 'Girls PG',
+      gender: 'Girls',
+      imageUrl: 'assets/images/Shanti.png',
+      hasWifi: true,
+      hasAC: false,
+      hasFood: true,
+      hasParking: false,
+      hasLaundry: true,
+      hasTV: true,
+      hasFridge: true,
+      hasGeyser: true,
+      isPopular: false,
+      isNearby: true,
+    ),
+    PGAccommodation(
+      id: '6',
+      name: 'Metro Heights Luxury Flat',
+      location: 'Mavdi, Rajkot',
+      city: 'Rajkot',
+      price: 8500,
+      rating: 4.5,
+      category: 'Flats',
+      gender: 'Both',
+      imageUrl: 'assets/images/metro.png',
+      hasWifi: true,
+      hasAC: true,
+      hasFood: false,
+      hasParking: true,
+      hasLaundry: true,
+      hasTV: true,
+      hasFridge: true,
+      hasGeyser: true,
+      isPopular: false,
+      isNearby: false,
+    ),
+  ];
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -40,285 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  // Format date helper (DD/MM/YYYY)
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
 
-  // --------------------------------------------------------------------------
-  // Booking Bottom Sheet Modal
-  // --------------------------------------------------------------------------
-  // ignore: unused_element
-  void _showBookingDialog(PGAccommodation pg) {
-    DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
-    String selectedRoomType = 'Double Sharing';
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-              ),
-              padding: EdgeInsets.only(
-                top: 24,
-                left: 24,
-                right: 24,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 50,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  const Text(
-                    'Book PG Accommodation',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    pg.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Select Room Sharing Type',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _buildSharingOption(
-                        title: 'Single',
-                        price: pg.price + 1500,
-                        isSelected: selectedRoomType == 'Single Sharing',
-                        onTap: () => setModalState(
-                          () => selectedRoomType = 'Single Sharing',
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      _buildSharingOption(
-                        title: 'Double',
-                        price: pg.price,
-                        isSelected: selectedRoomType == 'Double Sharing',
-                        onTap: () => setModalState(
-                          () => selectedRoomType = 'Double Sharing',
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      _buildSharingOption(
-                        title: 'Triple',
-                        price: pg.price - 1000,
-                        isSelected: selectedRoomType == 'Triple Sharing',
-                        onTap: () => setModalState(
-                          () => selectedRoomType = 'Triple Sharing',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Select Check-in Date',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 90)),
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: const ColorScheme.light(
-                                primary: AppColors.primary,
-                                onPrimary: Colors.white,
-                                onSurface: AppColors.textDark,
-                              ),
-                            ),
-                            child: child!,
-                          );
-                        },
-                      );
-                      if (picked != null) {
-                        setModalState(() {
-                          selectedDate = picked;
-                        });
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _formatDate(selectedDate),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF091A2A),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.calendar_today_rounded,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_rounded,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Booking request for ${pg.name} sent successfully!',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            backgroundColor: AppColors.primary,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Confirm & Request Booking',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildSharingOption({
-    required String title,
-    required double price,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryLight : Colors.white,
-            border: Border.all(
-              color: isSelected ? AppColors.primary : Colors.grey[300]!,
-              width: isSelected ? 2 : 1,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '₹${price.toInt()}/mo',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.textGrey,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -673,7 +702,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Popular PGs ListView
                 Builder(
                   builder: (context) {
-                    final pgs = ApiService.samplePGs;
+                    final pgs = HomeScreen.samplePGs;
                     final filteredPgs = pgs.where((pg) {
                       final matchesCity =
                           pg.city.toLowerCase() == _selectedCity.toLowerCase();
@@ -778,7 +807,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Nearby PGs ListView
                 Builder(
                   builder: (context) {
-                    final pgs = ApiService.samplePGs;
+                    final pgs = HomeScreen.samplePGs;
                     final filteredPgs = pgs.where((pg) {
                       final matchesCity =
                           pg.city.toLowerCase() == _selectedCity.toLowerCase();

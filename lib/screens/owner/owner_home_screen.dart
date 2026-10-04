@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/services/api_service.dart';
+import 'package:pg_findar/screens/user/user_home_screen.dart';
+import 'package:pg_findar/screens/user/user_booking_screen.dart';
 import 'package:pg_findar/widgets/app_image.dart';
 
 class OwnerHomeScreen extends StatelessWidget {
@@ -10,8 +11,8 @@ class OwnerHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Pure static demo data for simple, beginner-friendly UI presentation
-    final pgs = ApiService.samplePGs;
-    final bookings = ApiService.sampleBookings;
+    final pgs = HomeScreen.samplePGs;
+    final bookings = BookingScreen.sampleBookings;
 
     // Owner properties
     final ownerProperties = pgs

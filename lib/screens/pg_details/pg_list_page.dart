@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../resources/theme.dart';
-import '../../services/api_service.dart';
+import '../user/user_home_screen.dart';
 import '../../widgets/app_image.dart';
-import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/user_bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
 import '../../widgets/filter_bottom_sheet.dart';
 import 'pg_detail_screen.dart';
@@ -59,9 +59,6 @@ class _PGListPageState extends State<PGListPage> {
     super.dispose();
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
 
   // --------------------------------------------------------------------------
   // HELPER: Category Filter Matching (No Backend, 100% Frontend Logic)
@@ -381,277 +378,7 @@ class _PGListPageState extends State<PGListPage> {
     );
   }
 
-  // ignore: unused_element
-  void _showBookingDialog(PGAccommodation pg) {
-    DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
-    String selectedRoomType = 'Double Sharing';
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-              ),
-              padding: EdgeInsets.only(
-                top: 24,
-                left: 24,
-                right: 24,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                    child: Container(
-                      width: 50,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Book PG Accommodation',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    pg.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Select Room Sharing Type',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _buildSharingOption(
-                        title: 'Single',
-                        price: pg.price + 1500,
-                        isSelected: selectedRoomType == 'Single Sharing',
-                        onTap: () => setModalState(
-                          () => selectedRoomType = 'Single Sharing',
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      _buildSharingOption(
-                        title: 'Double',
-                        price: pg.price,
-                        isSelected: selectedRoomType == 'Double Sharing',
-                        onTap: () => setModalState(
-                          () => selectedRoomType = 'Double Sharing',
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      _buildSharingOption(
-                        title: 'Triple',
-                        price: pg.price - 1000,
-                        isSelected: selectedRoomType == 'Triple Sharing',
-                        onTap: () => setModalState(
-                          () => selectedRoomType = 'Triple Sharing',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Select Check-in Date',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 90)),
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: const ColorScheme.light(
-                                primary: AppColors.primary,
-                                onPrimary: Colors.white,
-                                onSurface: Color(0xFF091A2A),
-                              ),
-                            ),
-                            child: child!,
-                          );
-                        },
-                      );
-                      if (picked != null) {
-                        setModalState(() {
-                          selectedDate = picked;
-                        });
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _formatDate(selectedDate),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF091A2A),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.calendar_today_rounded,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_rounded,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Booking request for ${pg.name} sent successfully!',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            backgroundColor: AppColors.primary,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Confirm & Request Booking',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildSharingOption({
-    required String title,
-    required double price,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryLight : Colors.white,
-            border: Border.all(
-              color: isSelected ? AppColors.primary : Colors.grey[300]!,
-              width: isSelected ? 2 : 1,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? AppColors.primary
-                      : const Color(0xFF091A2A),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '₹${price.toInt()}/mo',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? AppColors.primary
-                      : const Color(0xFF758595),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildActiveFilterChip(String label, VoidCallback onRemove) {
     return Container(
@@ -911,7 +638,7 @@ class _PGListPageState extends State<PGListPage> {
               Expanded(
                 child: Builder(
                   builder: (context) {
-                    final pgs = ApiService.samplePGs;
+                    final pgs = HomeScreen.samplePGs;
                     // Filter by city
                     var list = pgs
                         .where(

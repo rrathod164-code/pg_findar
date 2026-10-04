@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/services/api_service.dart';
+import 'package:pg_findar/screens/user/user_home_screen.dart';
 import 'package:pg_findar/widgets/app_image.dart';
 
 class OwnerPropertiesScreen extends StatefulWidget {
@@ -1170,7 +1170,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
         top: false,
         child: Builder(
           builder: (context) {
-            final pgs = ApiService.samplePGs;
+            final pgs = HomeScreen.samplePGs;
             final myProperties = pgs
                 .where((p) => p.organizerId == 'organizer13' || p.organizerId == 'owner13')
                 .toList();

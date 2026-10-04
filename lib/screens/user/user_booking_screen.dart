@@ -1,11 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
-import '../../services/api_service.dart';
+import 'user_home_screen.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
 import '../booking/book_visit_screen.dart';
 import '../pg_details/pg_detail_screen.dart';
 import '../../widgets/write_review_dialog.dart';
+
+/// ============================================================================
+/// PG BOOKING DATA MODEL
+/// ============================================================================
+class PGBooking {
+  final String id;
+  final PGAccommodation pg;
+  final DateTime checkInDate;
+  final DateTime? checkOutDate;
+  final String status; // 'completed', 'Cancelled', 'Pending', 'Approved'
+  final String roomType; // 'Single Sharing', 'Double Sharing', 'Triple Sharing'
+  final double totalPaid;
+  final String? customDateRange;
+  final String userName;
+  final String userPhone;
+  final String roomNumber;
+  final String floor;
+
+  PGBooking({
+    required this.id,
+    required this.pg,
+    required this.checkInDate,
+    this.checkOutDate,
+    required this.status,
+    this.roomType = 'Double Sharing',
+    this.totalPaid = 0,
+    this.customDateRange,
+    this.userName = 'Guest Tenant',
+    this.userPhone = '+91 98765 43210',
+    this.roomNumber = 'Room 102',
+    this.floor = '1st Floor',
+  });
+
+  String get dateRangeFormatted {
+    if (customDateRange != null && customDateRange!.isNotEmpty) {
+      return customDateRange!;
+    }
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final inStr =
+        '${checkInDate.day} ${months[checkInDate.month - 1]} ${checkInDate.year}';
+    if (checkOutDate != null) {
+      final outStr =
+          '${checkOutDate!.day} ${months[checkOutDate!.month - 1]} ${checkOutDate!.year}';
+      return '$inStr - $outStr';
+    }
+    return inStr;
+  }
+}
 
 /// ============================================================================
 /// BOOKING SCREEN (USER PAST & ACTIVE BOOKINGS)
@@ -24,6 +75,9 @@ import '../../widgets/write_review_dialog.dart';
 
 class BookingScreen extends StatelessWidget {
   const BookingScreen({super.key});
+
+  // Getter for sampleBookings
+  static List<PGBooking> get sampleBookings => staticBookings;
 
   // --------------------------------------------------------------------------
   // STATIC BOOKINGS DATA (Pure Frontend, Beginner Friendly)

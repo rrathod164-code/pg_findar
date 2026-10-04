@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
-import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/user_bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
-import 'booking_screen.dart';
-import 'edit_profile_screen.dart';
-import 'my_reviews_screen.dart';
-import 'saved_screen.dart';
+import 'user_booking_screen.dart';
+import 'user_edit_profile_screen.dart';
+import 'user_my_reviews_screen.dart';
+import 'user_saved_screen.dart';
 import '../../widgets/logout_dialog.dart';
 
 /// ============================================================================

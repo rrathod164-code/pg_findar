@@ -8,14 +8,13 @@ import 'package:pg_findar/screens/auth/intro_screen.dart';
 import 'package:pg_findar/screens/auth/login_screen.dart';
 import 'package:pg_findar/screens/auth/signup_screen.dart';
 import 'package:pg_findar/screens/auth/forgot_password_screen.dart';
-import 'package:pg_findar/widgets/bottom_nav_bar.dart';
-import 'package:pg_findar/screens/dashboard/home_screen.dart';
-import 'package:pg_findar/screens/dashboard/saved_screen.dart';
-import 'package:pg_findar/screens/dashboard/booking_screen.dart';
-import 'package:pg_findar/screens/dashboard/profile_screen.dart';
+import 'package:pg_findar/widgets/user_bottom_nav_bar.dart';
+import 'package:pg_findar/screens/user/user_home_screen.dart';
+import 'package:pg_findar/screens/user/user_saved_screen.dart';
+import 'package:pg_findar/screens/user/user_booking_screen.dart';
+import 'package:pg_findar/screens/user/user_profile_screen.dart';
 import 'package:pg_findar/screens/pg_details/pg_detail_screen.dart';
 import 'package:pg_findar/widgets/logout_dialog.dart';
-import 'package:pg_findar/services/api_service.dart';
 
 final List<int> _kTransparentImage = <int>[
   0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49,
