@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
+  '../widgets/app_image.dart';
 import '../widgets/dashboard_background.dart';
 import 'payment_screen.dart';
 
