@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/pg_model.dart';
-import '../widgets/app_image.dart';
-import '../widgets/bottom_nav_bar.dart';
-import '../widgets/dashboard_background.dart';
+import '../../resources/theme.dart';
+import '../user/user_home_screen.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/user_bottom_nav_bar.dart';
+import '../../widgets/dashboard_background.dart';
 
 /// ============================================================================
 /// PAYMENT SUCCESS SCREEN (BEGINNER-FRIENDLY UI)
@@ -18,6 +19,7 @@ class PaymentSuccessScreen extends StatelessWidget {
   final int members;
   final String dateString;
   final String transactionId;
+  final PGRoom? selectedRoom;
 
   const PaymentSuccessScreen({
     super.key,
@@ -27,6 +29,7 @@ class PaymentSuccessScreen extends StatelessWidget {
     this.members = 1,
     this.dateString = '25 July 2026',
     this.transactionId = 'TXN9876543210',
+    this.selectedRoom,
   });
 
   @override
@@ -38,7 +41,7 @@ class PaymentSuccessScreen extends StatelessWidget {
         ? pg!.imageUrl
         : 'assets/images/GreenVally.png';
 
-    const Color primaryGreen = Color(0xFF10B981);
+    const Color primaryGreen = AppColors.primary;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -58,7 +61,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     width: 95,
                     height: 95,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF9DE6D0), // Soft green outer circle
+                      color: AppColors.primary.withValues(alpha: 0.25), // Soft green outer circle
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -178,6 +181,39 @@ class PaymentSuccessScreen extends StatelessWidget {
                               Icons.person_outline,
                               '$members Member${members > 1 ? 's' : ''}',
                             ),
+                            const SizedBox(height: 2),
+
+                            // Room & Sharing row
+                            _buildDetailRow(
+                              Icons.meeting_room_outlined,
+                              '${selectedRoom?.roomNumber ?? 'Room 102'} (${selectedRoom?.floor ?? '1st Floor'}) • ${selectedRoom?.sharingType ?? 'Double Sharing'}',
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Pending Owner Approval Badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEF3C7),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: const Color(0xFFFDE68A)),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.schedule_rounded, size: 12, color: Color(0xFFD97706)),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Pending Owner Approval',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFB45309),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -197,7 +233,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD3F7EC), // Mint tinted background
+                    color: AppColors.primaryLight, // Mint tinted background
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Row(
@@ -232,7 +268,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                       Container(
                         width: 1.2,
                         height: 38,
-                        color: const Color(0xFF9DE0CC),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         margin: const EdgeInsets.symmetric(horizontal: 10),
                       ),
 
@@ -284,20 +320,20 @@ class PaymentSuccessScreen extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                // Step 1: Booking Confirmed
+                // Step 1: Room Requested
                 _buildStepItem(
-                  icon: Icons.bookmark_outline,
-                  title: 'Booking Confirmed',
-                  subtitle: 'We have sent your booking details',
+                  icon: Icons.meeting_room_outlined,
+                  title: 'Room Requested',
+                  subtitle: '${selectedRoom?.roomNumber ?? 'Room 102'} request sent to owner',
                   showCheckmark: true,
                   showBottomLine: true,
                 ),
 
-                // Step 2: Owner Will Contact You
+                // Step 2: Owner Approves Request
                 _buildStepItem(
-                  icon: Icons.chat_bubble_outline_rounded,
-                  title: 'Owner Will Contact You',
-                  subtitle: 'The PG owner will contact you soon',
+                  icon: Icons.verified_user_outlined,
+                  title: 'Owner Approves Request',
+                  subtitle: 'Owner will verify & confirm your room assignment',
                   showCheckmark: false,
                   showBottomLine: true,
                 ),
@@ -450,13 +486,13 @@ class PaymentSuccessScreen extends StatelessWidget {
             Container(
               width: 38,
               height: 38,
-              decoration: const BoxDecoration(
-                color: Color(0xFF90E4CC), // Soft mint circle
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight, // Soft mint circle
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFF047857), // Dark emerald icon
+                color: AppColors.primaryDark, // Dark emerald icon
                 size: 20,
               ),
             ),
@@ -464,7 +500,7 @@ class PaymentSuccessScreen extends StatelessWidget {
               Container(
                 width: 1.5,
                 height: 22,
-                color: const Color(0xFF65CBAF), // Connecting line
+                color: AppColors.primary.withValues(alpha: 0.4), // Connecting line
               ),
           ],
         ),
@@ -504,7 +540,7 @@ class PaymentSuccessScreen extends StatelessWidget {
         if (showCheckmark)
           const Padding(
             padding: EdgeInsets.only(top: 6),
-            child: Icon(Icons.check_circle, color: Color(0xFF10B981), size: 20),
+            child: Icon(Icons.check_circle, color: AppColors.primary, size: 20),
           ),
       ],
     );

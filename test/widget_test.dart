@@ -8,11 +8,13 @@ import 'package:pg_findar/screens/auth/intro_screen.dart';
 import 'package:pg_findar/screens/auth/login_screen.dart';
 import 'package:pg_findar/screens/auth/signup_screen.dart';
 import 'package:pg_findar/screens/auth/forgot_password_screen.dart';
-import 'package:pg_findar/widgets/bottom_nav_bar.dart';
-import 'package:pg_findar/screens/dashboard/home_screen.dart';
-import 'package:pg_findar/screens/dashboard/saved_screen.dart';
-import 'package:pg_findar/screens/dashboard/booking_screen.dart';
-import 'package:pg_findar/screens/dashboard/profile_screen.dart';
+import 'package:pg_findar/widgets/user_bottom_nav_bar.dart';
+import 'package:pg_findar/screens/user/user_home_screen.dart';
+import 'package:pg_findar/screens/user/user_saved_screen.dart';
+import 'package:pg_findar/screens/user/user_booking_screen.dart';
+import 'package:pg_findar/screens/user/user_profile_screen.dart';
+import 'package:pg_findar/screens/pg_details/pg_detail_screen.dart';
+import 'package:pg_findar/widgets/logout_dialog.dart';
 
 final List<int> _kTransparentImage = <int>[
   0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49,
@@ -105,14 +107,14 @@ void main() {
     await tester.tap(find.text('Get start'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(LoginScreen), findsOneWidget);
+    expect(find.byType(LoginPage), findsOneWidget);
     expect(find.text('Welcome Back'), findsOneWidget);
     expect(find.text('Login to continue'), findsOneWidget);
   });
 
   testWidgets('Login validation and navigation flow', (WidgetTester tester) async {
     setTestScreenSize(tester);
-    await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+    await tester.pumpWidget(const MaterialApp(home: LoginPage()));
 
     // Try logging in with empty inputs
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
@@ -148,7 +150,7 @@ void main() {
 
   testWidgets('Forgot Password navigation and UI flow', (WidgetTester tester) async {
     setTestScreenSize(tester);
-    await tester.pumpWidget(const MaterialApp(home: ForgotPasswordScreen()));
+    await tester.pumpWidget(const MaterialApp(home: ForgotPasswordPage()));
 
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('Send Reset Link'), findsOneWidget);
@@ -170,7 +172,7 @@ void main() {
 
   testWidgets('Sign Up screen empty validation flow', (WidgetTester tester) async {
     setTestScreenSize(tester);
-    await tester.pumpWidget(const MaterialApp(home: SignUpScreen()));
+    await tester.pumpWidget(const MaterialApp(home: SignUpPage()));
 
     // Tap Sign Up with empty inputs
     await tester.tap(find.widgetWithText(ElevatedButton, 'Sign Up'));
@@ -206,7 +208,7 @@ void main() {
 
   testWidgets('Sign Up screen form interaction', (WidgetTester tester) async {
     setTestScreenSize(tester);
-    await tester.pumpWidget(const MaterialApp(home: SignUpScreen()));
+    await tester.pumpWidget(const MaterialApp(home: SignUpPage()));
 
     expect(find.text('Create Your Account'), findsOneWidget);
     expect(find.text('Sign up to get started'), findsOneWidget);
@@ -271,5 +273,77 @@ void main() {
     await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     expect(find.text('Hi , User'), findsOneWidget);
+  });
+
+  testWidgets('OwnerDashboardPage renders and navigates tabs without overflow or image errors', (WidgetTester tester) async {
+    setTestScreenSize(tester);
+    await tester.pumpWidget(const MaterialApp(home: OwnerDashboardPage()));
+    await tester.pumpAndSettle();
+
+    // Verify Owner Dashboard Home tab
+    expect(find.text('Good Morning,'), findsOneWidget);
+    expect(find.text('Renisha!'), findsOneWidget);
+
+    // Switch to Properties Tab
+    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Properties')));
+    await tester.pumpAndSettle();
+    expect(find.text('Add PG'), findsOneWidget);
+
+    // Switch to Bookings Tab
+    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Bookings')));
+    await tester.pumpAndSettle();
+    expect(find.text('Booking Requests'), findsOneWidget);
+
+    // Switch to Profile Tab
+    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Profile')));
+    await tester.pumpAndSettle();
+    expect(find.text('Owner Profile'), findsOneWidget);
+
+    // Verify Logout opens LogoutDialog
+    await tester.tap(find.text('Logout'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LogoutDialog), findsOneWidget);
+    expect(find.text('Are you sure you want to\nlogout from your account?'), findsOneWidget);
+
+    // Cancel dialog
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LogoutDialog), findsNothing);
+  });
+
+  testWidgets('PgDetailScreen renders properly on compact screens without overflow', (WidgetTester tester) async {
+    // Set a compact mobile screen size
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final dummyPg = PGAccommodation(
+      id: '99',
+      name: 'Test PG Residency',
+      location: 'Test Road, City',
+      city: 'Rajkot',
+      price: 5500,
+      rating: 4.8,
+      category: 'Boys PG',
+      gender: 'Boys',
+      imageUrl: 'assets/images/GreenVally.png',
+      hasWifi: true,
+      hasAC: true,
+      hasFood: true,
+      hasParking: true,
+      hasLaundry: true,
+      hasTV: true,
+      hasFridge: true,
+      hasGeyser: true,
+      isPopular: true,
+      isNearby: true,
+    );
+
+    await tester.pumpWidget(MaterialApp(home: PgDetailScreen(pg: dummyPg)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Test PG Residency'), findsOneWidget);
+    expect(find.text('Book a PG'), findsOneWidget);
   });
 }

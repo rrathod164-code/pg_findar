@@ -1,37 +1,72 @@
 import 'package:flutter/material.dart';
 
 /// ============================================================================
-/// APP COLORS (CENTRAL COLOR PALETTE)
+/// 🎨 APP CENTRAL COLOR PALETTE (AppColors)
 /// ============================================================================
-/// Beginner-friendly centralized color constants for the PG Finder app.
-/// Use these colors anywhere in your app: AppColors.primary, AppColors.textDark, etc.
+/// Change colors here to instantly reflect across all screens, buttons,
+/// inputs, icons, and UI widgets throughout the entire application.
 /// ============================================================================
 class AppColors {
-  // Brand & Primary Colors
-  static const Color primary = Color(0xFF13B99D); // Mint Teal
-  static const Color primaryLight = Color(0xFFEBFDFB); // Soft Teal Tint
-  static const Color primaryDark = Color(0xFF0E8E78); // Darker Teal
+  // ===========================================================================
+  // 1. BRAND & PRIMARY COLORS
+  // (Change `primary` to change the main app theme color everywhere!)
+  // ===========================================================================
+  static const Color primary = Color(
+    0xFF13B99D,
+  ); // Main Brand Color (Mint Teal)
+  static const Color primaryLight = Color.fromARGB(
+    255,
+    209,
+    241,
+    238,
+  ); // Soft Tint / Badge Background
+  static const Color primaryDark = Color(0xFF0E8E78); // Darker Brand Accent
+  static const Color primaryTint = Color(0xFFB9F2E9); // Secondary Accent Shade
 
-  // Background Colors
-  static const Color background = Color(0xFFFBFDFD); // Off-White Scaffold
-  static const Color surface = Colors.white; // Card / Sheet Background
+  // ===========================================================================
+  // 2. BACKGROUND & SURFACE COLORS
+  // ===========================================================================
+  static const Color background = Color(0xFFFBFDFD); // Off-White Canvas
+  static const Color surface = Colors.white; // Card / Sheet / Modal Background
+  static const Color cardBg = Colors.white;
 
-  // Text Colors
+  // ===========================================================================
+  // 3. TEXT & CONTENT COLORS
+  // ===========================================================================
   static const Color textDark = Color(0xFF091A2A); // Headings & Titles
   static const Color textGrey = Color(0xFF758595); // Subtitles & Captions
   static const Color textLight = Color(0xFF9CA3AF); // Light Hint & Muted Text
+  static const Color inputHint = Color(0xFFB0BAC5); // Text Field Hint
 
-  // Accent & Status Colors
+  // ===========================================================================
+  // 4. ACCENT & STATUS COLORS
+  // ===========================================================================
   static const Color success = Color(0xFF10B981); // Completed / Green Badge
   static const Color successLight = Color(0xFFD1FAE5); // Green Badge Background
   static const Color warning = Color(0xFFF97316); // Review / Orange
   static const Color error = Color(0xFFEF4444); // Cancelled / Red Badge
   static const Color errorLight = Color(0xFFFEE2E2); // Red Badge Background
-  static const Color starAmber = Colors.amber; // Star Ratings
+  static const Color starAmber = Color(0xFFFFC107); // Star Ratings
 
-  // Border & Divider Colors
+  // ===========================================================================
+  // 5. BORDER & DIVIDER COLORS
+  // ===========================================================================
   static const Color border = Color(0xFFE5E7EB); // Subtle Border Grey
+  static const Color divider = Color(0xFFF3F4F6); // Soft Divider Grey
   static const Color cardShadow = Color(0x0A000000); // 4% Soft Shadow
+
+  // ===========================================================================
+  // 6. ONBOARDING & GRADIENT COLORS
+  // ===========================================================================
+  static const Color introGradientTop = Color(0xFFF1FBFA);
+  static const Color introGradientBottom = Color(0xFFB9F2E9);
+
+  /// Helper Gradient for Onboarding Screen
+  static const LinearGradient introGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [introGradientTop, introGradientBottom],
+  );
 }
 
 /// ============================================================================
@@ -69,7 +104,7 @@ class AppTheme {
         iconTheme: IconThemeData(color: AppColors.textDark),
       ),
 
-      // Elevated Button Theme (Mint rounded buttons)
+      // Elevated Button Theme (Primary rounded buttons)
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -118,7 +153,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        hintStyle: const TextStyle(color: Color(0xFFB0BAC5), fontSize: 14),
+        hintStyle: const TextStyle(color: AppColors.inputHint, fontSize: 14),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,

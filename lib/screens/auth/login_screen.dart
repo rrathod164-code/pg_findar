@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
-import '../../widgets/bottom_nav_bar.dart';
-import '../../services/api_service.dart';
+import '../../widgets/user_bottom_nav_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,64 +19,6 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _obscurePassword = true;
   bool _isLoading = false;
-  String? _errorMessage; // Holds wrong username or password error
-  String? _emailError;
-  String? _passwordError;
-
-  // Pre-defined demo accounts (beginner-friendly frontend validation)
-  bool _checkCredentials(String loginInput, String password) {
-    final validAccounts = <String, List<String>>{
-      'user13': ['1234', 'user123', 'password13'],
-      'user@pgfindar.com': ['1234', 'user123', 'password13'],
-      'user@gmail.com': ['1234', 'user123', 'password13'],
-      'admin13': ['1234', 'admin123', 'password13'],
-      'admin@pgfindar.com': ['1234', 'admin123', 'password13'],
-      'organizer13': ['1234', 'organizer123', 'password13'],
-      'organizer@pgfindar.com': ['1234', 'organizer123', 'password13'],
-    };
-
-    // 1. Check pre-defined demo accounts
-    if (validAccounts.containsKey(loginInput)) {
-      final allowedPasswords = validAccounts[loginInput]!;
-      return allowedPasswords.contains(password);
-    }
-
-    // 2. Check newly registered users from SignUpPage
-    if (ApiService.registeredUsers.containsKey(loginInput)) {
-      return ApiService.registeredUsers[loginInput] == password;
-    }
-
-    return false;
-  }
-
-  // Field validation methods
-  String? _validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your email or username';
-    }
-    final input = value.trim();
-    if (input.contains('@')) {
-      final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-      if (!emailRegExp.hasMatch(input)) {
-        return 'Please enter a valid email address';
-      }
-    } else {
-      if (input.length < 3) {
-        return 'Username must be at least 3 characters';
-      }
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your password';
-    }
-    if (value.length < 4) {
-      return 'Password must be at least 4 characters';
-    }
-    return null;
-  }
 
   @override
   void dispose() {
@@ -86,38 +28,19 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleLogin() {
-    // Clear any previous error banner and validate fields
-    setState(() {
-      _errorMessage = null;
-      _emailError = _validateEmail(_emailController.text);
-      _passwordError = _validatePassword(_passwordController.text);
-    });
-
-    if (_emailError != null || _passwordError != null) {
+    if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
     final loginInput = _emailController.text.trim().toLowerCase();
-    final password = _passwordController.text;
 
     setState(() {
       _isLoading = true;
     });
 
-    // Simulate quick authentication check
-    Future.delayed(const Duration(milliseconds: 700), () {
+    // Simulate quick UI transition
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-
-      // Verify credentials
-      final isCorrect = _checkCredentials(loginInput, password);
-
-      if (!isCorrect) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Incorrect username or password. Please try again.';
-        });
-        return;
-      }
 
       setState(() {
         _isLoading = false;
@@ -126,13 +49,13 @@ class _LoginPageState extends State<LoginPage> {
       Widget nextScreen;
       String roleName;
 
-      if (loginInput == 'admin13' || loginInput == 'admin@pgfindar.com') {
-        nextScreen = const AdminDashboardPage();
-        roleName = 'Admin';
-      } else if (loginInput == 'organizer13' ||
+      if (loginInput == 'owner' ||
+          loginInput == 'owner13' ||
+          loginInput == 'owner@pgfindar.com' ||
+          loginInput == 'organizer13' ||
           loginInput == 'organizer@pgfindar.com') {
-        nextScreen = const OrganizerDashboardPage();
-        roleName = 'Organizer';
+        nextScreen = const OwnerDashboardPage();
+        roleName = 'Owner';
       } else {
         // Defaults to UserDashboard
         nextScreen = const BottomNavScreen();
@@ -149,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
               Text('Logged in successfully as $roleName'),
             ],
           ),
-          backgroundColor: const Color(0xFF13B99D),
+          backgroundColor: AppColors.primary,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -157,10 +80,11 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
 
-      // Navigate to the NextPage/Dashboard
-      Navigator.pushReplacement(
+      // Navigate to the NextPage/Dashboard and clear authentication routes
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => nextScreen),
+        (route) => false,
       );
     });
   }
@@ -182,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
+      backgroundColor: AppColors.background,
       body: DashboardBackground(
         child: SafeArea(
           child: LayoutBuilder(
@@ -199,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: Form(
                         key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -210,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF091A2A),
+                                color: AppColors.textDark,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -219,50 +144,12 @@ class _LoginPageState extends State<LoginPage> {
                               'Login to continue',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF758595),
+                                color: AppColors.textGrey,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
 
                             const SizedBox(height: 28),
-
-                            // Error Banner if wrong username/password was submitted
-                            if (_errorMessage != null) ...[
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFECEC),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.red.shade300,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.error_outline_rounded,
-                                      color: Colors.red.shade700,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        _errorMessage!,
-                                        style: TextStyle(
-                                          color: Colors.red.shade800,
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
 
                             // Email or Username Label
                             const Text(
@@ -270,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF091A2A),
+                                color: AppColors.textDark,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -290,28 +177,34 @@ class _LoginPageState extends State<LoginPage> {
                               child: TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
-                                onChanged: (_) {
-                                  if (_emailError != null ||
-                                      _errorMessage != null) {
-                                    setState(() {
-                                      _emailError = null;
-                                      _errorMessage = null;
-                                    });
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter your email or username';
                                   }
+                                  final input = value.trim();
+                                  if (input.contains('@')) {
+                                    final emailRegExp = RegExp(
+                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                    );
+                                    if (!emailRegExp.hasMatch(input)) {
+                                      return 'Please enter a valid email address';
+                                    }
+                                  } else if (input.length < 3) {
+                                    return 'Username must be at least 3 characters';
+                                  }
+                                  return null;
                                 },
-                                validator: (_) => _emailError,
                                 decoration: InputDecoration(
-                                  errorText: _emailError,
                                   filled: true,
                                   fillColor: Colors.white,
                                   hintText: 'Enter your email or username',
                                   hintStyle: const TextStyle(
-                                    color: Color(0xFFB0BAC5),
+                                    color: AppColors.inputHint,
                                     fontSize: 14,
                                   ),
                                   prefixIcon: const Icon(
                                     Icons.mail_outline_rounded,
-                                    color: Color(0xFF091A2A),
+                                    color: AppColors.textDark,
                                     size: 20,
                                   ),
                                   border: OutlineInputBorder(
@@ -325,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
                                     borderSide: const BorderSide(
-                                      color: Color(0xFF13B99D),
+                                      color: AppColors.primary,
                                       width: 1.5,
                                     ),
                                   ),
@@ -364,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF091A2A),
+                                color: AppColors.textDark,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -384,28 +277,26 @@ class _LoginPageState extends State<LoginPage> {
                               child: TextFormField(
                                 controller: _passwordController,
                                 obscureText: _obscurePassword,
-                                onChanged: (_) {
-                                  if (_passwordError != null ||
-                                      _errorMessage != null) {
-                                    setState(() {
-                                      _passwordError = null;
-                                      _errorMessage = null;
-                                    });
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your password';
                                   }
+                                  if (value.length < 4) {
+                                    return 'Password must be at least 4 characters';
+                                  }
+                                  return null;
                                 },
-                                validator: (_) => _passwordError,
                                 decoration: InputDecoration(
-                                  errorText: _passwordError,
                                   filled: true,
                                   fillColor: Colors.white,
                                   hintText: 'Enter your password',
                                   hintStyle: const TextStyle(
-                                    color: Color(0xFFB0BAC5),
+                                    color: AppColors.inputHint,
                                     fontSize: 14,
                                   ),
                                   prefixIcon: const Icon(
                                     Icons.lock_outline_rounded,
-                                    color: Color(0xFF091A2A),
+                                    color: AppColors.textDark,
                                     size: 20,
                                   ),
                                   suffixIcon: IconButton(
@@ -413,7 +304,7 @@ class _LoginPageState extends State<LoginPage> {
                                       _obscurePassword
                                           ? Icons.visibility_outlined
                                           : Icons.visibility_off_outlined,
-                                      color: const Color(0xFF091A2A),
+                                      color: AppColors.textDark,
                                       size: 20,
                                     ),
                                     onPressed: () {
@@ -433,7 +324,7 @@ class _LoginPageState extends State<LoginPage> {
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
                                     borderSide: const BorderSide(
-                                      color: Color(0xFF13B99D),
+                                      color: AppColors.primary,
                                       width: 1.5,
                                     ),
                                   ),
@@ -488,7 +379,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child: const Text(
                                   'Forgot password?',
                                   style: TextStyle(
-                                    color: Color(0xFF13B99D),
+                                    color: AppColors.primary,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -505,7 +396,7 @@ class _LoginPageState extends State<LoginPage> {
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _handleLogin,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF13B99D),
+                                  backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
@@ -541,7 +432,7 @@ class _LoginPageState extends State<LoginPage> {
                                 'Or continue with',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF758595),
+                                  color: AppColors.textGrey,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -636,7 +527,7 @@ class _LoginPageState extends State<LoginPage> {
                                     "Don't have an account? ",
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Color(0xFF758595),
+                                      color: AppColors.textGrey,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -655,7 +546,7 @@ class _LoginPageState extends State<LoginPage> {
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF13B99D),
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ),
@@ -678,147 +569,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-// Placeholders for Admin and Organizer Dashboards
-class AdminDashboardPage extends StatelessWidget {
-  const AdminDashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF13B99D),
-        elevation: 0,
-        title: const Text(
-          'Admin Dashboard',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: DashboardBackground(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF13B99D).withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.admin_panel_settings_rounded,
-                    size: 50,
-                    color: Color(0xFF13B99D),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Admin Panel - PG Finder',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF091A2A),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Logged in as admin13. Manage bookings and listings here.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF758595)),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class OrganizerDashboardPage extends StatelessWidget {
-  const OrganizerDashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFD),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF13B99D),
-        elevation: 0,
-        title: const Text(
-          'Organizer Dashboard',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: DashboardBackground(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF13B99D).withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.business_center_rounded,
-                    size: 50,
-                    color: Color(0xFF13B99D),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Organizer Panel - PG Finder',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF091A2A),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Logged in as organizer13. List PGs and approve booking requests here.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF758595)),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Alias for compatibility
-typedef LoginScreen = LoginPage;
