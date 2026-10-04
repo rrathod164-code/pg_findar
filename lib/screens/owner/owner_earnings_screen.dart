@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/owner_theme.dart';
 
 class OwnerEarningsScreen extends StatelessWidget {
   const OwnerEarningsScreen({super.key});
@@ -14,7 +15,7 @@ class OwnerEarningsScreen extends StatelessWidget {
         title: const Text(
           'Earnings & Payouts',
           style: TextStyle(
-            color: Color(0xFF091A2A),
+            color: OwnerColors.textHeading,
             fontWeight: FontWeight.w800,
             fontSize: 22,
           ),
@@ -34,14 +35,14 @@ class OwnerEarningsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF13B99D), Color(0xFF0F9B83)],
+                  colors: [OwnerColors.primary, OwnerColors.primaryDark],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF13B99D).withValues(alpha: 0.3),
+                    color: OwnerColors.primary.withValues(alpha: 0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 6),
                   ),
@@ -87,7 +88,7 @@ class OwnerEarningsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF132230),
+                color: OwnerColors.textDark,
               ),
             ),
             const SizedBox(height: 12),
@@ -103,7 +104,7 @@ class OwnerEarningsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF132230),
+                color: OwnerColors.textDark,
               ),
             ),
             const SizedBox(height: 12),
@@ -124,7 +125,7 @@ class OwnerEarningsScreen extends StatelessWidget {
                 children: const [
                   Icon(
                     Icons.account_balance_rounded,
-                    color: Color(0xFF13B99D),
+                    color: OwnerColors.primary,
                     size: 32,
                   ),
                   SizedBox(width: 14),
@@ -142,14 +143,14 @@ class OwnerEarningsScreen extends StatelessWidget {
                         Text(
                           'Primary Account for Direct Deposit',
                           style: TextStyle(
-                            color: Color(0xFF758595),
+                            color: OwnerColors.textGrey,
                             fontSize: 12,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(Icons.check_circle_rounded, color: Color(0xFF13B99D)),
+                  Icon(Icons.check_circle_rounded, color: OwnerColors.primary),
                 ],
               ),
             ),
@@ -191,7 +192,7 @@ class OwnerEarningsScreen extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 sub,
-                style: const TextStyle(color: Color(0xFF758595), fontSize: 12),
+                style: const TextStyle(color: OwnerColors.textGrey, fontSize: 12),
               ),
             ],
           ),
@@ -200,7 +201,7 @@ class OwnerEarningsScreen extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 15,
-              color: Color(0xFF13B99D),
+              color: OwnerColors.primary,
             ),
           ),
         ],

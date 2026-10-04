@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/owner_theme.dart';
 import 'package:pg_findar/screens/user/user_home_screen.dart';
 import 'package:pg_findar/screens/user/user_booking_screen.dart';
 import 'package:pg_findar/widgets/app_image.dart';
@@ -51,7 +52,7 @@ class OwnerHomeScreen extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF132230),
+                                    color: OwnerColors.textDark,
                                     letterSpacing: -0.3,
                                   ),
                                 ),
@@ -63,7 +64,7 @@ class OwnerHomeScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w900,
-                                        color: Color(0xFF132230),
+                                        color: OwnerColors.textDark,
                                         letterSpacing: -0.4,
                                       ),
                                     ),
@@ -74,7 +75,7 @@ class OwnerHomeScreen extends StatelessWidget {
                                   'Manage your properties, bookings\nand earnings',
                                   style: TextStyle(
                                     fontSize: 13.5,
-                                    color: Color(0xFF637688),
+                                    color: OwnerColors.textMuted,
                                     height: 1.3,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -103,7 +104,7 @@ class OwnerHomeScreen extends StatelessWidget {
                                 child: IconButton(
                                   icon: const Icon(
                                     Icons.notifications_none_rounded,
-                                    color: Color(0xFF132230),
+                                    color: OwnerColors.textDark,
                                     size: 24,
                                   ),
                                   onPressed: () {
@@ -112,9 +113,7 @@ class OwnerHomeScreen extends StatelessWidget {
                                         content: Text(
                                           'You have $pendingCount pending booking requests to review.',
                                         ),
-                                        backgroundColor: const Color(
-                                          0xFF13B99D,
-                                        ),
+                                        backgroundColor: OwnerColors.primary,
                                         behavior: SnackBarBehavior.floating,
                                       ),
                                     );
@@ -163,8 +162,8 @@ class OwnerHomeScreen extends StatelessWidget {
                           Expanded(
                             child: _buildMetricCard(
                               icon: Icons.home_rounded,
-                              iconColor: const Color(0xFF13B99D),
-                              iconBg: const Color(0xFFD2F5EC),
+                              iconColor: OwnerColors.primary,
+                              iconBg: OwnerColors.mintLight,
                               value: '$propertyCount',
                               label: 'Properties',
                             ),
@@ -173,8 +172,8 @@ class OwnerHomeScreen extends StatelessWidget {
                           Expanded(
                             child: _buildMetricCard(
                               icon: Icons.card_giftcard_rounded,
-                              iconColor: const Color(0xFFE53935),
-                              iconBg: const Color(0xFFFFECEE),
+                              iconColor: OwnerColors.error,
+                              iconBg: OwnerColors.errorBg,
                               value: '24',
                               label: 'Total Bookings',
                             ),
@@ -187,8 +186,8 @@ class OwnerHomeScreen extends StatelessWidget {
                           Expanded(
                             child: _buildMetricCard(
                               icon: Icons.access_time_filled_rounded,
-                              iconColor: const Color(0xFFFB8C00),
-                              iconBg: const Color(0xFFFFF3E0),
+                              iconColor: OwnerColors.warning,
+                              iconBg: OwnerColors.warningBg,
                               value: '$pendingCount',
                               label: 'Pending Requests',
                             ),
@@ -197,8 +196,8 @@ class OwnerHomeScreen extends StatelessWidget {
                           Expanded(
                             child: _buildMetricCard(
                               icon: Icons.currency_rupee_rounded,
-                              iconColor: const Color(0xFF00A896),
-                              iconBg: const Color(0xFFDFF8F3),
+                              iconColor: OwnerColors.tealAccent,
+                              iconBg: OwnerColors.mintSoft,
                               value: '₹ 1,25,500',
                               label: 'Total Earnings',
                             ),
@@ -217,7 +216,7 @@ class OwnerHomeScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 19,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF132230),
+                              color: OwnerColors.textDark,
                               letterSpacing: -0.3,
                             ),
                           ),
@@ -230,14 +229,14 @@ class OwnerHomeScreen extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF13B99D),
+                                    color: OwnerColors.primary,
                                   ),
                                 ),
                                 SizedBox(width: 2),
                                 Icon(
                                   Icons.chevron_right_rounded,
                                   size: 18,
-                                  color: Color(0xFF13B99D),
+                                  color: OwnerColors.primary,
                                 ),
                               ],
                             ),
@@ -306,7 +305,7 @@ class OwnerHomeScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF132230),
+              color: OwnerColors.textDark,
               letterSpacing: -0.3,
             ),
           ),
@@ -316,7 +315,7 @@ class OwnerHomeScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF758595),
+              color: OwnerColors.textGrey,
             ),
           ),
         ],
@@ -331,16 +330,16 @@ class OwnerHomeScreen extends StatelessWidget {
     String badgeLabel;
 
     if (statusLower == 'confirmed' || statusLower == 'approved') {
-      badgeBg = const Color(0xFFE6F8F0);
-      badgeText = const Color(0xFF27AE60);
+      badgeBg = OwnerColors.successBg;
+      badgeText = OwnerColors.success;
       badgeLabel = 'Confirmed';
     } else if (statusLower == 'pending') {
-      badgeBg = const Color(0xFFFFF6E0);
-      badgeText = const Color(0xFFE67E22);
+      badgeBg = OwnerColors.warningBgAlt;
+      badgeText = OwnerColors.warningAlt;
       badgeLabel = 'Pending';
     } else {
-      badgeBg = const Color(0xFFFFECEE);
-      badgeText = const Color(0xFFE53935);
+      badgeBg = OwnerColors.errorBg;
+      badgeText = OwnerColors.error;
       badgeLabel = booking.status;
     }
 
@@ -385,7 +384,7 @@ class OwnerHomeScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF132230),
+                    color: OwnerColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -395,7 +394,7 @@ class OwnerHomeScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12.5,
-                    color: Color(0xFF758595),
+                    color: OwnerColors.textGrey,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -405,7 +404,7 @@ class OwnerHomeScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F766E),
+                    color: OwnerColors.tealDeep,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -413,7 +412,7 @@ class OwnerHomeScreen extends StatelessWidget {
                   booking.dateRangeFormatted,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF8B98A5),
+                    color: OwnerColors.textCaption,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -423,7 +422,7 @@ class OwnerHomeScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14.5,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF132230),
+                    color: OwnerColors.textDark,
                   ),
                 ),
               ],
@@ -464,13 +463,13 @@ class OwnerHomeScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF13B99D).withValues(alpha: 0.1),
+                      color: OwnerColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
                       'Action >',
                       style: TextStyle(
-                        color: Color(0xFF13B99D),
+                        color: OwnerColors.primary,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -528,16 +527,16 @@ class OwnerHomeScreen extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8F8F5),
+                    color: OwnerColors.mintBg,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFB8E8DE)),
+                    border: Border.all(color: OwnerColors.mintBorder),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.meeting_room_outlined,
                         size: 16,
-                        color: Color(0xFF0D9488),
+                        color: OwnerColors.tealMedium,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -546,7 +545,7 @@ class OwnerHomeScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F766E),
+                            color: OwnerColors.tealDeep,
                           ),
                         ),
                       ),
@@ -565,8 +564,8 @@ class OwnerHomeScreen extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFE53935),
-                          side: const BorderSide(color: Color(0xFFE53935)),
+                          foregroundColor: OwnerColors.error,
+                          side: const BorderSide(color: OwnerColors.error),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -588,7 +587,7 @@ class OwnerHomeScreen extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF13B99D),
+                          backgroundColor: OwnerColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -600,7 +599,7 @@ class OwnerHomeScreen extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Booking confirmed successfully!'),
-                              backgroundColor: Color(0xFF13B99D),
+                              backgroundColor: OwnerColors.primary,
                               behavior: SnackBarBehavior.floating,
                             ),
                           );

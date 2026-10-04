@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pg_findar/resources/theme.dart';
+import 'package:pg_findar/resources/owner_theme.dart';
 import 'package:pg_findar/screens/auth/login_screen.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
 import '../screens/owner/owner_home_screen.dart';
@@ -100,10 +100,7 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           // IndexedStack preserves the scroll position and state of each tab
-          body: IndexedStack(
-            index: _currentIndex,
-            children: _screens,
-          ),
+          body: IndexedStack(index: _currentIndex, children: _screens),
           // The bottom navigation bar matching reference design
           bottomNavigationBar: OwnerBottomNavBar(
             currentIndex: _currentIndex,
@@ -138,9 +135,7 @@ class OwnerBottomNavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(30),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
@@ -151,9 +146,7 @@ class OwnerBottomNavBar extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(30),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         child: SafeArea(
           top: false,
           child: Padding(
@@ -164,8 +157,8 @@ class OwnerBottomNavBar extends StatelessWidget {
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.white,
               elevation: 0,
-              selectedItemColor: AppColors.primary,
-              unselectedItemColor: const Color(0xFF1E293B),
+              selectedItemColor: OwnerColors.primary,
+              unselectedItemColor: OwnerColors.textNavUnselected,
               selectedFontSize: 12,
               unselectedFontSize: 12,
               selectedLabelStyle: const TextStyle(
@@ -215,11 +208,17 @@ class OwnerBottomNavBar extends StatelessWidget {
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(bottom: 4),
-                    child: Icon(Icons.account_balance_wallet_outlined, size: 26),
+                    child: Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 26,
+                    ),
                   ),
                   activeIcon: Padding(
                     padding: EdgeInsets.only(bottom: 4),
-                    child: Icon(Icons.account_balance_wallet_outlined, size: 26),
+                    child: Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 26,
+                    ),
                   ),
                   label: 'Earnings',
                 ),

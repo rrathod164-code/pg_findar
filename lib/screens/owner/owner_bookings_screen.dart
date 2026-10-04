@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/owner_theme.dart';
 import 'package:pg_findar/screens/user/user_booking_screen.dart';
 
 class OwnerBookingsScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
         title: const Text(
           'Booking Requests',
           style: TextStyle(
-            color: Color(0xFF091A2A),
+            color: OwnerColors.textHeading,
             fontWeight: FontWeight.w800,
             fontSize: 22,
           ),
@@ -80,7 +81,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                     child: Text(
                       'No bookings found in "$_selectedFilter"',
                       style: const TextStyle(
-                        color: Color(0xFF758595),
+                        color: OwnerColors.textGrey,
                         fontSize: 15,
                       ),
                     ),
@@ -123,7 +124,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF132230),
+                                    color: OwnerColors.textDark,
                                   ),
                                 ),
                               ),
@@ -137,7 +138,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                               const Icon(
                                 Icons.apartment_rounded,
                                 size: 15,
-                                color: Color(0xFF13B99D),
+                                color: OwnerColors.primary,
                               ),
                               const SizedBox(width: 4),
                               Expanded(
@@ -148,7 +149,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                                   style: const TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF132230),
+                                    color: OwnerColors.textDark,
                                   ),
                                 ),
                               ),
@@ -161,10 +162,10 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8F8F5),
+                              color: OwnerColors.mintBg,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: const Color(0xFFB8E8DE),
+                                color: OwnerColors.mintBorder,
                               ),
                             ),
                             child: Row(
@@ -172,7 +173,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                                 const Icon(
                                   Icons.meeting_room_outlined,
                                   size: 16,
-                                  color: Color(0xFF0D9488),
+                                  color: OwnerColors.tealMedium,
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -181,7 +182,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                                     style: const TextStyle(
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0F766E),
+                                      color: OwnerColors.tealDeep,
                                     ),
                                   ),
                                 ),
@@ -193,7 +194,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                             'Dates: ${booking.dateRangeFormatted}',
                             style: const TextStyle(
                               fontSize: 12.5,
-                              color: Color(0xFF758595),
+                              color: OwnerColors.textGrey,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -201,7 +202,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                             'Phone: ${booking.userPhone} • Total: ₹${booking.totalPaid.toInt()}',
                             style: const TextStyle(
                               fontSize: 12.5,
-                              color: Color(0xFF758595),
+                              color: OwnerColors.textGrey,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -213,9 +214,9 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                                 Expanded(
                                   child: OutlinedButton(
                                     style: OutlinedButton.styleFrom(
-                                      foregroundColor: const Color(0xFFE53935),
+                                      foregroundColor: OwnerColors.error,
                                       side: const BorderSide(
-                                        color: Color(0xFFFFCDD2),
+                                        color: OwnerColors.errorBorder,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
@@ -238,7 +239,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                                 Expanded(
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF13B99D),
+                                      backgroundColor: OwnerColors.primary,
                                       foregroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
@@ -250,7 +251,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                                       ).showSnackBar(
                                         const SnackBar(
                                           content: Text('Request approved!'),
-                                          backgroundColor: Color(0xFF13B99D),
+                                          backgroundColor: OwnerColors.primary,
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );
@@ -286,7 +287,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF13B99D) : Colors.white,
+          color: isSelected ? OwnerColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -299,7 +300,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFF758595),
+            color: isSelected ? Colors.white : OwnerColors.textGrey,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             fontSize: 13,
           ),
@@ -314,14 +315,14 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     Color text;
 
     if (lower == 'confirmed' || lower == 'approved') {
-      bg = const Color(0xFFE6F8F0);
-      text = const Color(0xFF27AE60);
+      bg = OwnerColors.successBg;
+      text = OwnerColors.success;
     } else if (lower == 'pending') {
-      bg = const Color(0xFFFFF6E0);
-      text = const Color(0xFFE67E22);
+      bg = OwnerColors.warningBgAlt;
+      text = OwnerColors.warningAlt;
     } else {
-      bg = const Color(0xFFFFECEE);
-      text = const Color(0xFFE53935);
+      bg = OwnerColors.errorBg;
+      text = OwnerColors.error;
     }
 
     return Container(

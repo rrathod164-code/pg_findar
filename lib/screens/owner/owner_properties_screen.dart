@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pg_findar/resources/owner_theme.dart';
 import 'package:pg_findar/screens/user/user_home_screen.dart';
 import 'package:pg_findar/widgets/app_image.dart';
 
@@ -60,7 +61,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF132230),
+                            color: OwnerColors.textDark,
                           ),
                         ),
                         IconButton(
@@ -76,7 +77,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                         labelText: 'Property / PG Name',
                         hintText: 'e.g. Skyline Living PG',
                         filled: true,
-                        fillColor: const Color(0xFFF6F9F8),
+                        fillColor: OwnerColors.inputFill,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -94,7 +95,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               labelText: 'Location / Area',
                               hintText: 'e.g. Kalawad Road',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -110,7 +111,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             decoration: InputDecoration(
                               labelText: 'City',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -131,7 +132,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               labelText: 'Monthly Rent (₹)',
                               hintText: 'e.g. 7000',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -146,7 +147,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             decoration: InputDecoration(
                               labelText: 'Category',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -194,7 +195,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
-                        color: Color(0xFF132230),
+                        color: OwnerColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -205,45 +206,45 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                         FilterChip(
                           label: const Text('Wifi'),
                           selected: hasWifi,
-                          selectedColor: const Color(0xFFD2F5EC),
-                          checkmarkColor: const Color(0xFF13B99D),
+                          selectedColor: OwnerColors.mintLight,
+                          checkmarkColor: OwnerColors.primary,
                           onSelected: (v) => setModalState(() => hasWifi = v),
                         ),
                         FilterChip(
                           label: const Text('AC'),
                           selected: hasAC,
-                          selectedColor: const Color(0xFFD2F5EC),
-                          checkmarkColor: const Color(0xFF13B99D),
+                          selectedColor: OwnerColors.mintLight,
+                          checkmarkColor: OwnerColors.primary,
                           onSelected: (v) => setModalState(() => hasAC = v),
                         ),
                         FilterChip(
                           label: const Text('Food'),
                           selected: hasFood,
-                          selectedColor: const Color(0xFFD2F5EC),
-                          checkmarkColor: const Color(0xFF13B99D),
+                          selectedColor: OwnerColors.mintLight,
+                          checkmarkColor: OwnerColors.primary,
                           onSelected: (v) => setModalState(() => hasFood = v),
                         ),
                         FilterChip(
                           label: const Text('Parking'),
                           selected: hasParking,
-                          selectedColor: const Color(0xFFD2F5EC),
-                          checkmarkColor: const Color(0xFF13B99D),
+                          selectedColor: OwnerColors.mintLight,
+                          checkmarkColor: OwnerColors.primary,
                           onSelected: (v) =>
                               setModalState(() => hasParking = v),
                         ),
                         FilterChip(
                           label: const Text('Laundry'),
                           selected: hasLaundry,
-                          selectedColor: const Color(0xFFD2F5EC),
-                          checkmarkColor: const Color(0xFF13B99D),
+                          selectedColor: OwnerColors.mintLight,
+                          checkmarkColor: OwnerColors.primary,
                           onSelected: (v) =>
                               setModalState(() => hasLaundry = v),
                         ),
                         FilterChip(
                           label: const Text('Geyser'),
                           selected: hasGeyser,
-                          selectedColor: const Color(0xFFD2F5EC),
-                          checkmarkColor: const Color(0xFF13B99D),
+                          selectedColor: OwnerColors.mintLight,
+                          checkmarkColor: OwnerColors.primary,
                           onSelected: (v) => setModalState(() => hasGeyser = v),
                         ),
                       ],
@@ -254,7 +255,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF13B99D),
+                          backgroundColor: OwnerColors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -326,7 +327,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               content: Text(
                                 '${newPG.name} has been added successfully!',
                               ),
-                              backgroundColor: const Color(0xFF13B99D),
+                              backgroundColor: OwnerColors.primary,
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -371,12 +372,12 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Color(0xFF758595)),
+                style: TextStyle(color: OwnerColors.textGrey),
               ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE53935),
+                backgroundColor: OwnerColors.error,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -423,12 +424,12 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Color(0xFF758595)),
+                style: TextStyle(color: OwnerColors.textGrey),
               ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE53935),
+                backgroundColor: OwnerColors.error,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -514,7 +515,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF132230),
+                            color: OwnerColors.textDark,
                           ),
                         ),
                         IconButton(
@@ -527,7 +528,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       'Property: ${pg.name}',
                       style: const TextStyle(
                         fontSize: 12.5,
-                        color: Color(0xFF758595),
+                        color: OwnerColors.textGrey,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -544,7 +545,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               labelText: 'Room Number',
                               hintText: 'e.g. Room 103',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -560,7 +561,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             decoration: InputDecoration(
                               labelText: 'Floor',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -609,7 +610,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             decoration: InputDecoration(
                               labelText: 'Sharing Type',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -661,7 +662,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               labelText: 'Rent / mo (₹)',
                               hintText: '6500',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -683,7 +684,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             decoration: InputDecoration(
                               labelText: 'Total Beds',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -698,7 +699,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             decoration: InputDecoration(
                               labelText: 'Occupied Beds',
                               filled: true,
-                              fillColor: const Color(0xFFF6F9F8),
+                              fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -730,7 +731,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF132230),
+                        color: OwnerColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -742,8 +743,8 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                           FilterChip(
                             label: Text(amenity),
                             selected: selectedAmenities.contains(amenity),
-                            selectedColor: const Color(0xFFD2F5EC),
-                            checkmarkColor: const Color(0xFF13B99D),
+                            selectedColor: OwnerColors.mintLight,
+                            checkmarkColor: OwnerColors.primary,
                             onSelected: (selected) {
                               setRoomModalState(() {
                                 if (selected) {
@@ -764,7 +765,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF13B99D),
+                          backgroundColor: OwnerColors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -787,7 +788,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               content: Text(
                                 '$roomNo uploaded successfully! Students can now see and select this room.',
                               ),
-                              backgroundColor: const Color(0xFF13B99D),
+                              backgroundColor: OwnerColors.primary,
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -847,7 +848,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFF132230),
+                                  color: OwnerColors.textDark,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -857,7 +858,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 13,
-                                  color: Color(0xFF758595),
+                                  color: OwnerColors.textGrey,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -878,7 +879,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       height: 44,
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF13B99D),
+                          backgroundColor: OwnerColors.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -903,7 +904,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF758595),
+                        color: OwnerColors.textGrey,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -925,7 +926,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                     'No rooms uploaded yet',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF758595),
+                                      color: OwnerColors.textGrey,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
@@ -934,7 +935,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFF9E9E9E),
+                                      color: OwnerColors.textDisabled,
                                     ),
                                   ),
                                 ],
@@ -952,12 +953,12 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                 return Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF9FBFA),
+                                    color: OwnerColors.cardBg,
                                     borderRadius: BorderRadius.circular(14),
                                     border: Border.all(
                                       color: isFull
-                                          ? const Color(0xFFE5E7EB)
-                                          : const Color(0xFFD2F5EC),
+                                          ? OwnerColors.border
+                                          : OwnerColors.mintLight,
                                     ),
                                   ),
                                   child: Row(
@@ -970,16 +971,16 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                         height: 42,
                                         decoration: BoxDecoration(
                                           color: isFull
-                                              ? const Color(0xFFF3F4F6)
-                                              : const Color(0xFFE8F8F5),
+                                              ? OwnerColors.divider
+                                              : OwnerColors.mintBg,
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
                                         child: Icon(
                                           Icons.meeting_room_outlined,
                                           color: isFull
-                                              ? const Color(0xFF9CA3AF)
-                                              : const Color(0xFF13B99D),
+                                              ? OwnerColors.textHint
+                                              : OwnerColors.primary,
                                           size: 22,
                                         ),
                                       ),
@@ -1001,7 +1002,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                                   style: const TextStyle(
                                                     fontSize: 14.5,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Color(0xFF132230),
+                                                    color: OwnerColors.textDark,
                                                   ),
                                                 ),
                                                 Text(
@@ -1009,7 +1010,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                                   style: const TextStyle(
                                                     fontSize: 13.5,
                                                     fontWeight: FontWeight.w800,
-                                                    color: Color(0xFF13B99D),
+                                                    color: OwnerColors.primary,
                                                   ),
                                                 ),
                                               ],
@@ -1025,8 +1026,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                                     vertical: 2,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color: const Color(
-                                                        0xFFE8F8F5),
+                                                    color: OwnerColors.mintBg,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             6),
@@ -1038,7 +1038,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                                       fontWeight:
                                                           FontWeight.w700,
                                                       color:
-                                                          Color(0xFF0F766E),
+                                                          OwnerColors.tealDeep,
                                                     ),
                                                   ),
                                                 ),
@@ -1052,10 +1052,8 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                                     fontWeight:
                                                         FontWeight.w600,
                                                     color: isFull
-                                                        ? const Color(
-                                                            0xFFDC2626)
-                                                        : const Color(
-                                                            0xFF059669),
+                                                        ? OwnerColors.errorDark
+                                                        : OwnerColors.successDark,
                                                   ),
                                                 ),
                                               ],
@@ -1066,7 +1064,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                                 room.amenities.join(' • '),
                                                 style: const TextStyle(
                                                   fontSize: 11,
-                                                  color: Color(0xFF758595),
+                                                  color: OwnerColors.textGrey,
                                                 ),
                                               ),
                                             ],
@@ -1082,7 +1080,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                             icon: const Icon(
                                               Icons.edit_outlined,
                                               size: 18,
-                                              color: Color(0xFF13B99D),
+                                              color: OwnerColors.primary,
                                             ),
                                             padding: EdgeInsets.zero,
                                             constraints:
@@ -1099,7 +1097,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                             icon: const Icon(
                                               Icons.delete_outline,
                                               size: 18,
-                                              color: Color(0xFFE53935),
+                                              color: OwnerColors.error,
                                             ),
                                             padding: EdgeInsets.zero,
                                             constraints:
@@ -1138,7 +1136,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
         title: const Text(
           'My Properties',
           style: TextStyle(
-            color: Color(0xFF091A2A),
+            color: OwnerColors.textHeading,
             fontWeight: FontWeight.w800,
             fontSize: 22,
           ),
@@ -1148,7 +1146,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
             padding: const EdgeInsets.only(right: 14),
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF13B99D),
+                backgroundColor: OwnerColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -1193,12 +1191,12 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                   const SizedBox(height: 8),
                   const Text(
                     'Tap "Add PG" to publish your first property.',
-                    style: TextStyle(color: Color(0xFF758595)),
+                    style: TextStyle(color: OwnerColors.textGrey),
                   ),
                   const SizedBox(height: 18),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF13B99D),
+                      backgroundColor: OwnerColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1258,7 +1256,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               padding: EdgeInsets.zero,
                               icon: const Icon(
                                 Icons.delete_outline_rounded,
-                                color: Color(0xFFE53935),
+                                color: OwnerColors.error,
                                 size: 20,
                               ),
                               onPressed: () =>
@@ -1275,7 +1273,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF13B99D),
+                              color: OwnerColors.primary,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -1306,7 +1304,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                   style: const TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF132230),
+                                    color: OwnerColors.textDark,
                                   ),
                                 ),
                               ),
@@ -1314,7 +1312,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                 children: [
                                   const Icon(
                                     Icons.star_rounded,
-                                    color: Color(0xFFFFB300),
+                                    color: OwnerColors.warningAmber,
                                     size: 18,
                                   ),
                                   const SizedBox(width: 3),
@@ -1335,7 +1333,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               const Icon(
                                 Icons.location_on_outlined,
                                 size: 14,
-                                color: Color(0xFF758595),
+                                color: OwnerColors.textGrey,
                               ),
                               const SizedBox(width: 4),
                               Expanded(
@@ -1345,7 +1343,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFF758595),
+                                    color: OwnerColors.textGrey,
                                   ),
                                 ),
                               ),
@@ -1359,10 +1357,10 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF0FAF7),
+                              color: OwnerColors.mintSurface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: const Color(0xFFD2F5EC),
+                                color: OwnerColors.mintLight,
                               ),
                             ),
                             child: Row(
@@ -1373,7 +1371,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                     const Icon(
                                       Icons.meeting_room_outlined,
                                       size: 15,
-                                      color: Color(0xFF0F766E),
+                                      color: OwnerColors.tealDeep,
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
@@ -1381,7 +1379,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF0F766E),
+                                        color: OwnerColors.tealDeep,
                                       ),
                                     ),
                                   ],
@@ -1391,7 +1389,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                   style: const TextStyle(
                                     fontSize: 11.5,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF13B99D),
+                                    color: OwnerColors.primary,
                                   ),
                                 ),
                               ],
@@ -1406,7 +1404,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w900,
-                                color: Color(0xFF13B99D),
+                                color: OwnerColors.primary,
                               ),
                               children: const [
                                 TextSpan(
@@ -1414,7 +1412,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFF758595),
+                                    color: OwnerColors.textGrey,
                                   ),
                                 ),
                               ],
@@ -1429,7 +1427,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                 flex: 3,
                                 child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF13B99D),
+                                    backgroundColor: OwnerColors.primary,
                                     foregroundColor: Colors.white,
                                     elevation: 0,
                                     padding: const EdgeInsets.symmetric(
@@ -1459,9 +1457,9 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                 flex: 2,
                                 child: OutlinedButton.icon(
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: const Color(0xFFE53935),
+                                    foregroundColor: OwnerColors.error,
                                     side: const BorderSide(
-                                      color: Color(0xFFFFCDD2),
+                                      color: OwnerColors.errorBorder,
                                     ),
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 10,
@@ -1496,7 +1494,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
       ),
     ),
     floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF13B99D),
+        backgroundColor: OwnerColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_business_rounded),
         label: const Text(
