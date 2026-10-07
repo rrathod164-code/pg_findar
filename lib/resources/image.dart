@@ -8,3 +8,4 @@ List<String> i1 = [
 ];
 
 const String i2 = "assets/images/intro.png";
+const String appLogo = "assets/images/logo.png";
