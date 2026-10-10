@@ -5,19 +5,9 @@ import 'package:pg_findar/widgets/dashboard_background.dart';
 import 'user_home_screen.dart';
 import '../pg_details/pg_detail_screen.dart';
 
-/// ============================================================================
-/// SAVED SCREEN (STATIC SAVED PGS)
-/// ============================================================================
-/// Displays user's saved / bookmarked PG accommodations statically.
-/// Beginner friendly, no backend or dynamic state required.
-/// ============================================================================
-
 class SavedScreen extends StatelessWidget {
   const SavedScreen({super.key});
 
-  // --------------------------------------------------------------------------
-  // STATIC SAVED PGS DATA (Pure Frontend, Beginner Friendly)
-  // --------------------------------------------------------------------------
   static final List<PGAccommodation> staticSavedPgs = [
     PGAccommodation(
       id: '1',
@@ -28,7 +18,7 @@ class SavedScreen extends StatelessWidget {
       rating: 4.8,
       category: 'Boys PG',
       gender: 'Boys',
-      imageUrl: 'assets/images/GreenVally.png',
+      imageUrl: AppPlaceholders.defaultPgImage,
       hasWifi: true,
       hasAC: true,
       hasFood: true,
@@ -114,11 +104,20 @@ class SavedScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFE2E8F0),
+                    width: 1,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
+                      color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+                      blurRadius: 14,
                       offset: const Offset(0, 4),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFF091A2A).withValues(alpha: 0.02),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
                     ),
                   ],
                 ),
@@ -126,90 +125,89 @@ class SavedScreen extends StatelessWidget {
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                   child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PgDetailScreen(pg: pg),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PgDetailScreen(pg: pg),
+                        ),
+                      );
+                    },
+                    contentPadding: const EdgeInsets.all(12),
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: AppImage(
+                        imageUrl: pg.imageUrl,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
                       ),
-                    );
-                  },
-                  contentPadding: const EdgeInsets.all(12),
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: AppImage(
-                      imageUrl: pg.imageUrl,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
                     ),
-                  ),
-                  title: Text(
-                    pg.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF091A2A),
+                    title: Text(
+                      pg.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF091A2A),
+                      ),
                     ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            size: 14,
-                            color: Color(0xFF758595),
-                          ),
-                          const SizedBox(width: 2),
-                          Expanded(
-                            child: Text(
-                              pg.location,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: Color(0xFF758595),
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: Text(
+                                pg.location,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.star_rounded,
+                              size: 14,
+                              color: Colors.amber,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              pg.rating.toString(),
                               style: const TextStyle(fontSize: 12),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(
-                            Icons.star_rounded,
-                            size: 14,
-                            color: Colors.amber,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            pg.rating.toString(),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '₹${pg.price.toInt()}/month',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                          ],
                         ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '₹${pg.price.toInt()}/month',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFF0F5),
+                        shape: BoxShape.circle,
                       ),
-                    ],
-                  ),
-                  // Static Heart Icon (Disabled action, display only)
-                  trailing: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFF0F5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.favorite_rounded,
-                      color: Colors.red,
-                      size: 20,
+                      child: const Icon(
+                        Icons.favorite_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
                     ),
                   ),
-                ),
                 ),
               );
             },

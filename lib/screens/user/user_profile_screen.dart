@@ -8,16 +8,6 @@ import 'user_my_reviews_screen.dart';
 import 'user_saved_screen.dart';
 import '../../widgets/logout_dialog.dart';
 
-/// ============================================================================
-/// MORE / PROFILE SCREEN (BEGINNER-FRIENDLY UI)
-/// ============================================================================
-/// Matches your exact design with:
-/// - Curved mint header with avatar, "Hi , User" and "user@gmail.com"
-/// - Options: Edit profile, My booking, Favourite, My Review, Help & Support, Logout
-/// - Unified DashboardBackground
-/// - Pure Flutter UI code with clean comments, no backend needed!
-/// ============================================================================
-
 class ProfileScreen extends StatelessWidget {
   final VoidCallback? onBack;
   const ProfileScreen({super.key, this.onBack});
@@ -26,7 +16,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final double topPadding = MediaQuery.of(context).padding.top;
 
-    // Curved mint header background color matching your design
     final Color headerMint = AppColors.primaryTint;
 
     return Scaffold(
@@ -34,9 +23,6 @@ class ProfileScreen extends StatelessWidget {
       body: DashboardBackground(
         child: Column(
           children: [
-            // ================================================================
-            // 1. TOP CURVED MINT HEADER (Back button, Avatar & User info)
-            // ================================================================
             Container(
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(20, topPadding + 14, 20, 26),
@@ -50,7 +36,6 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Back Arrow Button (Returns to Home tab or pops screen)
                   GestureDetector(
                     onTap: () {
                       if (onBack != null) {
@@ -77,10 +62,8 @@ class ProfileScreen extends StatelessWidget {
 
                   const SizedBox(height: 18),
 
-                  // Avatar & Info Row
                   Row(
                     children: [
-                      // Circular Avatar with border & shadow
                       Container(
                         width: 72,
                         height: 72,
@@ -100,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/images/user_avatar.png',
+                            AppPlaceholders.defaultUserAvatar,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
@@ -118,7 +101,6 @@ class ProfileScreen extends StatelessWidget {
 
                       const SizedBox(width: 18),
 
-                      // User Name & Email (Static UI)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
@@ -147,9 +129,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            // ================================================================
-            // 2. MENU OPTIONS LIST (With Dividers)
-            // ================================================================
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -159,7 +138,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // 1. Edit Profile
                     _buildMenuItem(
                       context: context,
                       icon: Icons.edit_outlined,
@@ -179,7 +157,6 @@ class ProfileScreen extends StatelessWidget {
                       color: Color(0xFFD6E6E2),
                     ),
 
-                    // 2. My Booking
                     _buildMenuItem(
                       context: context,
                       icon: Icons.calendar_today_outlined,
@@ -199,7 +176,6 @@ class ProfileScreen extends StatelessWidget {
                       color: Color(0xFFD6E6E2),
                     ),
 
-                    // 3. Favourite
                     _buildMenuItem(
                       context: context,
                       icon: Icons.favorite_border_rounded,
@@ -219,7 +195,6 @@ class ProfileScreen extends StatelessWidget {
                       color: Color(0xFFD6E6E2),
                     ),
 
-                    // 4. My Review
                     _buildMenuItem(
                       context: context,
                       icon: Icons.star_border_rounded,
@@ -239,7 +214,6 @@ class ProfileScreen extends StatelessWidget {
                       color: Color(0xFFD6E6E2),
                     ),
 
-                    // 5. Help & Support
                     _buildMenuItem(
                       context: context,
                       icon: Icons.help_outline_rounded,
@@ -252,7 +226,6 @@ class ProfileScreen extends StatelessWidget {
                       color: Color(0xFFD6E6E2),
                     ),
 
-                    // 6. Logout (Red text)
                     _buildMenuItem(
                       context: context,
                       icon: Icons.login_outlined,
@@ -275,9 +248,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // HELPER: Reusable Menu Item Row with Chevron Icon
-  // --------------------------------------------------------------------------
   Widget _buildMenuItem({
     required BuildContext context,
     required IconData icon,
@@ -315,9 +285,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // MODAL: Help & Support Bottom Sheet
-  // --------------------------------------------------------------------------
   void _showHelpSupportModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -368,9 +335,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // DIALOG: Logout Confirmation Dialog
-  // --------------------------------------------------------------------------
   void _showLogoutDialog(BuildContext context) {
     LogoutDialog.show(context);
   }

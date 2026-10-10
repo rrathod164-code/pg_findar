@@ -7,16 +7,13 @@ import '../booking/book_visit_screen.dart';
 import '../pg_details/pg_detail_screen.dart';
 import '../../widgets/write_review_dialog.dart';
 
-/// ============================================================================
-/// PG BOOKING DATA MODEL
-/// ============================================================================
 class PGBooking {
   final String id;
   final PGAccommodation pg;
   final DateTime checkInDate;
   final DateTime? checkOutDate;
-  final String status; // 'completed', 'Cancelled', 'Pending', 'Approved'
-  final String roomType; // 'Single Sharing', 'Double Sharing', 'Triple Sharing'
+  final String status;
+  final String roomType;
   final double totalPaid;
   final String? customDateRange;
   final String userName;
@@ -44,8 +41,18 @@ class PGBooking {
       return customDateRange!;
     }
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final inStr =
         '${checkInDate.day} ${months[checkInDate.month - 1]} ${checkInDate.year}';
@@ -58,30 +65,11 @@ class PGBooking {
   }
 }
 
-/// ============================================================================
-/// BOOKING SCREEN (USER PAST & ACTIVE BOOKINGS)
-/// ============================================================================
-/// Matches your exact design screenshot:
-/// - "My Bookings" title & "View and manage your past bookings" subtitle
-/// - "Your Past Bookings" section header
-/// - Cards with PG photo, status badge (completed / Cancelled), dates, price,
-///   total paid, amenities chips, and action buttons:
-///     * [View Details] (outline teal)
-///     * [Book Again]   (solid teal)
-///     * [Review]       (outline orange)
-/// - Unified DashboardBackground with mint circles and soft background
-/// - Pure Flutter UI code with clean comments, no backend needed!
-/// ============================================================================
-
 class BookingScreen extends StatelessWidget {
   const BookingScreen({super.key});
 
-  // Getter for sampleBookings
   static List<PGBooking> get sampleBookings => staticBookings;
 
-  // --------------------------------------------------------------------------
-  // STATIC BOOKINGS DATA (Pure Frontend, Beginner Friendly)
-  // --------------------------------------------------------------------------
   static final List<PGBooking> staticBookings = [
     PGBooking(
       id: 'b1',
@@ -124,7 +112,7 @@ class BookingScreen extends StatelessWidget {
         rating: 4.8,
         category: 'Boys PG',
         gender: 'Boys',
-        imageUrl: 'assets/images/GreenVally.png',
+        imageUrl: AppPlaceholders.defaultPgImage,
         hasWifi: true,
         hasAC: true,
         hasFood: true,
@@ -175,9 +163,6 @@ class BookingScreen extends StatelessWidget {
     ),
   ];
 
-  // --------------------------------------------------------------------------
-  // HELPER: Format Amenities Pills Row
-  // --------------------------------------------------------------------------
   Widget _buildAmenitiesChips(PGAccommodation pg) {
     final List<String> tags = [];
     if (pg.hasAC) tags.add('AC');
@@ -225,9 +210,6 @@ class BookingScreen extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // HELPER: Booking Card matching design
-  // --------------------------------------------------------------------------
   Widget _buildBookingCard(BuildContext context, PGBooking booking) {
     final pg = booking.pg;
     final String statusLower = booking.status.toLowerCase();
@@ -236,7 +218,6 @@ class BookingScreen extends StatelessWidget {
     final bool isConfirmed =
         statusLower == 'confirmed' || statusLower == 'approved';
 
-    // Status pill colors
     final Color badgeBg;
     final Color badgeText;
     final String badgeLabel;
@@ -265,22 +246,29 @@ class BookingScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 5),
+          ),
+          BoxShadow(
+            color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row: Image on left, Details on right
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // PG Room Thumbnail Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: AppImage(
@@ -292,12 +280,10 @@ class BookingScreen extends StatelessWidget {
               ),
               const SizedBox(width: 12),
 
-              // Booking details column
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top row: PG Name & Status Badge
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -335,7 +321,6 @@ class BookingScreen extends StatelessWidget {
 
                     const SizedBox(height: 3),
 
-                    // Location Pin & Text
                     Row(
                       children: [
                         const Icon(
@@ -362,7 +347,6 @@ class BookingScreen extends StatelessWidget {
 
                     const SizedBox(height: 3),
 
-                    // Room & Sharing Type
                     Row(
                       children: [
                         const Icon(
@@ -388,7 +372,6 @@ class BookingScreen extends StatelessWidget {
 
                     const SizedBox(height: 3),
 
-                    // Calendar & Dates
                     Row(
                       children: [
                         const Icon(
@@ -415,7 +398,6 @@ class BookingScreen extends StatelessWidget {
 
                     const SizedBox(height: 3),
 
-                    // Price per month on left & Total Paid on right
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -453,7 +435,6 @@ class BookingScreen extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
-                    // Amenities chips (AC, Wi-Fi, Food, etc.)
                     _buildAmenitiesChips(pg),
                   ],
                 ),
@@ -465,10 +446,6 @@ class BookingScreen extends StatelessWidget {
           const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
           const SizedBox(height: 10),
 
-          // Action Buttons Row matching the screenshot:
-          // If cancelled: [View Details] (full width)
-          // If pending: [View Details] + [Awaiting Approval]
-          // If completed/confirmed: [View Details] [Book Again] [Review]
           if (isCancelled)
             SizedBox(
               width: double.infinity,
@@ -545,7 +522,11 @@ class BookingScreen extends StatelessWidget {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.schedule, size: 14, color: Color(0xFFB45309)),
+                        Icon(
+                          Icons.schedule,
+                          size: 14,
+                          color: Color(0xFFB45309),
+                        ),
                         SizedBox(width: 4),
                         Text(
                           'Awaiting Approval',
@@ -564,7 +545,6 @@ class BookingScreen extends StatelessWidget {
           else
             Row(
               children: [
-                // 1. View Details (White with teal border)
                 Expanded(
                   child: SizedBox(
                     height: 36,
@@ -600,7 +580,6 @@ class BookingScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
 
-                // 2. Book Again (Solid teal background)
                 Expanded(
                   child: SizedBox(
                     height: 36,
@@ -634,7 +613,6 @@ class BookingScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
 
-                // 3. Review (White with orange/coral border)
                 Expanded(
                   child: SizedBox(
                     height: 36,
@@ -685,9 +663,6 @@ class BookingScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ==============================================================
-              // TOP HEADER: Title, Subtitle, and Back Button if pushed
-              // ==============================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                 child: Column(
@@ -753,9 +728,6 @@ class BookingScreen extends StatelessWidget {
                 ),
               ),
 
-              // ==============================================================
-              // BOOKINGS LIST (STATIC DATA)
-              // ==============================================================
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),

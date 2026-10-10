@@ -3,9 +3,6 @@ import 'package:pg_findar/resources/theme.dart';
 import '../../widgets/user_bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
 
-/// ============================================================================
-/// USER REVIEW DATA MODEL
-/// ============================================================================
 class UserReview {
   final String id;
   final String? bookingId;
@@ -48,13 +45,6 @@ class UserReview {
   }
 }
 
-/// ============================================================================
-/// MY REVIEWS SCREEN
-/// ============================================================================
-/// Displays user's reviews for PG accommodations with star ratings, dates,
-/// edit actions, and seamless integration with the user dashboard theme.
-/// ============================================================================
-
 class MyReviewsScreen extends StatefulWidget {
   final bool showBottomNav;
 
@@ -90,87 +80,88 @@ class MyReviewsScreen extends StatefulWidget {
 }
 
 class _MyReviewsScreenState extends State<MyReviewsScreen> {
-  // --------------------------------------------------------------------------
-  // WIDGET: Single Review Card Matching Screenshot
-  // --------------------------------------------------------------------------
-  Widget _buildReviewCard(UserReview review) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // PG Name & Date
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                review.pgName,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF091A2A),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                review.formattedDate,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF8C9BA8),
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Teal Stars Row
-          Row(
-            children: List.generate(5, (starIndex) {
-              final bool isFilled = starIndex < review.rating.round();
-              return Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(
-                  isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
-                  color: isFilled
-                      ? AppColors.primary
-                      : const Color(0xFFCBD5E1),
-                  size: 22,
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 12),
-
-          // Review text paragraph
-          Text(
-            review.comment,
-            style: const TextStyle(
-              fontSize: 13.5,
-              color: Color(0xFF4B5563),
-              height: 1.45,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    Widget buildReviewCard(UserReview review) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 5),
+            ),
+            BoxShadow(
+              color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  review.pgName,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF091A2A),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  review.formattedDate,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF8C9BA8),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: List.generate(5, (starIndex) {
+                final bool isFilled = starIndex < review.rating.round();
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                    color: isFilled
+                        ? AppColors.primary
+                        : const Color(0xFFCBD5E1),
+                    size: 22,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              review.comment,
+              style: const TextStyle(
+                fontSize: 13.5,
+                color: Color(0xFF4B5563),
+                height: 1.45,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: DashboardBackground(
@@ -178,9 +169,6 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ==============================================================
-              // TOP HEADER: Circular Back Button & Title
-              // ==============================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                 child: Column(
@@ -188,7 +176,6 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                   children: [
                     Row(
                       children: [
-                        // Circular Back Button
                         GestureDetector(
                           onTap: () {
                             if (Navigator.canPop(context)) {
@@ -253,9 +240,6 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
 
               const SizedBox(height: 8),
 
-              // ==============================================================
-              // REVIEWS LIST: Static List of Review Cards
-              // ==============================================================
               Expanded(
                 child: Builder(
                   builder: (context) {
@@ -306,7 +290,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                       ),
                       itemCount: reviews.length,
                       itemBuilder: (context, index) {
-                        return _buildReviewCard(reviews[index]);
+                        return buildReviewCard(reviews[index]);
                       },
                     );
                   },
@@ -317,13 +301,9 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
         ),
       ),
 
-      // ======================================================================
-      // BOTTOM NAVIGATION BAR (Matching screenshot dashboard tabs)
-      // ======================================================================
       bottomNavigationBar: widget.showBottomNav
           ? CustomBottomNavBar(
-              currentIndex:
-                  3, // Highlights Profile tab where My Reviews resides
+              currentIndex: 3,
               onTap: (index) {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(

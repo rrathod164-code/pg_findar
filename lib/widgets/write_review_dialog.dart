@@ -3,17 +3,6 @@ import '../resources/theme.dart';
 import '../screens/user/user_home_screen.dart';
 import '../screens/user/user_my_reviews_screen.dart';
 
-/// ============================================================================
-/// WRITE A REVIEW POPUP DIALOG (BEGINNER-FRIENDLY UI)
-/// ============================================================================
-/// Matches your exact design screenshot:
-/// - "Write a Review" title (dark teal) with "✕" close button
-/// - "Overall Rating" with interactive orange stars (including orange outline)
-/// - "Your Review" section with rounded container & "Share your experience living here..."
-/// - [Cancel] text button and solid [Submit Review] green button
-/// - Pure Flutter UI code with clean comments, no backend needed!
-/// ============================================================================
-
 class WriteReviewDialog extends StatefulWidget {
   final PGAccommodation? pg;
   final String pgName;
@@ -30,15 +19,14 @@ class WriteReviewDialog extends StatefulWidget {
     String? location,
     this.bookingId,
     this.existingReview,
-  })  : pgName = pgName ??
-            pg?.name ??
-            existingReview?.pgName ??
-            'PG Accommodation',
-        pgId = pgId ?? pg?.id ?? existingReview?.pgId ?? '1',
-        location = location ??
-            pg?.location ??
-            existingReview?.location ??
-            'Rajkot , Gujarat';
+  }) : pgName =
+           pgName ?? pg?.name ?? existingReview?.pgName ?? 'PG Accommodation',
+       pgId = pgId ?? pg?.id ?? existingReview?.pgId ?? '1',
+       location =
+           location ??
+           pg?.location ??
+           existingReview?.location ??
+           'Rajkot , Gujarat';
 
   /// Static helper to easily show this dialog from any screen
   static Future<void> show(
@@ -84,8 +72,9 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
   void initState() {
     super.initState();
     _rating = widget.existingReview?.rating ?? 4.0;
-    _commentController =
-        TextEditingController(text: widget.existingReview?.comment ?? '');
+    _commentController = TextEditingController(
+      text: widget.existingReview?.comment ?? '',
+    );
     _selectedPgId = widget.pgId;
     _selectedPgName = widget.pgName;
     _selectedLocation = widget.location;
@@ -111,7 +100,7 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
           rating: 4.8,
           category: 'Boys PG',
           gender: 'Boys',
-          imageUrl: 'assets/images/GreenVally.png',
+          imageUrl: AppPlaceholders.defaultPgImage,
         ),
       );
     }
@@ -134,9 +123,11 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(widget.existingReview != null
-            ? 'Review updated successfully!'
-            : 'Thank you! Your review has been submitted.'),
+        content: Text(
+          widget.existingReview != null
+              ? 'Review updated successfully!'
+              : 'Thank you! Your review has been submitted.',
+        ),
         backgroundColor: submitGreen,
       ),
     );
@@ -147,9 +138,7 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
     final availablePGs = _getAvailablePGs();
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       backgroundColor: Colors.white,
       elevation: 8,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -160,9 +149,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ================================================================
-              // 1. TOP HEADER: "Write a Review" & Close "✕" Button
-              // ================================================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -186,10 +172,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
               ),
 
               const SizedBox(height: 16),
-
-              // ================================================================
-              // 2. PG NAME SELECTOR (Which PG is receiving the review)
-              // ================================================================
               const Text(
                 'PG Name',
                 style: TextStyle(
@@ -201,14 +183,14 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
               const SizedBox(height: 6),
 
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFCBD5E1),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -264,146 +246,132 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
               ),
 
               const SizedBox(height: 16),
-
-            // ================================================================
-            // 2. OVERALL RATING LABEL & INTERACTIVE ORANGE STARS
-            // ================================================================
-            const Text(
-              'Overall Rating',
-              style: TextStyle(
-                fontSize: 14.5,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF334155),
+              const Text(
+                'Overall Rating',
+                style: TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF334155),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 8),
 
-            // Orange Star Rating Row
-            Row(
-              children: List.generate(5, (index) {
-                final starIndex = index + 1;
-                final bool isFilled = starIndex <= _rating;
+              // Orange Star Rating Row
+              Row(
+                children: List.generate(5, (index) {
+                  final starIndex = index + 1;
+                  final bool isFilled = starIndex <= _rating;
 
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _rating = starIndex.toDouble();
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: Icon(
-                      isFilled
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
-                      color: starOrange,
-                      size: 32,
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _rating = starIndex.toDouble();
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Icon(
+                        isFilled
+                            ? Icons.star_rounded
+                            : Icons.star_outline_rounded,
+                        color: starOrange,
+                        size: 32,
+                      ),
                     ),
-                  ),
-                );
-              }),
-            ),
-
-            const SizedBox(height: 18),
-
-            // ================================================================
-            // 3. YOUR REVIEW LABEL & MULTILINE TEXT INPUT
-            // ================================================================
-            const Text(
-              'Your Review',
-              style: TextStyle(
-                fontSize: 14.5,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF334155),
+                  );
+                }),
               ),
-            ),
-            const SizedBox(height: 8),
 
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFCBD5E1),
-                  width: 1,
+              const SizedBox(height: 18),
+              const Text(
+                'Your Review',
+                style: TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF334155),
                 ),
               ),
-              child: TextField(
-                controller: _commentController,
-                maxLines: 4,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF0F172A),
+              const SizedBox(height: 8),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
                 ),
-                decoration: const InputDecoration(
-                  hintText: 'Share your experience living here...',
-                  hintStyle: TextStyle(
+                child: TextField(
+                  controller: _commentController,
+                  maxLines: 4,
+                  style: const TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF94A3B8),
+                    color: Color(0xFF0F172A),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(14),
+                  decoration: const InputDecoration(
+                    hintText: AppPlaceholders.reviewHint,
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF94A3B8),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(14),
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // ================================================================
-            // 4. ACTION BUTTONS: Cancel (Text) & Submit Review (Solid Green)
-            // ================================================================
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // Cancel Text Button
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: TextButton.styleFrom(
-                    foregroundColor: tealDark,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Cancel Text Button
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      foregroundColor: tealDark,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
-                // Submit Review Solid Button
-                ElevatedButton(
-                  onPressed: _submitReview,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: submitGreen,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  // Submit Review Solid Button
+                  ElevatedButton(
+                    onPressed: _submitReview,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: submitGreen,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+                    child: const Text(
+                      'Submit Review',
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Submit Review',
-                    style: TextStyle(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 }

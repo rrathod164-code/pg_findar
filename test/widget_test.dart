@@ -17,12 +17,73 @@ import 'package:pg_findar/screens/pg_details/pg_detail_screen.dart';
 import 'package:pg_findar/widgets/logout_dialog.dart';
 
 final List<int> _kTransparentImage = <int>[
-  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49,
-  0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06,
-  0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44,
-  0x41, 0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0D,
-  0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42,
-  0x60, 0x82,
+  0x89,
+  0x50,
+  0x4E,
+  0x47,
+  0x0D,
+  0x0A,
+  0x1A,
+  0x0A,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x48,
+  0x44,
+  0x52,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x08,
+  0x06,
+  0x00,
+  0x00,
+  0x00,
+  0x1F,
+  0x15,
+  0xC4,
+  0x89,
+  0x00,
+  0x00,
+  0x00,
+  0x0A,
+  0x49,
+  0x44,
+  0x41,
+  0x54,
+  0x78,
+  0x9C,
+  0x63,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x05,
+  0x00,
+  0x01,
+  0x0D,
+  0x0A,
+  0x2D,
+  0xB4,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x49,
+  0x45,
+  0x4E,
+  0x44,
+  0xAE,
+  0x42,
+  0x60,
+  0x82,
 ];
 
 class _TestHttpOverrides extends HttpOverrides {
@@ -70,7 +131,9 @@ class _FakeHttpClientResponse implements HttpClientResponse {
     void Function()? onDone,
     bool? cancelOnError,
   }) {
-    return Stream<List<int>>.fromIterable(<List<int>>[_kTransparentImage]).listen(
+    return Stream<List<int>>.fromIterable(<List<int>>[
+      _kTransparentImage,
+    ]).listen(
       onData,
       onError: onError,
       onDone: onDone,
@@ -94,7 +157,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  testWidgets('App renders Intro Screen initially', (WidgetTester tester) async {
+  testWidgets('App renders Intro Screen initially', (
+    WidgetTester tester,
+  ) async {
     setTestScreenSize(tester);
     await tester.pumpWidget(const PGFinderApp());
     expect(find.byType(IntroScreen), findsOneWidget);
@@ -112,19 +177,18 @@ void main() {
     expect(find.text('Login to continue'), findsOneWidget);
   });
 
-  testWidgets('Login validation and navigation flow', (WidgetTester tester) async {
+  testWidgets('Login validation and navigation flow', (
+    WidgetTester tester,
+  ) async {
     setTestScreenSize(tester);
     await tester.pumpWidget(const MaterialApp(home: LoginPage()));
 
-    // Try logging in with empty inputs
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pump();
 
-    // Verify error text
     expect(find.text('Please enter your email or username'), findsOneWidget);
     expect(find.text('Please enter your password'), findsOneWidget);
 
-    // Enter valid email and verify error text clears immediately
     await tester.enterText(find.byType(TextFormField).first, 'user13');
     await tester.pump();
     expect(find.text('Please enter your email or username'), findsNothing);
@@ -136,11 +200,9 @@ void main() {
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pump();
 
-    // Advance 1s simulated delay
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
 
-    // Verify BottomNavScreen is displayed
     expect(find.byType(BottomNavScreen), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Saved'), findsOneWidget);
@@ -148,47 +210,50 @@ void main() {
     expect(find.text('Profile'), findsOneWidget);
   });
 
-  testWidgets('Forgot Password navigation and UI flow', (WidgetTester tester) async {
+  testWidgets('Forgot Password navigation and UI flow', (
+    WidgetTester tester,
+  ) async {
     setTestScreenSize(tester);
     await tester.pumpWidget(const MaterialApp(home: ForgotPasswordPage()));
 
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('Send Reset Link'), findsOneWidget);
 
-    // Tap Send Reset Link with empty input
     await tester.tap(find.widgetWithText(ElevatedButton, 'Send Reset Link'));
     await tester.pump();
     expect(find.text('Please enter your email'), findsOneWidget);
 
-    // Enter valid email
-    await tester.enterText(find.byType(TextFormField).first, 'user@example.com');
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      'user@example.com',
+    );
     await tester.tap(find.widgetWithText(ElevatedButton, 'Send Reset Link'));
     await tester.pump();
 
-    // Fast-forward delay
     await tester.pump(const Duration(milliseconds: 1500));
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Sign Up screen empty validation flow', (WidgetTester tester) async {
+  testWidgets('Sign Up screen empty validation flow', (
+    WidgetTester tester,
+  ) async {
     setTestScreenSize(tester);
     await tester.pumpWidget(const MaterialApp(home: SignUpPage()));
 
-    // Tap Sign Up with empty inputs
     await tester.tap(find.widgetWithText(ElevatedButton, 'Sign Up'));
     await tester.pump();
 
-    // Verify all field errors are displayed
     expect(find.text('Please enter your full name'), findsOneWidget);
     expect(find.text('Please enter your email'), findsOneWidget);
     expect(find.text('Please create a password'), findsOneWidget);
     expect(find.text('Please confirm your password'), findsOneWidget);
     expect(find.text('Please agree to the Terms & Conditions'), findsOneWidget);
 
-    // Verify the bottom warning snackbar is REMOVED
-    expect(find.text('Please correct the highlighted fields above.'), findsNothing);
+    expect(
+      find.text('Please correct the highlighted fields above.'),
+      findsNothing,
+    );
 
-    // Enter fields one by one to ensure errors clear immediately as user types
     await tester.enterText(find.byType(TextFormField).at(0), 'John Doe');
     await tester.pump();
     expect(find.text('Please enter your full name'), findsNothing);
@@ -213,137 +278,149 @@ void main() {
     expect(find.text('Create Your Account'), findsOneWidget);
     expect(find.text('Sign up to get started'), findsOneWidget);
 
-    // Fill the signup form
     await tester.enterText(find.byType(TextFormField).at(0), 'Test User');
-    await tester.enterText(find.byType(TextFormField).at(1), 'user@example.com');
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      'user@example.com',
+    );
     await tester.enterText(find.byType(TextFormField).at(2), '12345678');
     await tester.enterText(find.byType(TextFormField).at(3), '12345678');
 
-    // Agree to terms
     await tester.tap(find.byType(Checkbox));
     await tester.pump();
 
-    // Tap Sign Up
     await tester.tap(find.widgetWithText(ElevatedButton, 'Sign Up'));
     await tester.pump();
 
-    // Fast forward delay
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Individual Dashboard Screens render accurately', (WidgetTester tester) async {
+  testWidgets('Individual Dashboard Screens render accurately', (
+    WidgetTester tester,
+  ) async {
     setTestScreenSize(tester);
 
-    // Test HomeScreen
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
     expect(find.text('Find your perfect PG'), findsOneWidget);
 
-    // Test SavedScreen
     await tester.pumpWidget(const MaterialApp(home: SavedScreen()));
     expect(find.text('Saved PGs'), findsOneWidget);
 
-    // Test BookingScreen
     await tester.pumpWidget(const MaterialApp(home: BookingScreen()));
     expect(find.text('My Bookings'), findsOneWidget);
 
-    // Test ProfileScreen
     await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
     expect(find.text('Hi , User'), findsOneWidget);
   });
 
-  testWidgets('BottomNavScreen switches between tabs', (WidgetTester tester) async {
+  testWidgets('BottomNavScreen switches between tabs', (
+    WidgetTester tester,
+  ) async {
     setTestScreenSize(tester);
     await tester.pumpWidget(const MaterialApp(home: BottomNavScreen()));
 
-    // Starts on Home
     expect(find.text('Find your perfect PG'), findsOneWidget);
 
-    // Switch to Saved
     await tester.tap(find.text('Saved'));
     await tester.pumpAndSettle();
     expect(find.text('Saved PGs'), findsOneWidget);
 
-    // Switch to Booking
     await tester.tap(find.text('Booking'));
     await tester.pumpAndSettle();
     expect(find.text('My Bookings'), findsOneWidget);
 
-    // Switch to Profile
     await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     expect(find.text('Hi , User'), findsOneWidget);
   });
 
-  testWidgets('OwnerDashboardPage renders and navigates tabs without overflow or image errors', (WidgetTester tester) async {
-    setTestScreenSize(tester);
-    await tester.pumpWidget(const MaterialApp(home: OwnerDashboardPage()));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'OwnerDashboardPage renders and navigates tabs without overflow or image errors',
+    (WidgetTester tester) async {
+      setTestScreenSize(tester);
+      await tester.pumpWidget(const MaterialApp(home: OwnerDashboardPage()));
+      await tester.pumpAndSettle();
 
-    // Verify Owner Dashboard Home tab
-    expect(find.text('Good Morning,'), findsOneWidget);
-    expect(find.text('Renisha!'), findsOneWidget);
+      expect(find.text('Good Morning,'), findsOneWidget);
+      expect(find.text('Renisha!'), findsOneWidget);
 
-    // Switch to Properties Tab
-    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Properties')));
-    await tester.pumpAndSettle();
-    expect(find.text('Add PG'), findsOneWidget);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(OwnerBottomNavBar),
+          matching: find.text('Properties'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Add PG'), findsOneWidget);
 
-    // Switch to Bookings Tab
-    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Bookings')));
-    await tester.pumpAndSettle();
-    expect(find.text('Booking Requests'), findsOneWidget);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(OwnerBottomNavBar),
+          matching: find.text('Bookings'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Booking Requests'), findsOneWidget);
 
-    // Switch to Profile Tab
-    await tester.tap(find.descendant(of: find.byType(OwnerBottomNavBar), matching: find.text('Profile')));
-    await tester.pumpAndSettle();
-    expect(find.text('Owner Profile'), findsOneWidget);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(OwnerBottomNavBar),
+          matching: find.text('Profile'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Owner Profile'), findsOneWidget);
 
-    // Verify Logout opens LogoutDialog
-    await tester.tap(find.text('Logout'));
-    await tester.pumpAndSettle();
-    expect(find.byType(LogoutDialog), findsOneWidget);
-    expect(find.text('Are you sure you want to\nlogout from your account?'), findsOneWidget);
+      await tester.tap(find.text('Logout'));
+      await tester.pumpAndSettle();
+      expect(find.byType(LogoutDialog), findsOneWidget);
+      expect(
+        find.text('Are you sure you want to\nlogout from your account?'),
+        findsOneWidget,
+      );
 
-    // Cancel dialog
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
-    expect(find.byType(LogoutDialog), findsNothing);
-  });
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.byType(LogoutDialog), findsNothing);
+    },
+  );
 
-  testWidgets('PgDetailScreen renders properly on compact screens without overflow', (WidgetTester tester) async {
-    // Set a compact mobile screen size
-    tester.view.physicalSize = const Size(360, 640);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'PgDetailScreen renders properly on compact screens without overflow',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final dummyPg = PGAccommodation(
-      id: '99',
-      name: 'Test PG Residency',
-      location: 'Test Road, City',
-      city: 'Rajkot',
-      price: 5500,
-      rating: 4.8,
-      category: 'Boys PG',
-      gender: 'Boys',
-      imageUrl: 'assets/images/GreenVally.png',
-      hasWifi: true,
-      hasAC: true,
-      hasFood: true,
-      hasParking: true,
-      hasLaundry: true,
-      hasTV: true,
-      hasFridge: true,
-      hasGeyser: true,
-      isPopular: true,
-      isNearby: true,
-    );
+      final dummyPg = PGAccommodation(
+        id: '99',
+        name: 'Test PG Residency',
+        location: 'Test Road, City',
+        city: 'Rajkot',
+        price: 5500,
+        rating: 4.8,
+        category: 'Boys PG',
+        gender: 'Boys',
+        imageUrl: 'assets/images/GreenVally.png',
+        hasWifi: true,
+        hasAC: true,
+        hasFood: true,
+        hasParking: true,
+        hasLaundry: true,
+        hasTV: true,
+        hasFridge: true,
+        hasGeyser: true,
+        isPopular: true,
+        isNearby: true,
+      );
 
-    await tester.pumpWidget(MaterialApp(home: PgDetailScreen(pg: dummyPg)));
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(MaterialApp(home: PgDetailScreen(pg: dummyPg)));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Test PG Residency'), findsOneWidget);
-    expect(find.text('Book a PG'), findsOneWidget);
-  });
+      expect(find.text('Test PG Residency'), findsOneWidget);
+      expect(find.text('Book a PG'), findsOneWidget);
+    },
+  );
 }

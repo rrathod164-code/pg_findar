@@ -4,24 +4,31 @@ import 'package:pg_findar/screens/user/user_booking_screen.dart';
 
 void main() {
   group('Transparent Room Selection and Owner Approval Tests', () {
-    test('PGAccommodation provides transparent room list with numbers and sharing', () {
-      final pgs = HomeScreen.samplePGs;
-      expect(pgs.isNotEmpty, true);
+    test(
+      'PGAccommodation provides transparent room list with numbers and sharing',
+      () {
+        final pgs = HomeScreen.samplePGs;
+        expect(pgs.isNotEmpty, true);
 
-      final pg = pgs.first;
-      expect(pg.roomsList.isNotEmpty, true);
+        final pg = pgs.first;
+        expect(pg.roomsList.isNotEmpty, true);
 
-      final room101 = pg.roomsList.firstWhere((r) => r.roomNumber == 'Room 101');
-      expect(room101.floor, '1st Floor');
-      expect(room101.sharingType, 'Single Sharing');
-      expect(room101.totalBeds, 1);
-      expect(room101.availableBeds, greaterThanOrEqualTo(0));
+        final room101 = pg.roomsList.firstWhere(
+          (r) => r.roomNumber == 'Room 101',
+        );
+        expect(room101.floor, '1st Floor');
+        expect(room101.sharingType, 'Single Sharing');
+        expect(room101.totalBeds, 1);
+        expect(room101.availableBeds, greaterThanOrEqualTo(0));
 
-      final room102 = pg.roomsList.firstWhere((r) => r.roomNumber == 'Room 102');
-      expect(room102.floor, '1st Floor');
-      expect(room102.sharingType, 'Double Sharing');
-      expect(room102.totalBeds, 2);
-    });
+        final room102 = pg.roomsList.firstWhere(
+          (r) => r.roomNumber == 'Room 102',
+        );
+        expect(room102.floor, '1st Floor');
+        expect(room102.sharingType, 'Double Sharing');
+        expect(room102.totalBeds, 2);
+      },
+    );
 
     test('Static bookings list contains valid booking details', () {
       final bookings = BookingScreen.sampleBookings;

@@ -8,17 +8,6 @@ import '../screens/user/user_profile_screen.dart';
 
 export 'owner_bottom_nav_bar.dart';
 
-/// ============================================================================
-/// USER BOTTOM NAVIGATION SHELL
-/// ============================================================================
-/// This widget is the main navigation container for the User (Student) panel.
-/// It displays a bottom navigation bar with 4 tabs:
-/// 1. Home    -> Browse popular PGs, nearby stays, categories, search
-/// 2. Saved   -> Wishlist / bookmarked favorite PGs
-/// 3. Booking -> Active & past bookings, booking status, receipt
-/// 4. Profile -> User personal profile, settings, edit profile, logout
-/// ============================================================================
-
 class BottomNavScreen extends StatefulWidget {
   final int initialIndex; // Initial tab index (default is 0: Home)
   const BottomNavScreen({super.key, this.initialIndex = 0});
@@ -116,9 +105,7 @@ class CustomBottomNavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(30),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
@@ -129,9 +116,7 @@ class CustomBottomNavBar extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(30),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         child: SafeArea(
           top: false,
           child: Padding(

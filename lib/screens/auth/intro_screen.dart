@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import 'login_screen.dart';
 
-/// ============================================================================
-/// SPLASH / GET STARTED ONBOARDING SCREEN
-/// ============================================================================
-/// The entry onboarding screen of the app.
-/// ============================================================================
-
 class IntroScreen extends StatelessWidget {
   const IntroScreen({super.key});
 
@@ -27,7 +21,6 @@ class IntroScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // Illustration Image
               Expanded(
                 child: Center(
                   child: Image.asset(
@@ -51,7 +44,6 @@ class IntroScreen extends StatelessWidget {
                 ),
               ),
 
-              // 'Get start' Button
               Padding(
                 padding: EdgeInsets.only(
                   left: MediaQuery.of(context).size.width * 0.07,

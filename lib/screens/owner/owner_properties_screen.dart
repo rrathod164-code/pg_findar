@@ -18,7 +18,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
     final priceController = TextEditingController(text: '6500');
     final imageController = TextEditingController(
       text:
-          'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
+          AppPlaceholders.networkPgFallback,
     );
     String selectedCategory = 'Boys PG';
     String selectedGender = 'Boys';
@@ -75,7 +75,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       controller: nameController,
                       decoration: InputDecoration(
                         labelText: 'Property / PG Name',
-                        hintText: 'e.g. Skyline Living PG',
+                        hintText: AppPlaceholders.pgNameHint,
                         filled: true,
                         fillColor: OwnerColors.inputFill,
                         border: OutlineInputBorder(
@@ -93,7 +93,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             controller: locationController,
                             decoration: InputDecoration(
                               labelText: 'Location / Area',
-                              hintText: 'e.g. Kalawad Road',
+                              hintText: AppPlaceholders.pgLocationHint,
                               filled: true,
                               fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
@@ -130,7 +130,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: 'Monthly Rent (₹)',
-                              hintText: 'e.g. 7000',
+                              hintText: AppPlaceholders.monthlyRentHint,
                               filled: true,
                               fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
@@ -307,7 +307,11 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                                 sharingType: 'Single Sharing',
                                 totalBeds: 1,
                                 price: pgPrice + 1000,
-                                amenities: const ['Attached Bath', 'Wi-Fi', 'AC'],
+                                amenities: const [
+                                  'Attached Bath',
+                                  'Wi-Fi',
+                                  'AC',
+                                ],
                               ),
                               PGRoom(
                                 id: 'r102_${DateTime.now().millisecondsSinceEpoch}',
@@ -511,7 +515,9 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isEditing ? 'Edit Room Details' : 'Upload New Room Details',
+                          isEditing
+                              ? 'Edit Room Details'
+                              : 'Upload New Room Details',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -534,7 +540,6 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Room Number & Floor row
                     Row(
                       children: [
                         Expanded(
@@ -543,7 +548,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             controller: roomNumberController,
                             decoration: InputDecoration(
                               labelText: 'Room Number',
-                              hintText: 'e.g. Room 103',
+                              hintText: AppPlaceholders.roomNumberHint,
                               filled: true,
                               fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
@@ -600,7 +605,6 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Sharing Type Dropdown & Rent
                     Row(
                       children: [
                         Expanded(
@@ -660,7 +664,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: 'Rent / mo (₹)',
-                              hintText: '6500',
+                              hintText: AppPlaceholders.rentAmountHint,
                               filled: true,
                               fillColor: OwnerColors.inputFill,
                               border: OutlineInputBorder(
@@ -674,7 +678,6 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Total Beds & Occupied Beds
                     Row(
                       children: [
                         Expanded(
@@ -706,10 +709,11 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               ),
                             ),
                             items: [
-                              for (int i = 0;
-                                  i <=
-                                      (int.tryParse(bedsController.text) ?? 4);
-                                  i++)
+                              for (
+                                int i = 0;
+                                i <= (int.tryParse(bedsController.text) ?? 4);
+                                i++
+                              )
                                 DropdownMenuItem(
                                   value: i,
                                   child: Text('$i Occupied'),
@@ -759,7 +763,6 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Submit Button
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -826,301 +829,284 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
         final rooms = pg.roomsList;
 
         return SafeArea(
-              child: Container(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.85,
-                ),
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Header Bar
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Manage Rooms (${rooms.length})',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: OwnerColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            pg.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: OwnerColors.textGrey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: OwnerColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text(
+                      'Upload New Room Detail',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onPressed: () => _showAddOrEditRoomDialog(context, pg),
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                const Text(
+                  'Configured Rooms (Visible to Students)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: OwnerColors.textGrey,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                Expanded(
+                  child: rooms.isEmpty
+                      ? Center(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                'Manage Rooms (${rooms.length})',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  color: OwnerColors.textDark,
+                              Icon(
+                                Icons.meeting_room_outlined,
+                                size: 48,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'No rooms uploaded yet',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: OwnerColors.textGrey,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                pg.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: OwnerColors.textGrey,
-                                  fontWeight: FontWeight.w500,
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Tap "Upload New Room Detail" to add room numbers and sharing types.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: OwnerColors.textDisabled,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
+                        )
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: rooms.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            final room = rooms[index];
+                            final isFull = room.isFull;
 
-                    // Top Action: "+ Upload New Room"
-                    SizedBox(
-                      width: double.infinity,
-                      height: 44,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: OwnerColors.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text(
-                          'Upload New Room Detail',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () => _showAddOrEditRoomDialog(context, pg),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-
-                    const Text(
-                      'Configured Rooms (Visible to Students)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: OwnerColors.textGrey,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Rooms List
-                    Expanded(
-                      child: rooms.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.meeting_room_outlined,
-                                    size: 48,
-                                    color: Colors.grey.shade400,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'No rooms uploaded yet',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: OwnerColors.textGrey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    'Tap "Upload New Room Detail" to add room numbers and sharing types.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: OwnerColors.textDisabled,
-                                    ),
-                                  ),
-                                ],
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: OwnerColors.cardBg,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: isFull
+                                      ? OwnerColors.border
+                                      : OwnerColors.mintLight,
+                                ),
                               ),
-                            )
-                          : ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: rooms.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 10),
-                              itemBuilder: (context, index) {
-                                final room = rooms[index];
-                                final isFull = room.isFull;
-
-                                return Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: OwnerColors.cardBg,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 42,
+                                    height: 42,
+                                    decoration: BoxDecoration(
                                       color: isFull
-                                          ? OwnerColors.border
-                                          : OwnerColors.mintLight,
+                                          ? OwnerColors.divider
+                                          : OwnerColors.mintBg,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Icon(
+                                      Icons.meeting_room_outlined,
+                                      color: isFull
+                                          ? OwnerColors.textHint
+                                          : OwnerColors.primary,
+                                      size: 22,
                                     ),
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Room Icon Box
-                                      Container(
-                                        width: 42,
-                                        height: 42,
-                                        decoration: BoxDecoration(
-                                          color: isFull
-                                              ? OwnerColors.divider
-                                              : OwnerColors.mintBg,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Icon(
-                                          Icons.meeting_room_outlined,
-                                          color: isFull
-                                              ? OwnerColors.textHint
-                                              : OwnerColors.primary,
-                                          size: 22,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
+                                  const SizedBox(width: 12),
 
-                                      // Details
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  '${room.roomNumber} (${room.floor})',
-                                                  style: const TextStyle(
-                                                    fontSize: 14.5,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: OwnerColors.textDark,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '₹${room.price.toInt()} / mo',
-                                                  style: const TextStyle(
-                                                    fontSize: 13.5,
-                                                    fontWeight: FontWeight.w800,
-                                                    color: OwnerColors.primary,
-                                                  ),
-                                                ),
-                                              ],
+                                            Text(
+                                              '${room.roomNumber} (${room.floor})',
+                                              style: const TextStyle(
+                                                fontSize: 14.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: OwnerColors.textDark,
+                                              ),
                                             ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets
-                                                          .symmetric(
+                                            Text(
+                                              '₹${room.price.toInt()} / mo',
+                                              style: const TextStyle(
+                                                fontSize: 13.5,
+                                                fontWeight: FontWeight.w800,
+                                                color: OwnerColors.primary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
                                                     horizontal: 7,
                                                     vertical: 2,
                                                   ),
-                                                  decoration: BoxDecoration(
-                                                    color: OwnerColors.mintBg,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            6),
-                                                  ),
-                                                  child: Text(
-                                                    room.sharingType,
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color:
-                                                          OwnerColors.tealDeep,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  isFull
-                                                      ? 'Full (${room.occupiedBeds}/${room.totalBeds} beds)'
-                                                      : '${room.availableBeds} of ${room.totalBeds} beds available',
-                                                  style: TextStyle(
-                                                    fontSize: 11.5,
-                                                    fontWeight:
-                                                        FontWeight.w600,
-                                                    color: isFull
-                                                        ? OwnerColors.errorDark
-                                                        : OwnerColors.successDark,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            if (room.amenities.isNotEmpty) ...[
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                room.amenities.join(' • '),
+                                              decoration: BoxDecoration(
+                                                color: OwnerColors.mintBg,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                room.sharingType,
                                                 style: const TextStyle(
                                                   fontSize: 11,
-                                                  color: OwnerColors.textGrey,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: OwnerColors.tealDeep,
                                                 ),
                                               ),
-                                            ],
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              isFull
+                                                  ? 'Full (${room.occupiedBeds}/${room.totalBeds} beds)'
+                                                  : '${room.availableBeds} of ${room.totalBeds} beds available',
+                                              style: TextStyle(
+                                                fontSize: 11.5,
+                                                fontWeight: FontWeight.w600,
+                                                color: isFull
+                                                    ? OwnerColors.errorDark
+                                                    : OwnerColors.successDark,
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                      ),
-
-                                      // Actions: Edit and Delete
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.edit_outlined,
-                                              size: 18,
-                                              color: OwnerColors.primary,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            constraints:
-                                                const BoxConstraints(),
-                                            onPressed: () =>
-                                                _showAddOrEditRoomDialog(
-                                              context,
-                                              pg,
-                                              room,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.delete_outline,
-                                              size: 18,
-                                              color: OwnerColors.error,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            constraints:
-                                                const BoxConstraints(),
-                                            onPressed: () =>
-                                                _confirmDeleteRoom(
-                                              context,
-                                              pg,
-                                              room,
+                                        if (room.amenities.isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            room.amenities.join(' • '),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: OwnerColors.textGrey,
                                             ),
                                           ),
                                         ],
+                                      ],
+                                    ),
+                                  ),
+
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.edit_outlined,
+                                          size: 18,
+                                          color: OwnerColors.primary,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () =>
+                                            _showAddOrEditRoomDialog(
+                                              context,
+                                              pg,
+                                              room,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          size: 18,
+                                          color: OwnerColors.error,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () => _confirmDeleteRoom(
+                                          context,
+                                          pg,
+                                          room,
+                                        ),
                                       ),
                                     ],
                                   ),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                 ),
-              ),
-            );
+              ],
+            ),
+          ),
+        );
       },
     );
   }
@@ -1152,7 +1138,10 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
               ),
               icon: const Icon(Icons.add, size: 18),
               label: const Text(
@@ -1170,330 +1159,342 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
           builder: (context) {
             final pgs = HomeScreen.samplePGs;
             final myProperties = pgs
-                .where((p) => p.organizerId == 'organizer13' || p.organizerId == 'owner13')
+                .where(
+                  (p) =>
+                      p.organizerId == 'organizer13' ||
+                      p.organizerId == 'owner13',
+                )
                 .toList();
 
-          if (myProperties.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.home_work_outlined,
-                    size: 70,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No properties listed yet',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Tap "Add PG" to publish your first property.',
-                    style: TextStyle(color: OwnerColors.textGrey),
-                  ),
-                  const SizedBox(height: 18),
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: OwnerColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Property'),
-                    onPressed: () => _showAddPropertyDialog(context),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.separated(
-            padding: const EdgeInsets.all(20),
-            itemCount: myProperties.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final pg = myProperties[index];
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+            if (myProperties.isEmpty) {
+              return Center(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // PG Image + Delete Button overlay
-                    Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                          child: AppImage(
-                            imageUrl: pg.imageUrl,
-                            height: 150,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            radius: 18,
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: const Icon(
-                                Icons.delete_outline_rounded,
-                                color: OwnerColors.error,
-                                size: 20,
-                              ),
-                              onPressed: () =>
-                                  _confirmDeleteProperty(context, pg),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 10,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: OwnerColors.primary,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              pg.category,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    Icon(
+                      Icons.home_work_outlined,
+                      size: 70,
+                      color: Colors.grey.shade400,
                     ),
-
-                    // Details
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  pg.name,
-                                  style: const TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w800,
-                                    color: OwnerColors.textDark,
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: OwnerColors.warningAmber,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    '${pg.rating}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on_outlined,
-                                size: 14,
-                                color: OwnerColors.textGrey,
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  pg.location,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: OwnerColors.textGrey,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          // Configured rooms summary badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: OwnerColors.mintSurface,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: OwnerColors.mintLight,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.meeting_room_outlined,
-                                      size: 15,
-                                      color: OwnerColors.tealDeep,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      '${pg.roomsList.length} Rooms configured',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: OwnerColors.tealDeep,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  '${pg.roomsList.where((r) => r.isAvailable).length} Available',
-                                  style: const TextStyle(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: OwnerColors.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 10),
-                          // Price
-                          RichText(
-                            text: TextSpan(
-                              text: '₹${pg.price.toInt()} ',
-                              style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w900,
-                                color: OwnerColors.primary,
-                              ),
-                              children: const [
-                                TextSpan(
-                                  text: '/ month',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: OwnerColors.textGrey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 12),
-                          // Action buttons row: Upload / Manage Rooms + Remove
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: OwnerColors.primary,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  icon: const Icon(
-                                    Icons.meeting_room_rounded,
-                                    size: 16,
-                                  ),
-                                  label: const Text(
-                                    'Upload / Manage Rooms',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  onPressed: () =>
-                                      _showManageRoomsModal(context, pg),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                flex: 2,
-                                child: OutlinedButton.icon(
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: OwnerColors.error,
-                                    side: const BorderSide(
-                                      color: OwnerColors.errorBorder,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  icon: const Icon(
-                                    Icons.delete_outline,
-                                    size: 16,
-                                  ),
-                                  label: const Text(
-                                    'Remove',
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                  onPressed: () =>
-                                      _confirmDeleteProperty(context, pg),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No properties listed yet',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Tap "Add PG" to publish your first property.',
+                      style: TextStyle(color: OwnerColors.textGrey),
+                    ),
+                    const SizedBox(height: 18),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: OwnerColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Property'),
+                      onPressed: () => _showAddPropertyDialog(context),
                     ),
                   ],
                 ),
               );
-            },
-          );
-        },
+            }
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(20),
+              itemCount: myProperties.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final pg = myProperties[index];
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 5),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                            child: AppImage(
+                              imageUrl: pg.imageUrl,
+                              height: 150,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 18,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: OwnerColors.error,
+                                  size: 20,
+                                ),
+                                onPressed: () =>
+                                    _confirmDeleteProperty(context, pg),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 10,
+                            left: 10,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: OwnerColors.primary,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                pg.category,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    pg.name,
+                                    style: const TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w800,
+                                      color: OwnerColors.textDark,
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      color: OwnerColors.warningAmber,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      '${pg.rating}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_on_outlined,
+                                  size: 14,
+                                  color: OwnerColors.textGrey,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    pg.location,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: OwnerColors.textGrey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: OwnerColors.mintSurface,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: OwnerColors.mintLight,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.meeting_room_outlined,
+                                        size: 15,
+                                        color: OwnerColors.tealDeep,
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${pg.roomsList.length} Rooms configured',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: OwnerColors.tealDeep,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    '${pg.roomsList.where((r) => r.isAvailable).length} Available',
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: OwnerColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 10),
+                            RichText(
+                              text: TextSpan(
+                                text: '₹${pg.price.toInt()} ',
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w900,
+                                  color: OwnerColors.primary,
+                                ),
+                                children: const [
+                                  TextSpan(
+                                    text: '/ month',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: OwnerColors.textGrey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: OwnerColors.primary,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.meeting_room_rounded,
+                                      size: 16,
+                                    ),
+                                    label: const Text(
+                                      'Upload / Manage Rooms',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    onPressed: () =>
+                                        _showManageRoomsModal(context, pg),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 2,
+                                  child: OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: OwnerColors.error,
+                                      side: const BorderSide(
+                                        color: OwnerColors.errorBorder,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      size: 16,
+                                    ),
+                                    label: const Text(
+                                      'Remove',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    onPressed: () =>
+                                        _confirmDeleteProperty(context, pg),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
-    ),
-    floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton.extended(
         backgroundColor: OwnerColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_business_rounded),

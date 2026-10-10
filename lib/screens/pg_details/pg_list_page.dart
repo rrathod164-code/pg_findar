@@ -59,31 +59,22 @@ class _PGListPageState extends State<PGListPage> {
     super.dispose();
   }
 
-
-  // --------------------------------------------------------------------------
-  // HELPER: Category Filter Matching (No Backend, 100% Frontend Logic)
-  // --------------------------------------------------------------------------
-  // Checks if a PG accommodation matches the clicked category (Boys PG, Girls PG, etc.)
   bool _matchesCategory(PGAccommodation pg, String category) {
-    if (category.isEmpty) return true; // Show all if no category selected
+    if (category.isEmpty) return true;
 
     final filter = category.toLowerCase().trim();
     final pgCategory = pg.category.toLowerCase().trim();
     final pgGender = pg.gender.toLowerCase().trim();
 
-    // 1. Boys PG (Male)
     if (filter.contains('boy')) {
       return pgCategory.contains('boy') || pgGender == 'boys';
     }
-    // 2. Girls PG (Female)
     if (filter.contains('girl')) {
       return pgCategory.contains('girl') || pgGender == 'girls';
     }
-    // 3. Hostels
     if (filter.contains('hostel')) {
       return pgCategory.contains('hostel');
     }
-    // 4. Flats
     if (filter.contains('flat')) {
       return pgCategory.contains('flat');
     }
@@ -103,338 +94,297 @@ class _PGListPageState extends State<PGListPage> {
     );
   }
 
-  void _showPGDetailsDialog(PGAccommodation pg) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(28),
-              topRight: Radius.circular(28),
+
+
+  @override
+  Widget build(BuildContext context) {
+    Widget buildGridPGCard(PGAccommodation pg) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 5),
             ),
-          ),
-          padding: EdgeInsets.only(
-            top: 20,
-            left: 24,
-            right: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          ),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            BoxShadow(
+              color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Center(
-                child: Container(
-                  width: 48,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    topRight: Radius.circular(18),
+                  ),
+                  child: AppImage(
+                    imageUrl: pg.imageUrl,
+                    height: 96,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: AppImage(
-                      imageUrl: pg.imageUrl,
-                      width: 90,
-                      height: 90,
-                      fit: BoxFit.cover,
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.favorite_border_rounded,
+                      color: Color(0xFF758595),
+                      size: 16,
                     ),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              ],
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          pg.name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF091A2A),
+                        Expanded(
+                          child: Text(
+                            pg.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF091A2A),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(
-                              Icons.location_on,
-                              size: 14,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              '${pg.location}, ${pg.city}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF758595),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryLight,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                pg.category,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
                             const Icon(
                               Icons.star_rounded,
                               color: Colors.amber,
-                              size: 16,
+                              size: 13,
                             ),
                             const SizedBox(width: 2),
                             Text(
                               pg.rating.toString(),
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF091A2A),
+                                color: Color(0xFF758595),
                               ),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Available Facilities & Amenities',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF091A2A),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildFacilityBadge('Wifi', pg.hasWifi, Icons.wifi),
-                  _buildFacilityBadge('AC', pg.hasAC, Icons.ac_unit),
-                  _buildFacilityBadge('Food', pg.hasFood, Icons.restaurant),
-                  _buildFacilityBadge(
-                    'Parking',
-                    pg.hasParking,
-                    Icons.local_parking,
-                  ),
-                  _buildFacilityBadge(
-                    'Laundry',
-                    pg.hasLaundry,
-                    Icons.local_laundry_service,
-                  ),
-                  _buildFacilityBadge('TV', pg.hasTV, Icons.tv),
-                  _buildFacilityBadge('Fridge', pg.hasFridge, Icons.kitchen),
-                  _buildFacilityBadge('Gyser', pg.hasGeyser, Icons.water_drop),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Monthly Rent',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF758595),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '₹${pg.price.toInt()}/mo',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 46,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PgDetailScreen(pg: pg),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Text(
+                          '₹${pg.price.toInt()}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
-                      ),
-                      child: const Text(
-                        'Book Now',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                        const Text(
+                          '/month',
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            color: Color(0xFF758595),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          size: 11,
+                          color: Color(0xFF758595),
+                        ),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            pg.location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Color(0xFF758595),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            pg.gender,
+                            style: const TextStyle(
+                              fontSize: 8.5,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (pg.hasAC) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 1.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF0F5),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  Icons.ac_unit,
+                                  size: 9,
+                                  color: Colors.pink,
+                                ),
+                                SizedBox(width: 2),
+                                Text(
+                                  'A.C',
+                                  style: TextStyle(
+                                    fontSize: 7.5,
+                                    color: Colors.pink,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 24,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PgDetailScreen(pg: pg),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        child: const Text(
+                          'Book Now',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      );
-      },
-    );
-  }
-
-  Widget _buildFacilityBadge(String name, bool isAvailable, IconData icon) {
-    final bool isUserRequested = _filterCriteria.facilities.contains(name);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: isAvailable
-            ? (isUserRequested
-                  ? AppColors.primary
-                  : AppColors.primaryLight)
-            : Colors.grey.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isAvailable
-              ? (isUserRequested
-                    ? AppColors.primary
-                    : AppColors.primary.withValues(alpha: 0.3))
-              : Colors.transparent,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 14,
-            color: isAvailable
-                ? (isUserRequested ? Colors.white : AppColors.primary)
-                : Colors.grey,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            name,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isAvailable
-                  ? (isUserRequested ? Colors.white : const Color(0xFF091A2A))
-                  : Colors.grey,
-            ),
-          ),
-          if (isAvailable) ...[
-            const SizedBox(width: 3),
-            Icon(
-              Icons.check,
-              size: 12,
-              color: isUserRequested ? Colors.white : AppColors.primary,
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-
-
-  Widget _buildActiveFilterChip(String label, VoidCallback onRemove) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.3),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onRemove,
-            child: const Icon(
-              Icons.close_rounded,
-              size: 14,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildGridFromList(List<PGAccommodation> list) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.80, // Proportional ratio for reduced, even spacing
-      ),
-      itemCount: list.length,
-      itemBuilder: (context, index) {
-        return _buildGridPGCard(list[index]);
-      },
-    );
-  }
+    Widget buildGridFromList(List<PGAccommodation> list) {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 12,
+          childAspectRatio: 0.68,
+        ),
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          return buildGridPGCard(list[index]);
+        },
+      );
+    }
 
-  @override
-  Widget build(BuildContext context) {
+    Widget buildActiveFilterChip(String label, VoidCallback onRemove) {
+      return Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: onRemove,
+              child: const Icon(
+                Icons.close_rounded,
+                size: 14,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: DashboardBackground(
@@ -442,7 +392,6 @@ class _PGListPageState extends State<PGListPage> {
           child: Column(
             children: [
               const SizedBox(height: 6),
-              // Top Bar: Back button and Search Bar with Filter Icon
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -498,12 +447,18 @@ class _PGListPageState extends State<PGListPage> {
                                   color: Color(0xFF091A2A),
                                 ),
                                 decoration: const InputDecoration(
-                                  hintText: 'Search PG, location or area...',
+                                  hintText: AppPlaceholders.searchHint,
                                   hintStyle: TextStyle(
                                     color: Color(0xFFB0BAC5),
                                     fontSize: 13.5,
                                   ),
                                   border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  focusedErrorBorder: InputBorder.none,
+                                  filled: false,
                                   isDense: true,
                                   contentPadding: EdgeInsets.symmetric(
                                     vertical: 10,
@@ -555,7 +510,6 @@ class _PGListPageState extends State<PGListPage> {
                 ),
               ),
 
-              // Active Filter Tags Row
               if (_filterCriteria.hasActiveFilters) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -568,7 +522,7 @@ class _PGListPageState extends State<PGListPage> {
                     child: Row(
                       children: [
                         if (_filterCriteria.gender != 'Both')
-                          _buildActiveFilterChip(
+                          buildActiveFilterChip(
                             'Gender: ${_filterCriteria.gender}',
                             () {
                               setState(() {
@@ -580,7 +534,7 @@ class _PGListPageState extends State<PGListPage> {
                           ),
                         if (_filterCriteria.minPrice > 3000 ||
                             _filterCriteria.maxPrice < 10000)
-                          _buildActiveFilterChip(
+                          buildActiveFilterChip(
                             '₹${_filterCriteria.minPrice.toInt()} - ₹${_filterCriteria.maxPrice.toInt()}',
                             () {
                               setState(() {
@@ -592,7 +546,7 @@ class _PGListPageState extends State<PGListPage> {
                             },
                           ),
                         for (final facility in _filterCriteria.facilities)
-                          _buildActiveFilterChip(facility, () {
+                          buildActiveFilterChip(facility, () {
                             final updated = List<String>.from(
                               _filterCriteria.facilities,
                             )..remove(facility);
@@ -634,12 +588,10 @@ class _PGListPageState extends State<PGListPage> {
                 ),
               ],
 
-              // PGs Grid List
               Expanded(
                 child: Builder(
                   builder: (context) {
                     final pgs = HomeScreen.samplePGs;
-                    // Filter by city
                     var list = pgs
                         .where(
                           (pg) =>
@@ -648,7 +600,6 @@ class _PGListPageState extends State<PGListPage> {
                         )
                         .toList();
 
-                    // Filter by Category (Boys PG / Girls PG / Hostels / Flats)
                     if (_selectedCategory.isNotEmpty) {
                       list = list
                           .where(
@@ -665,7 +616,6 @@ class _PGListPageState extends State<PGListPage> {
                           .toList();
                     }
 
-                    // Search query filter
                     if (_searchQuery.isNotEmpty) {
                       final q = _searchQuery.toLowerCase().trim();
                       list = list
@@ -681,7 +631,6 @@ class _PGListPageState extends State<PGListPage> {
                           .toList();
                     }
 
-                    // If user applied filters
                     if (_filterCriteria.hasActiveFilters) {
                       final exactMatches = list.where((pg) {
                         final inPrice =
@@ -826,7 +775,7 @@ class _PGListPageState extends State<PGListPage> {
                                 ],
                               ),
                             ),
-                            _buildGridFromList(exactMatches),
+                            buildGridFromList(exactMatches),
                             const SizedBox(height: 16),
                           ],
                           if (referencePgs.isNotEmpty) ...[
@@ -878,7 +827,7 @@ class _PGListPageState extends State<PGListPage> {
                                 ),
                               ),
                             ),
-                            _buildGridFromList(referencePgs),
+                            buildGridFromList(referencePgs),
                           ],
                         ],
                       );
@@ -926,16 +875,16 @@ class _PGListPageState extends State<PGListPage> {
                     return GridView.builder(
                       padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
                       physics: const BouncingScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 12,
-                        childAspectRatio:
-                            0.80, // Proportional ratio for reduced, even spacing
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.68,
+                          ),
                       itemCount: list.length,
                       itemBuilder: (context, index) {
-                        return _buildGridPGCard(list[index]);
+                        return buildGridPGCard(list[index]);
                       },
                     );
                   },
@@ -945,7 +894,6 @@ class _PGListPageState extends State<PGListPage> {
           ),
         ),
       ),
-      // Optional bottom navigation bar matching dashboard
       bottomNavigationBar: widget.showBottomNav
           ? CustomBottomNavBar(
               currentIndex: 0,
@@ -966,253 +914,5 @@ class _PGListPageState extends State<PGListPage> {
             )
           : null,
     );
-  }
-
-  Widget _buildGridPGCard(PGAccommodation pg) {
-    return GestureDetector(
-          onTap: () => _showPGDetailsDialog(pg),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image Section
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(18),
-                        topRight: Radius.circular(18),
-                      ),
-                      child: AppImage(
-                        imageUrl: pg.imageUrl,
-                        height: 105,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.favorite_border_rounded,
-                          color: Color(0xFF758595),
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Content Section with equal, uniform spacing between all elements
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 1. PG Name & Rating Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                pg.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF091A2A),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  color: Colors.amber,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 1),
-                                Text(
-                                  pg.rating.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF758595),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        // 2. Price & Location Row
-                        Row(
-                          children: [
-                            Text(
-                              '₹${pg.price.toInt()}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const Text(
-                              '/mo',
-                              style: TextStyle(
-                                fontSize: 9.5,
-                                color: Color(0xFF758595),
-                              ),
-                            ),
-                            const Spacer(),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  size: 10,
-                                  color: Color(0xFF758595),
-                                ),
-                                const SizedBox(width: 1),
-                                Text(
-                                  pg.location.split(',').first,
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    color: Color(0xFF758595),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        // 3. Amenities Row (Wifi, AC, Food)
-                        SizedBox(
-                          height: 18,
-                          child: Row(
-                            children: [
-                              if (pg.hasWifi)
-                                Container(
-                                  margin: const EdgeInsets.only(right: 4),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryLight,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    'Wifi',
-                                    style: TextStyle(
-                                      fontSize: 8.5,
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              if (pg.hasAC)
-                                Container(
-                                  margin: const EdgeInsets.only(right: 4),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF0F5),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    'AC',
-                                    style: TextStyle(
-                                      fontSize: 8.5,
-                                      color: Colors.pink,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              if (pg.hasFood)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF0FDF4),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    'Food',
-                                    style: TextStyle(
-                                      fontSize: 8.5,
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-
-                        // 4. Book Now Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 30,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PgDetailScreen(pg: pg),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              'Book Now',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
   }
 }

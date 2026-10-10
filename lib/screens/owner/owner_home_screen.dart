@@ -11,260 +11,243 @@ class OwnerHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pure static demo data for simple, beginner-friendly UI presentation
     final pgs = HomeScreen.samplePGs;
     final bookings = BookingScreen.sampleBookings;
 
-    // Owner properties
     final ownerProperties = pgs
         .where((p) => p.organizerId == 'owner13')
         .toList();
-    final propertyCount = ownerProperties.isEmpty
-        ? 5
-        : ownerProperties.length;
+    final propertyCount = ownerProperties.isEmpty ? 5 : ownerProperties.length;
 
-    // Pending booking requests count
     final pendingCount = bookings
         .where((b) => b.status.toLowerCase() == 'pending')
         .length;
 
     return Scaffold(
-              backgroundColor: Colors.transparent,
-              body: SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 12),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Good Morning,',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: OwnerColors.textDark,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: const [
+                            Text(
+                              'Renisha!',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: OwnerColors.textDark,
+                                letterSpacing: -0.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Manage your properties, bookings\nand earnings',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: OwnerColors.textMuted,
+                            height: 1.3,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Row(
                     children: [
-                      const SizedBox(height: 12),
-
-                      // Header Bar: "Good Morning, Renisha! 👋" & Avatar
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Good Morning,',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                    color: OwnerColors.textDark,
-                                    letterSpacing: -0.3,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  children: const [
-                                    Text(
-                                      'Renisha!',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w900,
-                                        color: OwnerColors.textDark,
-                                        letterSpacing: -0.4,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                const Text(
-                                  'Manage your properties, bookings\nand earnings',
-                                  style: TextStyle(
-                                    fontSize: 13.5,
-                                    color: OwnerColors.textMuted,
-                                    height: 1.3,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
                             ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.notifications_none_rounded,
+                            color: OwnerColors.textDark,
+                            size: 24,
                           ),
-
-                          // Notification bell & Profile Avatar
-                          Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.04,
-                                      ),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'You have $pendingCount pending booking requests to review.',
                                 ),
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.notifications_none_rounded,
-                                    color: OwnerColors.textDark,
-                                    size: 24,
-                                  ),
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'You have $pendingCount pending booking requests to review.',
-                                        ),
-                                        backgroundColor: OwnerColors.primary,
-                                        behavior: SnackBarBehavior.floating,
-                                      ),
-                                    );
-                                  },
-                                ),
+                                backgroundColor: OwnerColors.primary,
+                                behavior: SnackBarBehavior.floating,
                               ),
-                              const SizedBox(width: 10),
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.08,
-                                      ),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipOval(
-                                  child: AppImage(
-                                    imageUrl: 'assets/images/user_avatar.png',
-                                    width: 48,
-                                    height: 48,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            );
+                          },
+                        ),
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // 4 Metric Cards (2 x 2 Grid)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildMetricCard(
-                              icon: Icons.home_rounded,
-                              iconColor: OwnerColors.primary,
-                              iconBg: OwnerColors.mintLight,
-                              value: '$propertyCount',
-                              label: 'Properties',
+                      const SizedBox(width: 10),
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
                             ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: AppImage(
+                            imageUrl: AppPlaceholders.defaultUserAvatar,
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.cover,
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: _buildMetricCard(
-                              icon: Icons.card_giftcard_rounded,
-                              iconColor: OwnerColors.error,
-                              iconBg: OwnerColors.errorBg,
-                              value: '24',
-                              label: 'Total Bookings',
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildMetricCard(
-                              icon: Icons.access_time_filled_rounded,
-                              iconColor: OwnerColors.warning,
-                              iconBg: OwnerColors.warningBg,
-                              value: '$pendingCount',
-                              label: 'Pending Requests',
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: _buildMetricCard(
-                              icon: Icons.currency_rupee_rounded,
-                              iconColor: OwnerColors.tealAccent,
-                              iconBg: OwnerColors.mintSoft,
-                              value: '₹ 1,25,500',
-                              label: 'Total Earnings',
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // "Recent Bookings" Section Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Recent Bookings',
-                            style: TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.w800,
-                              color: OwnerColors.textDark,
-                              letterSpacing: -0.3,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: onViewAllBookings,
-                            child: Row(
-                              children: const [
-                                Text(
-                                  'View All',
-                                  style: TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: OwnerColors.primary,
-                                  ),
-                                ),
-                                SizedBox(width: 2),
-                                Icon(
-                                  Icons.chevron_right_rounded,
-                                  size: 18,
-                                  color: OwnerColors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      // Recent Bookings List
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: bookings.length > 5 ? 5 : bookings.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final booking = bookings[index];
-                          return _buildBookingItemCard(context, booking);
-                        },
-                      ),
-
-                      const SizedBox(height: 30),
                     ],
                   ),
-                ),
+                ],
               ),
-            );
+
+              const SizedBox(height: 24),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMetricCard(
+                      icon: Icons.home_rounded,
+                      iconColor: OwnerColors.primary,
+                      iconBg: OwnerColors.mintLight,
+                      value: '$propertyCount',
+                      label: 'Properties',
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: _buildMetricCard(
+                      icon: Icons.card_giftcard_rounded,
+                      iconColor: OwnerColors.error,
+                      iconBg: OwnerColors.errorBg,
+                      value: '24',
+                      label: 'Total Bookings',
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMetricCard(
+                      icon: Icons.access_time_filled_rounded,
+                      iconColor: OwnerColors.warning,
+                      iconBg: OwnerColors.warningBg,
+                      value: '$pendingCount',
+                      label: 'Pending Requests',
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: _buildMetricCard(
+                      icon: Icons.currency_rupee_rounded,
+                      iconColor: OwnerColors.tealAccent,
+                      iconBg: OwnerColors.mintSoft,
+                      value: '₹ 1,25,500',
+                      label: 'Total Earnings',
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 28),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Recent Bookings',
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: OwnerColors.textDark,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: onViewAllBookings,
+                    child: Row(
+                      children: const [
+                        Text(
+                          'View All',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: OwnerColors.primary,
+                          ),
+                        ),
+                        SizedBox(width: 2),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: OwnerColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 14),
+
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: bookings.length > 5 ? 5 : bookings.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final booking = bookings[index];
+                  return _buildBookingItemCard(context, booking);
+                },
+              ),
+
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildMetricCard({
@@ -279,11 +262,20 @@ class OwnerHomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 5),
+          ),
+          BoxShadow(
+            color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -348,18 +340,26 @@ class OwnerHomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 5),
+          ),
+          BoxShadow(
+            color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Property image thumbnail
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: AppImage(
@@ -372,7 +372,6 @@ class OwnerHomeScreen extends StatelessWidget {
 
           const SizedBox(width: 14),
 
-          // Details: Tenant Name, PG Name, Date range, Price
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +428,6 @@ class OwnerHomeScreen extends StatelessWidget {
             ),
           ),
 
-          // Status Badge + Quick action
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [

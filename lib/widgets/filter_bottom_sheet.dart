@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import '../resources/theme.dart';
 
-/// ============================================================================
-/// PG FILTER CRITERIA
-/// ============================================================================
 class PGFilterCriteria {
   final double minPrice;
   final double maxPrice;
-  final String gender; // 'Boys', 'Girls', 'Both'
-  final List<String> facilities; // ['Wifi', 'AC', 'Food', 'Parking', 'Laundry', 'TV', 'Fridge', 'Gyser']
+  final String gender;
+  final List<String> facilities;
 
   const PGFilterCriteria({
     this.minPrice = 3000,
@@ -67,10 +64,8 @@ class FilterBottomSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => FilterBottomSheet(
-        initialCriteria: initialCriteria,
-        onApply: onApply,
-      ),
+      builder: (context) =>
+          FilterBottomSheet(initialCriteria: initialCriteria, onApply: onApply),
     );
   }
 
@@ -148,7 +143,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Title & Close
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -175,7 +169,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF758595)),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: Color(0xFF758595),
+                      ),
                     ),
                   ),
                 ],
@@ -183,10 +181,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
               const SizedBox(height: 12),
 
-              // Main Filter Card matching screenshot
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 22,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
@@ -201,7 +201,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 1. Price Range
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -226,7 +225,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
                     const SizedBox(height: 8),
 
-                    // Price Slider
                     SliderTheme(
                       data: SliderTheme.of(context).copyWith(
                         activeTrackColor: AppColors.primary,
@@ -258,7 +256,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
                     const SizedBox(height: 16),
 
-                    // 2. Gender Selection
                     const Text(
                       'Gender',
                       style: TextStyle(
@@ -282,7 +279,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
                     const SizedBox(height: 22),
 
-                    // 3. Facilities Selection
                     const Text(
                       'Facilities',
                       style: TextStyle(
@@ -294,7 +290,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
                     const SizedBox(height: 16),
 
-                    // 2-Column Grid of Facility Chips
                     Column(
                       children: [
                         for (int i = 0; i < _availableFacilities.length; i += 2)
@@ -302,10 +297,18 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             padding: const EdgeInsets.only(bottom: 14.0),
                             child: Row(
                               children: [
-                                Expanded(child: _buildFacilityChip(_availableFacilities[i])),
+                                Expanded(
+                                  child: _buildFacilityChip(
+                                    _availableFacilities[i],
+                                  ),
+                                ),
                                 const SizedBox(width: 14),
                                 if (i + 1 < _availableFacilities.length)
-                                  Expanded(child: _buildFacilityChip(_availableFacilities[i + 1]))
+                                  Expanded(
+                                    child: _buildFacilityChip(
+                                      _availableFacilities[i + 1],
+                                    ),
+                                  )
                                 else
                                   const Expanded(child: SizedBox()),
                               ],
@@ -316,7 +319,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
                     const SizedBox(height: 16),
 
-                    // 4. Apply Filters Button
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -343,7 +345,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
                     const SizedBox(height: 12),
 
-                    // 5. Reset Button
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -392,7 +393,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.black.withValues(alpha: 0.08),
+            color: isSelected
+                ? AppColors.primary
+                : Colors.black.withValues(alpha: 0.08),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [
@@ -450,7 +453,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           borderRadius: BorderRadius.circular(16),
           border: isSelected
               ? null
-              : Border.all(color: Colors.black.withValues(alpha: 0.04), width: 1),
+              : Border.all(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  width: 1,
+                ),
           boxShadow: [
             BoxShadow(
               color: isSelected

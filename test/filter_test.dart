@@ -25,7 +25,6 @@ void main() {
     test('Filter criteria exact matching logic', () {
       final pgs = HomeScreen.samplePGs;
 
-      // Filter: Wifi + AC + Food + Parking
       const criteria = PGFilterCriteria(
         minPrice: 3000,
         maxPrice: 10000,
@@ -58,7 +57,6 @@ void main() {
     test('Reference PGs matching calculation logic', () {
       final pgs = HomeScreen.samplePGs;
 
-      // Filter: All 8 facilities
       const criteria = PGFilterCriteria(
         facilities: [
           'Wifi',
