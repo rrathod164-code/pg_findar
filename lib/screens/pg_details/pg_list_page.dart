@@ -1,0 +1,1218 @@
+import 'package:flutter/material.dart';
+import '../../resources/theme.dart';
+import '../user/user_home_screen.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/user_bottom_nav_bar.dart';
+import '../../widgets/dashboard_background.dart';
+import '../../widgets/filter_bottom_sheet.dart';
+import 'pg_detail_screen.dart';
+
+enum PGListType { popular, nearby, category, all }
+
+class PGListPage extends StatefulWidget {
+  final String title;
+  final PGListType listType;
+  final String selectedCity;
+  final String? categoryFilter;
+  final PGFilterCriteria? initialFilterCriteria;
+  final bool autoFocusSearch;
+  final bool showBottomNav;
+
+  const PGListPage({
+    super.key,
+    required this.title,
+    required this.listType,
+    required this.selectedCity,
+    this.categoryFilter,
+    this.initialFilterCriteria,
+    this.autoFocusSearch = false,
+    this.showBottomNav = true,
+  });
+
+  @override
+  State<PGListPage> createState() => _PGListPageState();
+}
+
+class _PGListPageState extends State<PGListPage> {
+  final TextEditingController _searchController = TextEditingController();
+
+  String _searchQuery = '';
+  late String _currentCity;
+  PGFilterCriteria _filterCriteria = const PGFilterCriteria();
+  String _selectedCategory = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _currentCity = widget.selectedCity;
+    if (widget.initialFilterCriteria != null) {
+      _filterCriteria = widget.initialFilterCriteria!;
+    }
+    if (widget.categoryFilter != null && widget.categoryFilter!.isNotEmpty) {
+      _selectedCategory = widget.categoryFilter!;
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+
+  // --------------------------------------------------------------------------
+  // HELPER: Category Filter Matching (No Backend, 100% Frontend Logic)
+  // --------------------------------------------------------------------------
+  // Checks if a PG accommodation matches the clicked category (Boys PG, Girls PG, etc.)
+  bool _matchesCategory(PGAccommodation pg, String category) {
+    if (category.isEmpty) return true; // Show all if no category selected
+
+    final filter = category.toLowerCase().trim();
+    final pgCategory = pg.category.toLowerCase().trim();
+    final pgGender = pg.gender.toLowerCase().trim();
+
+    // 1. Boys PG (Male)
+    if (filter.contains('boy')) {
+      return pgCategory.contains('boy') || pgGender == 'boys';
+    }
+    // 2. Girls PG (Female)
+    if (filter.contains('girl')) {
+      return pgCategory.contains('girl') || pgGender == 'girls';
+    }
+    // 3. Hostels
+    if (filter.contains('hostel')) {
+      return pgCategory.contains('hostel');
+    }
+    // 4. Flats
+    if (filter.contains('flat')) {
+      return pgCategory.contains('flat');
+    }
+
+    return pgCategory == filter || pgGender == filter;
+  }
+
+  void _openFilterSheet() {
+    FilterBottomSheet.show(
+      context,
+      initialCriteria: _filterCriteria,
+      onApply: (newCriteria) {
+        setState(() {
+          _filterCriteria = newCriteria;
+        });
+      },
+    );
+  }
+
+  void _showPGDetailsDialog(PGAccommodation pg) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 24,
+            right: 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                child: Container(
+                  width: 48,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: AppImage(
+                      imageUrl: pg.imageUrl,
+                      width: 90,
+                      height: 90,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pg.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF091A2A),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${pg.location}, ${pg.city}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF758595),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryLight,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                pg.category,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.star_rounded,
+                              color: Colors.amber,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              pg.rating.toString(),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF091A2A),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Available Facilities & Amenities',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF091A2A),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildFacilityBadge('Wifi', pg.hasWifi, Icons.wifi),
+                  _buildFacilityBadge('AC', pg.hasAC, Icons.ac_unit),
+                  _buildFacilityBadge('Food', pg.hasFood, Icons.restaurant),
+                  _buildFacilityBadge(
+                    'Parking',
+                    pg.hasParking,
+                    Icons.local_parking,
+                  ),
+                  _buildFacilityBadge(
+                    'Laundry',
+                    pg.hasLaundry,
+                    Icons.local_laundry_service,
+                  ),
+                  _buildFacilityBadge('TV', pg.hasTV, Icons.tv),
+                  _buildFacilityBadge('Fridge', pg.hasFridge, Icons.kitchen),
+                  _buildFacilityBadge('Gyser', pg.hasGeyser, Icons.water_drop),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Monthly Rent',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF758595),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '₹${pg.price.toInt()}/mo',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 46,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PgDetailScreen(pg: pg),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 28),
+                      ),
+                      child: const Text(
+                        'Book Now',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+      },
+    );
+  }
+
+  Widget _buildFacilityBadge(String name, bool isAvailable, IconData icon) {
+    final bool isUserRequested = _filterCriteria.facilities.contains(name);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: isAvailable
+            ? (isUserRequested
+                  ? AppColors.primary
+                  : AppColors.primaryLight)
+            : Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isAvailable
+              ? (isUserRequested
+                    ? AppColors.primary
+                    : AppColors.primary.withValues(alpha: 0.3))
+              : Colors.transparent,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: isAvailable
+                ? (isUserRequested ? Colors.white : AppColors.primary)
+                : Colors.grey,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isAvailable
+                  ? (isUserRequested ? Colors.white : const Color(0xFF091A2A))
+                  : Colors.grey,
+            ),
+          ),
+          if (isAvailable) ...[
+            const SizedBox(width: 3),
+            Icon(
+              Icons.check,
+              size: 12,
+              color: isUserRequested ? Colors.white : AppColors.primary,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+
+
+  Widget _buildActiveFilterChip(String label, VoidCallback onRemove) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(
+              Icons.close_rounded,
+              size: 14,
+              color: AppColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridFromList(List<PGAccommodation> list) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.80, // Proportional ratio for reduced, even spacing
+      ),
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        return _buildGridPGCard(list[index]);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: DashboardBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 6),
+              // Top Bar: Back button and Search Bar with Filter Icon
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF091A2A),
+                        size: 26,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.search,
+                              color: Color(0xFF758595),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                autofocus: widget.autoFocusSearch,
+                                onChanged: (val) {
+                                  setState(() {
+                                    _searchQuery = val;
+                                  });
+                                },
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  color: Color(0xFF091A2A),
+                                ),
+                                decoration: const InputDecoration(
+                                  hintText: 'Search PG, location or area...',
+                                  hintStyle: TextStyle(
+                                    color: Color(0xFFB0BAC5),
+                                    fontSize: 13.5,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (_searchQuery.isNotEmpty)
+                              GestureDetector(
+                                onTap: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                  child: Icon(
+                                    Icons.clear,
+                                    size: 18,
+                                    color: Color(0xFF758595),
+                                  ),
+                                ),
+                              ),
+                            GestureDetector(
+                              onTap: _openFilterSheet,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: _filterCriteria.hasActiveFilters
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.tune_rounded,
+                                  color: _filterCriteria.hasActiveFilters
+                                      ? Colors.white
+                                      : const Color(0xFF091A2A),
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Active Filter Tags Row
+              if (_filterCriteria.hasActiveFilters) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Row(
+                      children: [
+                        if (_filterCriteria.gender != 'Both')
+                          _buildActiveFilterChip(
+                            'Gender: ${_filterCriteria.gender}',
+                            () {
+                              setState(() {
+                                _filterCriteria = _filterCriteria.copyWith(
+                                  gender: 'Both',
+                                );
+                              });
+                            },
+                          ),
+                        if (_filterCriteria.minPrice > 3000 ||
+                            _filterCriteria.maxPrice < 10000)
+                          _buildActiveFilterChip(
+                            '₹${_filterCriteria.minPrice.toInt()} - ₹${_filterCriteria.maxPrice.toInt()}',
+                            () {
+                              setState(() {
+                                _filterCriteria = _filterCriteria.copyWith(
+                                  minPrice: 3000,
+                                  maxPrice: 10000,
+                                );
+                              });
+                            },
+                          ),
+                        for (final facility in _filterCriteria.facilities)
+                          _buildActiveFilterChip(facility, () {
+                            final updated = List<String>.from(
+                              _filterCriteria.facilities,
+                            )..remove(facility);
+                            setState(() {
+                              _filterCriteria = _filterCriteria.copyWith(
+                                facilities: updated,
+                              );
+                            });
+                          }),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _filterCriteria = const PGFilterCriteria();
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'Clear All',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              // PGs Grid List
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    final pgs = HomeScreen.samplePGs;
+                    // Filter by city
+                    var list = pgs
+                        .where(
+                          (pg) =>
+                              pg.city.toLowerCase() ==
+                              _currentCity.toLowerCase(),
+                        )
+                        .toList();
+
+                    // Filter by Category (Boys PG / Girls PG / Hostels / Flats)
+                    if (_selectedCategory.isNotEmpty) {
+                      list = list
+                          .where(
+                            (pg) => _matchesCategory(pg, _selectedCategory),
+                          )
+                          .toList();
+                    } else if (widget.listType == PGListType.popular) {
+                      list = list
+                          .where((pg) => pg.isPopular || pg.rating >= 4.5)
+                          .toList();
+                    } else if (widget.listType == PGListType.nearby) {
+                      list = list
+                          .where((pg) => pg.isNearby || !pg.isPopular)
+                          .toList();
+                    }
+
+                    // Search query filter
+                    if (_searchQuery.isNotEmpty) {
+                      final q = _searchQuery.toLowerCase().trim();
+                      list = list
+                          .where(
+                            (pg) =>
+                                pg.name.toLowerCase().contains(q) ||
+                                pg.location.toLowerCase().contains(q) ||
+                                pg.category.toLowerCase().contains(q) ||
+                                pg.facilities.any(
+                                  (f) => f.toLowerCase().contains(q),
+                                ),
+                          )
+                          .toList();
+                    }
+
+                    // If user applied filters
+                    if (_filterCriteria.hasActiveFilters) {
+                      final exactMatches = list.where((pg) {
+                        final inPrice =
+                            pg.price >= _filterCriteria.minPrice &&
+                            pg.price <= _filterCriteria.maxPrice;
+                        final matchGender =
+                            _filterCriteria.gender == 'Both' ||
+                            pg.gender == _filterCriteria.gender ||
+                            pg.gender == 'Both';
+                        final matchesAllFacilities = _filterCriteria.facilities
+                            .every((f) => pg.hasFacility(f));
+                        return inPrice && matchGender && matchesAllFacilities;
+                      }).toList();
+
+                      final referencePgs = list.where((pg) {
+                        final isNotExact = !exactMatches.contains(pg);
+                        final matchCount = pg.matchingFacilitiesCount(
+                          _filterCriteria.facilities,
+                        );
+                        final inPrice =
+                            pg.price >= _filterCriteria.minPrice &&
+                            pg.price <= _filterCriteria.maxPrice;
+                        final matchGender =
+                            _filterCriteria.gender == 'Both' ||
+                            pg.gender == _filterCriteria.gender ||
+                            pg.gender == 'Both';
+
+                        if (_filterCriteria.facilities.isNotEmpty) {
+                          return isNotExact && matchCount > 0;
+                        } else {
+                          return isNotExact && (inPrice || matchGender);
+                        }
+                      }).toList();
+
+                      referencePgs.sort(
+                        (a, b) => b
+                            .matchingFacilitiesCount(_filterCriteria.facilities)
+                            .compareTo(
+                              a.matchingFacilitiesCount(
+                                _filterCriteria.facilities,
+                              ),
+                            ),
+                      );
+
+                      if (exactMatches.isEmpty && referencePgs.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primaryLight,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.home_work_outlined,
+                                  size: 50,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              const Text(
+                                'No PGs Found',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF091A2A),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Try changing search query or reset filters',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF758595),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                    _filterCriteria = const PGFilterCriteria();
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Text('Reset All'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView(
+                        padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+                          if (exactMatches.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 4,
+                                bottom: 8,
+                                top: 4,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${exactMatches.length}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Exact Matches',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF091A2A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            _buildGridFromList(exactMatches),
+                            const SizedBox(height: 16),
+                          ],
+                          if (referencePgs.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 4,
+                                bottom: 4,
+                                top: 6,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade700,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${referencePgs.length}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Reference PGs (Matching Amenities)',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF091A2A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4, bottom: 8),
+                              child: Text(
+                                'These accommodations fulfill some of your requested amenities',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: Color(0xFF758595),
+                                ),
+                              ),
+                            ),
+                            _buildGridFromList(referencePgs),
+                          ],
+                        ],
+                      );
+                    }
+
+                    if (list.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: const BoxDecoration(
+                                color: AppColors.primaryLight,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.home_work_outlined,
+                                size: 50,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            const Text(
+                              'No PGs Found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF091A2A),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Try changing search query or reset filters',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF758595),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
+                      physics: const BouncingScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 12,
+                        childAspectRatio:
+                            0.80, // Proportional ratio for reduced, even spacing
+                      ),
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        return _buildGridPGCard(list[index]);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      // Optional bottom navigation bar matching dashboard
+      bottomNavigationBar: widget.showBottomNav
+          ? CustomBottomNavBar(
+              currentIndex: 0,
+              onTap: (index) {
+                if (index == 0) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          BottomNavScreen(initialIndex: index),
+                    ),
+                    (route) => false,
+                  );
+                }
+              },
+            )
+          : null,
+    );
+  }
+
+  Widget _buildGridPGCard(PGAccommodation pg) {
+    return GestureDetector(
+          onTap: () => _showPGDetailsDialog(pg),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image Section
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(18),
+                        topRight: Radius.circular(18),
+                      ),
+                      child: AppImage(
+                        imageUrl: pg.imageUrl,
+                        height: 105,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.favorite_border_rounded,
+                          color: Color(0xFF758595),
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Content Section with equal, uniform spacing between all elements
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 1. PG Name & Rating Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                pg.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF091A2A),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.star_rounded,
+                                  color: Colors.amber,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 1),
+                                Text(
+                                  pg.rating.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF758595),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // 2. Price & Location Row
+                        Row(
+                          children: [
+                            Text(
+                              '₹${pg.price.toInt()}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const Text(
+                              '/mo',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                color: Color(0xFF758595),
+                              ),
+                            ),
+                            const Spacer(),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  size: 10,
+                                  color: Color(0xFF758595),
+                                ),
+                                const SizedBox(width: 1),
+                                Text(
+                                  pg.location.split(',').first,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: Color(0xFF758595),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // 3. Amenities Row (Wifi, AC, Food)
+                        SizedBox(
+                          height: 18,
+                          child: Row(
+                            children: [
+                              if (pg.hasWifi)
+                                Container(
+                                  margin: const EdgeInsets.only(right: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryLight,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'Wifi',
+                                    style: TextStyle(
+                                      fontSize: 8.5,
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              if (pg.hasAC)
+                                Container(
+                                  margin: const EdgeInsets.only(right: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF0F5),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'AC',
+                                    style: TextStyle(
+                                      fontSize: 8.5,
+                                      color: Colors.pink,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              if (pg.hasFood)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF0FDF4),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'Food',
+                                    style: TextStyle(
+                                      fontSize: 8.5,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+
+                        // 4. Book Now Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 30,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PgDetailScreen(pg: pg),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Book Now',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+  }
+}

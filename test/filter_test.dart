@@ -1,13 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pg_findar/models/pg_model.dart';
-import 'package:pg_findar/services/data_service.dart';
+import 'package:pg_findar/screens/user/user_home_screen.dart';
+import 'package:pg_findar/widgets/filter_bottom_sheet.dart';
 
 void main() {
   group('PG Functionality and Filter Matcher Tests', () {
-    final dataService = DataService();
-
-    test('DataService initial PGs have full facility profiles', () {
-      final pgs = dataService.pgsNotifier.value;
+    test('ApiService initial PGs have full facility profiles', () {
+      final pgs = HomeScreen.samplePGs;
       expect(pgs.isNotEmpty, true);
 
       final greenValley = pgs.firstWhere(
@@ -25,7 +23,7 @@ void main() {
     });
 
     test('Filter criteria exact matching logic', () {
-      final pgs = dataService.pgsNotifier.value;
+      final pgs = HomeScreen.samplePGs;
 
       // Filter: Wifi + AC + Food + Parking
       const criteria = PGFilterCriteria(
@@ -58,7 +56,7 @@ void main() {
     });
 
     test('Reference PGs matching calculation logic', () {
-      final pgs = dataService.pgsNotifier.value;
+      final pgs = HomeScreen.samplePGs;
 
       // Filter: All 8 facilities
       const criteria = PGFilterCriteria(
