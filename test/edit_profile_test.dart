@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pg_findar/screens/user/user_profile_screen.dart';
+
 void main() {
   testWidgets('Edit profile full flow updates user profile on ProfileScreen', (
     WidgetTester tester,
   ) async {
-    // 1. Launch ProfileScreen
-
-    // 2. Launch ProfileScreen
     await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
     expect(find.text('Hi , User'), findsOneWidget);
     expect(find.text('user@gmail.com'), findsOneWidget);
 
-    // 3. Tap on "Edit profile"
     await tester.tap(find.text('Edit profile'));
     await tester.pumpAndSettle();
 
-    // Verify EditProfileScreen is shown with all required fields
     expect(find.text('Edit profile'), findsOneWidget);
     expect(find.text('Full Name'), findsOneWidget);
     expect(find.text('Email'), findsOneWidget);
@@ -24,18 +20,15 @@ void main() {
     expect(find.text('Confirm password'), findsOneWidget);
     expect(find.text('save'), findsOneWidget);
 
-    // 4. Change Name & Email
     final nameField = find.widgetWithText(TextField, 'User');
     await tester.enterText(nameField, 'Dharmik Rathod');
 
     final emailField = find.widgetWithText(TextField, 'user@gmail.com');
     await tester.enterText(emailField, 'dharmik@example.com');
 
-    // 5. Tap the 'save' button
     await tester.tap(find.widgetWithText(ElevatedButton, 'save'));
     await tester.pumpAndSettle();
 
-    // 6. Verify that we are back on ProfileScreen with static user info
     expect(find.text('Hi , User'), findsOneWidget);
     expect(find.text('user@gmail.com'), findsOneWidget);
   });

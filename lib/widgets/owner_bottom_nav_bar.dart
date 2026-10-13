@@ -8,27 +8,14 @@ import '../screens/owner/owner_bookings_screen.dart';
 import '../screens/owner/owner_earnings_screen.dart';
 import '../screens/owner/owner_profile_screen.dart';
 
-// Export all individual owner screens for convenient access
 export '../screens/owner/owner_home_screen.dart';
 export '../screens/owner/owner_properties_screen.dart';
 export '../screens/owner/owner_bookings_screen.dart';
 export '../screens/owner/owner_earnings_screen.dart';
 export '../screens/owner/owner_profile_screen.dart';
 
-/// ============================================================================
-/// OWNER DASHBOARD PAGE
-/// ============================================================================
-/// This is the main shell for the Owner panel.
-/// It holds the 5 owner screens and switches between them using a Bottom Navigation Bar:
-/// 1. Home       -> Overview & quick stats
-/// 2. Properties -> Manage PG properties and rooms
-/// 3. Bookings   -> Approve or decline student booking requests
-/// 4. Earnings   -> View revenue and payouts
-/// 5. Profile    -> Owner details & Logout
-/// ============================================================================
-
 class OwnerDashboardPage extends StatefulWidget {
-  final int initialIndex; // Which tab to show first (default is 0: Home)
+  final int initialIndex;
   const OwnerDashboardPage({super.key, this.initialIndex = 0});
 
   @override
@@ -36,46 +23,36 @@ class OwnerDashboardPage extends StatefulWidget {
 }
 
 class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
-  // Keeps track of which tab is currently selected (0, 1, 2, 3, or 4)
   late int _currentIndex;
 
-  // The list of 5 screens corresponding to each tab
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
-    // 1. Set the initial tab index
     _currentIndex = widget.initialIndex;
 
-    // 2. Initialize each screen once when the page loads
     _screens = [
-      // Tab 0: Home Screen (Tapping 'View All' navigates to Bookings tab index 2)
       OwnerHomeScreen(onViewAllBookings: () => _navigateToTab(2)),
 
-      // Tab 1: Properties Screen (Add/edit/delete PGs and rooms)
       const OwnerPropertiesScreen(),
 
-      // Tab 2: Bookings Screen (View, approve, decline bookings)
       const OwnerBookingsScreen(),
 
-      // Tab 3: Earnings Screen (Monthly revenue, pending payments)
       const OwnerEarningsScreen(),
 
-      // Tab 4: Profile Screen (Owner details & logout back to LoginPage)
       OwnerProfileScreen(
         onLogout: () {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const LoginPage()),
-            (route) => false, // Clear all backstack history on logout
+            (route) => false,
           );
         },
       ),
     ];
   }
 
-  // Helper method: Updates current tab index and triggers a screen refresh
   void _navigateToTab(int index) {
     if (mounted) {
       setState(() {
@@ -86,8 +63,6 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    // PopScope intercepts phone back button:
-    // If not on Home tab, go to Home tab first; if on Home tab, exit app.
     return PopScope(
       canPop: _currentIndex == 0,
       onPopInvokedWithResult: (didPop, result) {
@@ -99,9 +74,7 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
       child: DashboardBackground(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          // IndexedStack preserves the scroll position and state of each tab
           body: IndexedStack(index: _currentIndex, children: _screens),
-          // The bottom navigation bar matching reference design
           bottomNavigationBar: OwnerBottomNavBar(
             currentIndex: _currentIndex,
             onTap: _navigateToTab,
@@ -111,14 +84,6 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
     );
   }
 }
-
-/// ============================================================================
-/// OWNER BOTTOM NAVIGATION BAR (MATCHES REFERENCE DESIGN)
-/// ============================================================================
-/// - Rounded top corners (Radius 30)
-/// - Soft diffused shadow on top of mint background
-/// - Clean outline icons with active mint teal highlight
-/// ============================================================================
 
 class OwnerBottomNavBar extends StatelessWidget {
   final int currentIndex;

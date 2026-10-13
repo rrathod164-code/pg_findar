@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'resources/theme.dart';
 import 'screens/auth/intro_screen.dart';
 
-/// ============================================================================
-/// APPLICATION ENTRY POINT
-/// ============================================================================
-/// Initializes and launches the PG Finder Flutter application.
-/// ============================================================================
-
 void main() {
   runApp(const PGFinderApp());
 }

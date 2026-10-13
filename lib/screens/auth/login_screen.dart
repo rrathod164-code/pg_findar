@@ -38,7 +38,6 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    // Simulate quick UI transition
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
 
@@ -57,12 +56,10 @@ class _LoginPageState extends State<LoginPage> {
         nextScreen = const OwnerDashboardPage();
         roleName = 'Owner';
       } else {
-        // Defaults to UserDashboard
         nextScreen = const BottomNavScreen();
         roleName = 'User';
       }
 
-      // Show successful login toast/snackbar and navigate
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -80,7 +77,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
 
-      // Navigate to the NextPage/Dashboard and clear authentication routes
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => nextScreen),
@@ -129,7 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                           children: [
                             const Spacer(flex: 1),
 
-                            // Welcome Back Heading
                             const Text(
                               'Welcome Back',
                               style: TextStyle(
@@ -151,7 +146,6 @@ class _LoginPageState extends State<LoginPage> {
 
                             const SizedBox(height: 28),
 
-                            // Email or Username Label
                             const Text(
                               'Email or Username',
                               style: TextStyle(
@@ -162,7 +156,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 8),
 
-                            // Email / Username Input
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -197,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
-                                  hintText: 'Enter your email or username',
+                                  hintText: AppPlaceholders.emailOrUsernameHint,
                                   hintStyle: const TextStyle(
                                     color: AppColors.inputHint,
                                     fontSize: 14,
@@ -251,7 +244,6 @@ class _LoginPageState extends State<LoginPage> {
 
                             const SizedBox(height: 18),
 
-                            // Password Label
                             const Text(
                               'Password',
                               style: TextStyle(
@@ -262,7 +254,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 8),
 
-                            // Password Input
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -281,15 +272,18 @@ class _LoginPageState extends State<LoginPage> {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your password';
                                   }
-                                  if (value.length < 4) {
-                                    return 'Password must be at least 4 characters';
+                                  final passwordRegExp = RegExp(
+                                    r'^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$',
+                                  );
+                                  if (!passwordRegExp.hasMatch(value)) {
+                                    return 'Password must be at least 8 characters, with 1 uppercase, 1 number & 1 special character';
                                   }
                                   return null;
                                 },
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
-                                  hintText: 'Enter your password',
+                                  hintText: AppPlaceholders.passwordHint,
                                   hintStyle: const TextStyle(
                                     color: AppColors.inputHint,
                                     fontSize: 14,
@@ -355,7 +349,6 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
 
-                            // Forgot Password Link
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
@@ -389,7 +382,6 @@ class _LoginPageState extends State<LoginPage> {
 
                             const SizedBox(height: 18),
 
-                            // Login Button
                             SizedBox(
                               width: double.infinity,
                               height: 48,
@@ -426,7 +418,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 24),
 
-                            // Or continue with text
                             const Center(
                               child: Text(
                                 'Or continue with',
@@ -440,11 +431,9 @@ class _LoginPageState extends State<LoginPage> {
 
                             const SizedBox(height: 18),
 
-                            // Social Login Buttons (Google, Facebook)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // Google Circle Button
                                 GestureDetector(
                                   onTap: () => _showFeatureNotImplemented(
                                     'Google Sign-in',
@@ -479,7 +468,6 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 24),
-                                // Facebook Circle Button
                                 GestureDetector(
                                   onTap: () => _showFeatureNotImplemented(
                                     'Facebook Sign-in',
@@ -516,9 +504,6 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
 
-                            const Spacer(flex: 1),
-
-                            // Sign Up text
                             Center(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,

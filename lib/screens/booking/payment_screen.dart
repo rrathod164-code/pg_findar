@@ -5,14 +5,6 @@ import '../../widgets/app_image.dart';
 import '../../widgets/dashboard_background.dart';
 import 'payment_success_screen.dart';
 
-/// ============================================================================
-/// PAYMENT SCREEN (BEGINNER-FRIENDLY UI)
-/// ============================================================================
-/// This screen displays the payment summary and options.
-/// Per your requirement: ONLY "Cash on Delivery" (Cash payment) is allowed.
-/// Pure UI code with clean comments, no backend needed!
-/// ============================================================================
-
 class PaymentScreen extends StatefulWidget {
   final PGAccommodation? pg;
   final int totalAmount;
@@ -38,10 +30,10 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
-    // PG information
     final String pgName = widget.pg?.name ?? 'Green Valley PG';
     final String pgLocation = widget.pg?.location ?? 'Kalawad Road, Rajkot';
-    final room = widget.selectedRoom ??
+    final room =
+        widget.selectedRoom ??
         const PGRoom(
           id: 'r102',
           roomNumber: 'Room 102',
@@ -54,7 +46,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final String pgImage =
         (widget.pg?.imageUrl != null && widget.pg!.imageUrl.isNotEmpty)
         ? widget.pg!.imageUrl
-        : 'assets/images/GreenVally.png';
+        : AppPlaceholders.defaultPgImage;
 
     const Color primaryGreen = AppColors.primary;
 
@@ -67,9 +59,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ==============================================================
-                // 1. TOP BAR (BACK BUTTON & "PAYMENT" TITLE)
-                // ==============================================================
                 Row(
                   children: [
                     GestureDetector(
@@ -109,9 +98,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                 const SizedBox(height: 16),
 
-                // ==============================================================
-                // 2. SAFE & SECURE BANNER
-                // ==============================================================
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -148,26 +134,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                 const SizedBox(height: 16),
 
-                // ==============================================================
-                // 3. PG SUMMARY CARD
-                // ==============================================================
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 5),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      // PG Image Thumbnail
                       ClipRRect(
                         borderRadius: BorderRadius.circular(14),
                         child: AppImage(
@@ -179,7 +170,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       const SizedBox(width: 14),
 
-                      // PG Name & Location
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,9 +221,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                 const SizedBox(height: 20),
 
-                // ==============================================================
-                // 4. AMOUNT DETAILS CARD
-                // ==============================================================
                 const Text(
                   'Amount Details',
                   style: TextStyle(
@@ -250,32 +237,37 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
                   child: Column(
                     children: [
-                      // Monthly Rent Row
                       _buildAmountRow(
                         'Monthly Rent  (₹$monthlyPrice X 6)',
                         '₹${widget.totalAmount}',
                       ),
                       const SizedBox(height: 8),
 
-                      // Security Deposit Row
                       _buildAmountRow('Security Deposit', '₹5000'),
                       const SizedBox(height: 8),
 
-                      // Service Fee Row
                       _buildAmountRow('Service Fee', '₹0'),
                       const SizedBox(height: 10),
 
-                      // Dotted divider line
                       Row(
                         children: List.generate(
                           35,
@@ -291,7 +283,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       const SizedBox(height: 10),
 
-                      // Total Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -319,9 +310,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                 const SizedBox(height: 20),
 
-                // ==============================================================
-                // 5. SELECT PAYMENT METHOD (CASH ON DELIVERY ONLY)
-                // ==============================================================
                 const Text(
                   'Select Payment Method',
                   style: TextStyle(
@@ -332,7 +320,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 const SizedBox(height: 10),
 
-                // Option 5: CASH ON DELIVERY (ACTIVE & ALLOWED OPTION)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -341,10 +328,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: primaryGreen, // Highlighted with green border
-                      width: 2,
-                    ),
+                    border: Border.all(color: primaryGreen, width: 2),
                     boxShadow: [
                       BoxShadow(
                         color: primaryGreen.withValues(alpha: 0.1),
@@ -355,7 +339,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
                   child: Row(
                     children: [
-                      // Cash Icon Box
                       Container(
                         width: 42,
                         height: 42,
@@ -371,7 +354,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       const SizedBox(width: 14),
 
-                      // Title & Description
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,7 +378,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                       ),
 
-                      // Green Selected Checkmark
                       const Icon(
                         Icons.check_circle,
                         color: primaryGreen,
@@ -408,15 +389,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                 const SizedBox(height: 24),
 
-                // ==============================================================
-                // 6. BOTTOM BUTTON: "PAY NOW ₹39,000"
-                // ==============================================================
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      final room = widget.selectedRoom ??
+                      final room =
+                          widget.selectedRoom ??
                           const PGRoom(
                             id: 'r102',
                             roomNumber: 'Room 102',
@@ -426,7 +405,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             price: 6500,
                           );
 
-                      // Navigate to the Payment Success confirmation screen
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -479,7 +457,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  // Helper widget for Amount Detail rows
   Widget _buildAmountRow(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

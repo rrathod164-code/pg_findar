@@ -5,13 +5,6 @@ import '../../widgets/dashboard_background.dart';
 import 'payment_screen.dart';
 import '../user/user_home_screen.dart';
 
-/// ============================================================================
-/// BOOK A VISIT SCREEN (BEGINNER-FRIENDLY UI)
-/// ============================================================================
-/// Displays the booking & visit scheduling form.
-/// Pure UI with clean comments, no backend needed!
-/// ============================================================================
-
 class BookVisitScreen extends StatefulWidget {
   final PGAccommodation? pg;
   final PGRoom? initialRoom;
@@ -23,15 +16,11 @@ class BookVisitScreen extends StatefulWidget {
 }
 
 class _BookVisitScreenState extends State<BookVisitScreen> {
-  // --------------------------------------------------------------------------
-  // FORM STATE VARIABLES
-  // --------------------------------------------------------------------------
   DateTime _checkInDate = DateTime.now();
   int _members = 1;
   String _selectedDuration = '6 Months';
   String _selectedVisitTime = 'Anytime';
 
-  // Duration Options for the dropdown
   final List<String> _durationOptions = [
     '1 Month',
     '3 Months',
@@ -39,7 +28,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     '1 Year',
   ];
 
-  // Visit Time Options for the dropdown
   final List<String> _visitTimeOptions = [
     'Anytime',
     'Morning (9 AM - 12 PM)',
@@ -73,9 +61,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // HELPER: Format date to "DD Month YYYY" (e.g. "25 July 2026")
-  // --------------------------------------------------------------------------
   String _formatDate(DateTime date) {
     const months = [
       'January',
@@ -94,9 +79,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
-  // --------------------------------------------------------------------------
-  // HELPER: Open Flutter Date Picker Dialog
-  // --------------------------------------------------------------------------
   Future<void> _pickDate() async {
     final DateTime now = DateTime.now();
     final DateTime today = DateTime(now.year, now.month, now.day);
@@ -130,9 +112,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // HELPER: Calculate Approx Total Price
-  // --------------------------------------------------------------------------
   int _calculateTotalPrice(int monthlyPrice) {
     int multiplier = 6;
     if (_selectedDuration == '1 Month') multiplier = 1;
@@ -145,16 +124,14 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // PG details with defaults matching the design
     final String pgName = widget.pg?.name ?? 'Green Valley PG';
     final String pgLocation = widget.pg?.location ?? 'Kalawad Road, Rajkot';
     final int monthlyPrice = _selectedRoom.price.toInt();
     final String pgImage =
         (widget.pg?.imageUrl != null && widget.pg!.imageUrl.isNotEmpty)
         ? widget.pg!.imageUrl
-        : 'assets/images/GreenVally.png';
+        : AppPlaceholders.defaultPgImage;
 
-    // Total price calculation
     final int totalPrice = _calculateTotalPrice(monthlyPrice);
 
     const Color primaryGreen = AppColors.primary;
@@ -168,9 +145,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ==============================================================
-                // 1. TOP BAR (BACK BUTTON & "BOOK A VISIT" TITLE)
-                // ==============================================================
                 Row(
                   children: [
                     GestureDetector(
@@ -210,26 +184,31 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==============================================================
-                // 2. PG SUMMARY CARD
-                // ==============================================================
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 5),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      // PG Thumbnail Image
                       ClipRRect(
                         borderRadius: BorderRadius.circular(14),
                         child: AppImage(
@@ -241,7 +220,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                       ),
                       const SizedBox(width: 14),
 
-                      // PG Name & Location
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +238,7 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                               style: const TextStyle(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF8692A6), // Muted grey-blue
+                                color: Color(0xFF8692A6),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -274,9 +252,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==============================================================
-                // 2.5 SELECT ROOM & SHARING (TRANSPARENT ROOM IDENTIFIER)
-                // ==============================================================
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -297,7 +272,8 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: _rooms.length,
-                    separatorBuilder: (context, index) => const SizedBox(width: 10),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 10),
                     itemBuilder: (context, index) {
                       final room = _rooms[index];
                       final isSelected = room.id == _selectedRoom.id;
@@ -324,8 +300,8 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                               color: isSelected
                                   ? AppColors.primary
                                   : (isFull
-                                      ? Colors.grey.shade200
-                                      : Colors.grey.shade300),
+                                        ? Colors.grey.shade200
+                                        : Colors.grey.shade300),
                               width: isSelected ? 2 : 1,
                             ),
                             boxShadow: [
@@ -380,7 +356,9 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? AppColors.primary.withValues(alpha: 0.15)
+                                      ? AppColors.primary.withValues(
+                                          alpha: 0.15,
+                                        )
                                       : const Color(0xFFF3F4F6),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
@@ -432,8 +410,10 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                 ),
                 const SizedBox(height: 6),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF0FDF4),
                     borderRadius: BorderRadius.circular(10),
@@ -463,9 +443,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==============================================================
-                // 3. CHECK-IN DATE FIELD
-                // ==============================================================
                 _buildSectionLabel('Check-in Date'),
                 const SizedBox(height: 8),
                 GestureDetector(
@@ -501,9 +478,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==============================================================
-                // 4. MEMBERS COUNTER FIELD
-                // ==============================================================
                 _buildSectionLabel('Members'),
                 const SizedBox(height: 8),
                 Container(
@@ -515,7 +489,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                   ),
                   child: Row(
                     children: [
-                      // Member count text
                       Text(
                         '$_members',
                         style: const TextStyle(
@@ -526,7 +499,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                       ),
                       const Spacer(),
 
-                      // Minus Button
                       GestureDetector(
                         onTap: () {
                           if (_members > 1) {
@@ -546,7 +518,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                         ),
                       ),
 
-                      // Vertical Divider Line "|"
                       Container(
                         height: 18,
                         width: 1.2,
@@ -554,7 +525,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
                         margin: const EdgeInsets.symmetric(horizontal: 8),
                       ),
 
-                      // Plus Button
                       GestureDetector(
                         onTap: () {
                           setState(() => _members++);
@@ -573,9 +543,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==============================================================
-                // 5. DURATION DROPDOWN FIELD
-                // ==============================================================
                 _buildSectionLabel('Duration'),
                 const SizedBox(height: 8),
                 Container(
@@ -616,9 +583,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==============================================================
-                // 6. VISIT TIME DROPDOWN FIELD
-                // ==============================================================
                 _buildSectionLabel('Visit Time'),
                 const SizedBox(height: 8),
                 Container(
@@ -659,9 +623,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 20),
 
-                // ==============================================================
-                // 7. TOTAL (APPROX.) PRICE ROW
-                // ==============================================================
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -686,15 +647,11 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==============================================================
-                // 8. "CONFIRM BOOKING" BUTTON
-                // ==============================================================
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigate to the Payment screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -736,9 +693,6 @@ class _BookVisitScreenState extends State<BookVisitScreen> {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // HELPER WIDGET: Section Title Label (e.g. "Check-in Date", "Members")
-  // --------------------------------------------------------------------------
   Widget _buildSectionLabel(String label) {
     return Text(
       label,

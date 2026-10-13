@@ -2,17 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import '../../widgets/dashboard_background.dart';
 
-/// ============================================================================
-/// EDIT PROFILE SCREEN (BEGINNER-FRIENDLY)
-/// ============================================================================
-/// Features:
-/// - Exact design matching your screenshot
-/// - Full Name, Email, Password, Confirm Password fields with modern styling
-/// - Toggle password visibility on Confirm Password
-/// - Save button updates user profile instantly in ApiService (no backend needed!)
-/// - Profile changes reflect immediately on the Profile Screen!
-/// ============================================================================
-
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -21,23 +10,19 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  // Primary brand color linked to central theme
   static const Color primaryGreen = AppColors.primary;
 
-  // Controllers for the input text fields
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
 
-  // Visibility toggle for password fields
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
-    // Pre-fill controllers with default user profile values
     _nameController = TextEditingController(text: 'User');
     _emailController = TextEditingController(text: 'user@gmail.com');
     _passwordController = TextEditingController();
@@ -46,7 +31,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   void dispose() {
-    // Clean up controllers when the screen is disposed
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -54,26 +38,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  /// Save function: Validates input and saves changes to ApiService
   void _saveProfile() {
     final String newName = _nameController.text.trim();
     final String newEmail = _emailController.text.trim();
     final String newPassword = _passwordController.text;
     final String confirmPassword = _confirmPasswordController.text;
 
-    // 1. Validation: Name cannot be empty
     if (newName.isEmpty) {
       _showToast('Please enter your full name');
       return;
     }
 
-    // 2. Validation: Email cannot be empty
     if (newEmail.isEmpty) {
       _showToast('Please enter your email');
       return;
     }
 
-    // 3. Validation: If user typed a password, ensure confirm password matches
     if (newPassword.isNotEmpty) {
       if (newPassword != confirmPassword) {
         _showToast('Passwords do not match');
@@ -81,8 +61,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
 
-
-    // 5. Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Profile updated successfully!'),
@@ -91,7 +69,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
     );
 
-    // 6. Go back to Profile Screen safely
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     }
@@ -115,7 +92,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Scrollable form content
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
@@ -127,7 +103,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     children: [
                       const SizedBox(height: 8),
 
-                      // Header with back arrow & "Edit profile" title
                       Row(
                         children: [
                           GestureDetector(
@@ -167,35 +142,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       const SizedBox(height: 28),
 
-                      // 1. Full Name
                       _buildFieldLabel('Full Name'),
                       const SizedBox(height: 8),
                       _buildInputField(
                         controller: _nameController,
-                        hintText: 'Enter your full name',
+                        hintText: AppPlaceholders.fullNameHint,
                         icon: Icons.person_outline,
                       ),
 
                       const SizedBox(height: 20),
 
-                      // 2. Email
                       _buildFieldLabel('Email'),
                       const SizedBox(height: 8),
                       _buildInputField(
                         controller: _emailController,
-                        hintText: 'Enter your email',
+                        hintText: AppPlaceholders.emailHint,
                         icon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
                       ),
 
                       const SizedBox(height: 20),
 
-                      // 3. Password
                       _buildFieldLabel('Password'),
                       const SizedBox(height: 8),
                       _buildInputField(
                         controller: _passwordController,
-                        hintText: 'Create a password',
+                        hintText: AppPlaceholders.createPasswordHint,
                         icon: Icons.lock_outline,
                         isObscure: !_isPasswordVisible,
                         suffixIcon: IconButton(
@@ -216,12 +188,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       const SizedBox(height: 20),
 
-                      // 4. Confirm Password (with eye toggle)
                       _buildFieldLabel('Confirm password'),
                       const SizedBox(height: 8),
                       _buildInputField(
                         controller: _confirmPasswordController,
-                        hintText: 'Confirm your password',
+                        hintText: AppPlaceholders.confirmPasswordHint,
                         icon: Icons.lock_outline,
                         isObscure: !_isConfirmPasswordVisible,
                         suffixIcon: IconButton(
@@ -247,7 +218,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
 
-              // Bottom "save" Button
               Padding(
                 padding: const EdgeInsets.fromLTRB(22, 0, 22, 24),
                 child: SizedBox(
@@ -282,7 +252,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  /// Helper widget for the field labels above text fields
   Widget _buildFieldLabel(String label) {
     return Text(
       label,
@@ -294,7 +263,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  /// Helper widget for the styled white input containers with soft shadow
   Widget _buildInputField({
     required TextEditingController controller,
     required String hintText,
