@@ -94,8 +94,6 @@ class _PGListPageState extends State<PGListPage> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     Widget buildGridPGCard(PGAccommodation pg) {
@@ -103,10 +101,7 @@ class _PGListPageState extends State<PGListPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF091A2A).withValues(alpha: 0.08),

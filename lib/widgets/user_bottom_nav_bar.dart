@@ -9,7 +9,7 @@ import '../screens/user/user_profile_screen.dart';
 export 'owner_bottom_nav_bar.dart';
 
 class BottomNavScreen extends StatefulWidget {
-  final int initialIndex; // Initial tab index (default is 0: Home)
+  final int initialIndex;
   const BottomNavScreen({super.key, this.initialIndex = 0});
 
   @override
@@ -17,13 +17,10 @@ class BottomNavScreen extends StatefulWidget {
 }
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
-  // Current active tab index (0, 1, 2, or 3)
   late int _currentIndex;
 
-  // The 4 main screens corresponding to the 4 tabs
   late final List<Widget> _screens;
 
-  // Switches the active tab and triggers UI update with setState
   void _switchToTab(int index) {
     if (mounted) {
       setState(() {
@@ -35,30 +32,22 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   @override
   void initState() {
     super.initState();
-    // 1. Set the initial tab
+
     _currentIndex = widget.initialIndex;
 
-    // 2. Initialize each screen
     _screens = [
-      // Tab 0: Home Page
       const HomeScreen(),
 
-      // Tab 1: Saved / Wishlist Page
       const SavedScreen(),
 
-      // Tab 2: User Bookings Page
       const BookingScreen(),
 
-      // Tab 3: User Profile Page (onBack arrow navigates back to Home tab 0)
       ProfileScreen(onBack: () => _switchToTab(0)),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    // PopScope intercepts Android system back button:
-    // If user is on Saved, Booking, or Profile, back button goes to Home (0).
-    // If user is already on Home (0), back button exits the app.
     return PopScope(
       canPop: _currentIndex == 0,
       onPopInvokedWithResult: (didPop, result) {
@@ -70,9 +59,9 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       child: DashboardBackground(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          // IndexedStack keeps all 4 screens in memory so scroll and data are preserved
+
           body: IndexedStack(index: _currentIndex, children: _screens),
-          // The bottom navigation bar matching reference design
+
           bottomNavigationBar: CustomBottomNavBar(
             currentIndex: _currentIndex,
             onTap: _switchToTab,
@@ -83,13 +72,6 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   }
 }
 
-/// ============================================================================
-/// CUSTOM BOTTOM NAVIGATION BAR WIDGET (MATCHES REFERENCE DESIGN)
-/// ============================================================================
-/// - Rounded top corners (Radius 30)
-/// - Soft diffused shadow on top of mint background
-/// - Clean outline icons with active mint teal highlight
-/// ============================================================================
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;

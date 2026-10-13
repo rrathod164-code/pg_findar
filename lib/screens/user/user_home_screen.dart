@@ -336,10 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF091A2A).withValues(alpha: 0.07),
@@ -386,10 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF091A2A).withValues(alpha: 0.08),
@@ -443,8 +437,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         isFavorited
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
-                        color:
-                            isFavorited ? Colors.red : const Color(0xFF758595),
+                        color: isFavorited
+                            ? Colors.red
+                            : const Color(0xFF758595),
                         size: 16,
                       ),
                     ),
@@ -570,11 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: const [
-                              Icon(
-                                Icons.ac_unit,
-                                size: 10,
-                                color: Colors.pink,
-                              ),
+                              Icon(Icons.ac_unit, size: 10, color: Colors.pink),
                               SizedBox(width: 2),
                               Text(
                                 'A.C',

@@ -33,10 +33,7 @@ class PgDetailScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0xFFE2E8F0),
-              width: 1,
-            ),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF091A2A).withValues(alpha: 0.06),
@@ -70,10 +67,7 @@ class PgDetailScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(21),
-            border: Border.all(
-              color: const Color(0xFFE2E8F0),
-              width: 1,
-            ),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF091A2A).withValues(alpha: 0.08),
@@ -528,8 +522,6 @@ class PgDetailScreen extends StatelessWidget {
       ),
     );
   }
-
-
 
   void _showRoomTypesBottomSheet(BuildContext context, PGAccommodation? pg) {
     showModalBottomSheet(

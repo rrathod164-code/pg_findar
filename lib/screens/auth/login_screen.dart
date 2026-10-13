@@ -272,8 +272,11 @@ class _LoginPageState extends State<LoginPage> {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your password';
                                   }
-                                  if (value.length < 4) {
-                                    return 'Password must be at least 4 characters';
+                                  final passwordRegExp = RegExp(
+                                    r'^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$',
+                                  );
+                                  if (!passwordRegExp.hasMatch(value)) {
+                                    return 'Password must be at least 8 characters, with 1 uppercase, 1 number & 1 special character';
                                   }
                                   return null;
                                 },

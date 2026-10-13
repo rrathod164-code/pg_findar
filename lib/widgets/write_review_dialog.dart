@@ -28,7 +28,6 @@ class WriteReviewDialog extends StatefulWidget {
            existingReview?.location ??
            'Rajkot , Gujarat';
 
-  /// Static helper to easily show this dialog from any screen
   static Future<void> show(
     BuildContext context, {
     PGAccommodation? pg,
@@ -63,7 +62,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
   late String _selectedPgName;
   late String _selectedLocation;
 
-  // Rating stars, header and submit button colors centralized from AppColors
   static const Color starOrange = AppColors.starAmber;
   static const Color tealDark = AppColors.primaryDark;
   static const Color submitGreen = AppColors.primary;
@@ -227,7 +225,7 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
                       );
                     }).toList(),
                     onChanged: widget.existingReview != null
-                        ? null // Lock PG selection when editing existing review
+                        ? null
                         : (newId) {
                             if (newId != null) {
                               final selected = availablePGs.firstWhere(
@@ -256,7 +254,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
               ),
               const SizedBox(height: 8),
 
-              // Orange Star Rating Row
               Row(
                 children: List.generate(5, (index) {
                   final starIndex = index + 1;
@@ -323,7 +320,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Cancel Text Button
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: TextButton.styleFrom(
@@ -343,7 +339,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
                   ),
                   const SizedBox(width: 8),
 
-                  // Submit Review Solid Button
                   ElevatedButton(
                     onPressed: _submitReview,
                     style: ElevatedButton.styleFrom(

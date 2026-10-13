@@ -193,7 +193,7 @@ void main() {
     await tester.pump();
     expect(find.text('Please enter your email or username'), findsNothing);
 
-    await tester.enterText(find.byType(TextFormField).last, '1234');
+    await tester.enterText(find.byType(TextFormField).last, 'Password@123');
     await tester.pump();
     expect(find.text('Please enter your password'), findsNothing);
 

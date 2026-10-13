@@ -17,8 +17,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
     final cityController = TextEditingController(text: 'Rajkot');
     final priceController = TextEditingController(text: '6500');
     final imageController = TextEditingController(
-      text:
-          AppPlaceholders.networkPgFallback,
+      text: AppPlaceholders.networkPgFallback,
     );
     String selectedCategory = 'Boys PG';
     String selectedGender = 'Boys';

@@ -108,12 +108,16 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF091A2A).withValues(alpha: 0.08),
+                              color: const Color(
+                                0xFF091A2A,
+                              ).withValues(alpha: 0.08),
                               blurRadius: 16,
                               offset: const Offset(0, 5),
                             ),
                             BoxShadow(
-                              color: const Color(0xFF091A2A).withValues(alpha: 0.03),
+                              color: const Color(
+                                0xFF091A2A,
+                              ).withValues(alpha: 0.03),
                               blurRadius: 4,
                               offset: const Offset(0, 1),
                             ),
