@@ -266,9 +266,9 @@ class _PGListPageState extends State<PGListPage> {
                               color: const Color(0xFFFFF0F5),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: const [
+                              children: [
                                 Icon(
                                   Icons.ac_unit,
                                   size: 9,
@@ -294,14 +294,7 @@ class _PGListPageState extends State<PGListPage> {
                       width: double.infinity,
                       height: 24,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PgDetailScreen(pg: pg),
-                            ),
-                          );
-                        },
+                        onPressed: () => PgDetailScreen.open(context, pg: pg),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -382,6 +375,7 @@ class _PGListPageState extends State<PGListPage> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      extendBody: true,
       body: DashboardBackground(
         child: SafeArea(
           child: Column(
@@ -868,7 +862,12 @@ class _PGListPageState extends State<PGListPage> {
                     }
 
                     return GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
+                      padding: EdgeInsets.fromLTRB(
+                        14,
+                        4,
+                        14,
+                        widget.showBottomNav ? 95 : 16,
+                      ),
                       physics: const BouncingScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(

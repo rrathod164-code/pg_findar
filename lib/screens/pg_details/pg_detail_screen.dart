@@ -11,6 +11,13 @@ class PgDetailScreen extends StatelessWidget {
 
   const PgDetailScreen({super.key, this.pg});
 
+  static Future<T?> open<T>(BuildContext context, {PGAccommodation? pg}) {
+    return Navigator.push<T>(
+      context,
+      MaterialPageRoute(builder: (context) => PgDetailScreen(pg: pg)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final String pgName = pg?.name ?? 'Green Valley PG';
@@ -21,35 +28,57 @@ class PgDetailScreen extends StatelessWidget {
         ? pg!.imageUrl
         : AppPlaceholders.defaultPgImage;
 
-    final Color primaryGreenColor = AppColors.primary;
+    const Color primaryGreenColor = AppColors.primary;
     final double screenHeight = MediaQuery.of(context).size.height;
     final double imageHeight = (screenHeight * 0.28).clamp(200.0, 230.0);
 
-    Widget buildFacilityCard(String title) {
+    Widget buildFacilityCard(String title, bool isAvailable) {
       return Expanded(
         child: Container(
           height: 38,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isAvailable ? Colors.white : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF091A2A).withValues(alpha: 0.06),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            border: Border.all(
+              color: isAvailable
+                  ? const Color(0xFFE2E8F0)
+                  : const Color(0xFFE2E8F0),
+              width: 1,
+            ),
+            boxShadow: isAvailable
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF091A2A).withValues(alpha: 0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           alignment: Alignment.center,
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isAvailable) ...[
+                const Icon(
+                  Icons.check_circle_rounded,
+                  size: 13,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: isAvailable ? FontWeight.bold : FontWeight.w500,
+                  color: isAvailable ? Colors.black : const Color(0xFF94A3B8),
+                  decoration: isAvailable ? null : TextDecoration.lineThrough,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -150,19 +179,12 @@ class PgDetailScreen extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(18, 10, 18, 14),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: IntrinsicHeight(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -392,25 +414,43 @@ class PgDetailScreen extends StatelessWidget {
                                   const SizedBox(height: 7),
                                   Row(
                                     children: [
-                                      buildFacilityCard('Food'),
-                                      buildFacilityCard('AC'),
-                                      buildFacilityCard('Wifi'),
+                                      buildFacilityCard(
+                                        'Food',
+                                        pg?.hasFood ?? true,
+                                      ),
+                                      buildFacilityCard(
+                                        'AC',
+                                        pg?.hasAC ?? true,
+                                      ),
+                                      buildFacilityCard(
+                                        'Wifi',
+                                        pg?.hasWifi ?? true,
+                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 7),
                                   Row(
                                     children: [
-                                      buildFacilityCard('Parking'),
-                                      buildFacilityCard('Laundry'),
-                                      buildFacilityCard('Geyser'),
+                                      buildFacilityCard(
+                                        'Parking',
+                                        pg?.hasParking ?? true,
+                                      ),
+                                      buildFacilityCard(
+                                        'Laundry',
+                                        pg?.hasLaundry ?? true,
+                                      ),
+                                      buildFacilityCard(
+                                        'Geyser',
+                                        pg?.hasGeyser ?? true,
+                                      ),
                                     ],
                                   ),
                                 ],
                               ),
 
-                              const Column(
+                              Column(
                                 children: [
-                                  Center(
+                                  const Center(
                                     child: Text(
                                       'About PG',
                                       style: TextStyle(
@@ -420,16 +460,16 @@ class PgDetailScreen extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 3),
+                                  const SizedBox(height: 4),
                                   Center(
                                     child: Text(
-                                      'Green Valley PG offers fully furnished rooms with WiFi,\nmeals, laundry and parking. Perfect for students and\nworking professionals.',
+                                      '$pgName offers comfortable rooms with modern amenities and hygienic surroundings. Located at $pgLocation, perfect for students and working professionals.',
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 11.5,
+                                      style: const TextStyle(
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.black87,
-                                        height: 1.3,
+                                        height: 1.35,
                                       ),
                                     ),
                                   ),
@@ -482,15 +522,7 @@ class PgDetailScreen extends StatelessWidget {
                                 width: double.infinity,
                                 height: 48,
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            BookVisitScreen(pg: pg),
-                                      ),
-                                    );
-                                  },
+                                  onPressed: () => BookVisitScreen.open(context, pg: pg),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: primaryGreenColor,
                                     foregroundColor: Colors.white,
@@ -512,14 +544,10 @@ class PgDetailScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -688,15 +716,10 @@ class PgDetailScreen extends StatelessWidget {
                                       ? null
                                       : () {
                                           Navigator.pop(context);
-                                          Navigator.push(
+                                          BookVisitScreen.open(
                                             context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  BookVisitScreen(
-                                                    pg: pg,
-                                                    initialRoom: room,
-                                                  ),
-                                            ),
+                                            pg: pg,
+                                            initialRoom: room,
                                           );
                                         },
                                   style: ElevatedButton.styleFrom(

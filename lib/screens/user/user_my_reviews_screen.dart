@@ -160,7 +160,8 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.background,
+      extendBody: true,
       body: DashboardBackground(
         child: SafeArea(
           child: Column(
@@ -281,9 +282,11 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                     }
 
                     return ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        10,
+                        20,
+                        widget.showBottomNav ? 95 : 16,
                       ),
                       itemCount: reviews.length,
                       itemBuilder: (context, index) {

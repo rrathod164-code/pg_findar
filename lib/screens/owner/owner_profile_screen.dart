@@ -10,7 +10,7 @@ class OwnerProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double topPadding = MediaQuery.of(context).padding.top;
-    final Color headerMint = OwnerColors.primaryTint;
+    const Color headerMint = OwnerColors.primaryTint;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -19,9 +19,9 @@ class OwnerProfileScreen extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(20, topPadding + 14, 20, 26),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: headerMint,
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(36),
                 bottomRight: Radius.circular(36),
               ),
@@ -115,7 +115,7 @@ class OwnerProfileScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
@@ -123,7 +123,7 @@ class OwnerProfileScreen extends StatelessWidget {
                                   size: 13,
                                   color: OwnerColors.primary,
                                 ),
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4),
                                 Text(
                                   'Verified PG Owner',
                                   style: TextStyle(
@@ -147,7 +147,7 @@ class OwnerProfileScreen extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 95),
               child: Column(
                 children: [
                   _buildMenuItem(
@@ -223,7 +223,7 @@ class OwnerProfileScreen extends StatelessWidget {
 
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.login_outlined,
+                    icon: Icons.logout_rounded,
                     title: 'Logout',
                     titleColor: OwnerColors.errorAlt,
                     iconColor: OwnerColors.errorAlt,

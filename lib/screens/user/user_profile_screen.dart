@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import '../../widgets/user_bottom_nav_bar.dart';
 import '../../widgets/dashboard_background.dart';
-import 'user_booking_screen.dart';
 import 'user_edit_profile_screen.dart';
 import 'user_my_reviews_screen.dart';
-import 'user_saved_screen.dart';
 import '../../widgets/logout_dialog.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -16,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final double topPadding = MediaQuery.of(context).padding.top;
 
-    final Color headerMint = AppColors.primaryTint;
+    const Color headerMint = AppColors.primaryTint;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -26,9 +24,9 @@ class ProfileScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(20, topPadding + 14, 20, 26),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: headerMint,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(36),
                   bottomRight: Radius.circular(36),
                 ),
@@ -101,9 +99,9 @@ class ProfileScreen extends StatelessWidget {
 
                       const SizedBox(width: 18),
 
-                      Column(
+                      const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Hi , User',
                             style: TextStyle(
@@ -132,10 +130,7 @@ class ProfileScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 95),
                 child: Column(
                   children: [
                     _buildMenuItem(
@@ -162,11 +157,13 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.calendar_today_outlined,
                       title: 'My booking',
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const BookingScreen(),
+                            builder: (context) =>
+                                const BottomNavScreen(initialIndex: 2),
                           ),
+                          (route) => false,
                         );
                       },
                     ),
@@ -181,11 +178,13 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.favorite_border_rounded,
                       title: 'Favourite',
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SavedScreen(),
+                            builder: (context) =>
+                                const BottomNavScreen(initialIndex: 1),
                           ),
+                          (route) => false,
                         );
                       },
                     ),
@@ -228,7 +227,7 @@ class ProfileScreen extends StatelessWidget {
 
                     _buildMenuItem(
                       context: context,
-                      icon: Icons.login_outlined,
+                      icon: Icons.logout_rounded,
                       title: 'Logout',
                       titleColor: const Color(0xFFEF4444),
                       onTap: () => _showLogoutDialog(context),

@@ -33,9 +33,6 @@ class AppImage extends StatelessWidget {
     );
 
     String cleanUrl = imageUrl.trim();
-    if (cleanUrl.contains('Santi.png')) {
-      cleanUrl = cleanUrl.replaceAll('Santi.png', 'Shanti.png');
-    }
 
     if (cleanUrl.isEmpty) {
       return defaultError(context);

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "963998076693",
+    "project_id": "pgfindar",
+    "storage_bucket": "pgfindar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:963998076693:android:55d84039c58c3e18df631c",
+        "android_client_info": {
+          "package_name": "com.example.pg_findar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj8VeqWS5SbJHodStG-go_MzqS6Tu61Nw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

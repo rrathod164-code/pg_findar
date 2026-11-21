@@ -11,6 +11,19 @@ class BookVisitScreen extends StatefulWidget {
 
   const BookVisitScreen({super.key, this.pg, this.initialRoom});
 
+  static Future<T?> open<T>(
+    BuildContext context, {
+    PGAccommodation? pg,
+    PGRoom? initialRoom,
+  }) {
+    return Navigator.push<T>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookVisitScreen(pg: pg, initialRoom: initialRoom),
+      ),
+    );
+  }
+
   @override
   State<BookVisitScreen> createState() => _BookVisitScreenState();
 }
