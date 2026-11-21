@@ -25,7 +25,7 @@ class OwnerEarningsScreen extends StatelessWidget {
         top: false,
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 95),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -47,9 +47,9 @@ class OwnerEarningsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'Total Net Earnings',
                       style: TextStyle(
@@ -69,7 +69,7 @@ class OwnerEarningsScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 12),
                     Text(
-                      'Next Payout Scheduled: 15 Oct 2025',
+                      'Next Payout Scheduled: 15 Dec 2026',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 13,
@@ -92,9 +92,9 @@ class OwnerEarningsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildMonthlyItem('September 2025', '₹ 45,500', '12 Bookings'),
-              _buildMonthlyItem('August 2025', '₹ 42,000', '10 Bookings'),
-              _buildMonthlyItem('July 2025', '₹ 38,000', '8 Bookings'),
+              _buildMonthlyItem('November 2026', '₹ 45,500', '12 Bookings'),
+              _buildMonthlyItem('October 2026', '₹ 42,000', '10 Bookings'),
+              _buildMonthlyItem('September 2026', '₹ 38,000', '8 Bookings'),
 
               const SizedBox(height: 24),
 
@@ -126,8 +126,8 @@ class OwnerEarningsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Icon(
                       Icons.account_balance_rounded,
                       color: OwnerColors.primary,

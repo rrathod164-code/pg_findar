@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
-import '../../widgets/app_image.dart';
-import '../pg_details/pg_detail_screen.dart';
+import '../../widgets/pg_card.dart';
 import '../pg_details/pg_list_page.dart';
 
 class PGRoom {
@@ -134,7 +133,7 @@ class PGAccommodation {
     if (hasLaundry) list.add('Laundry');
     if (hasTV) list.add('TV');
     if (hasFridge) list.add('Fridge');
-    if (hasGeyser) list.add('Gyser');
+    if (hasGeyser) list.add('Geyser');
     return list;
   }
 
@@ -154,8 +153,8 @@ class PGAccommodation {
         return hasTV;
       case 'fridge':
         return hasFridge;
-      case 'gyser':
       case 'geyser':
+      case 'gyser':
         return hasGeyser;
       default:
         return false;
@@ -326,297 +325,86 @@ class _HomeScreenState extends State<HomeScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     const double horizontalPadding = 16.0;
 
+    void openCategory(String category) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PGListPage(
+            title: category,
+            listType: PGListType.category,
+            categoryFilter: category,
+            selectedCity: 'Rajkot',
+          ),
+        ),
+      );
+    }
+
     Widget buildCategoryItem({
       required String title,
       required IconData icon,
       required Color color,
+      VoidCallback? onTap,
     }) {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF091A2A).withValues(alpha: 0.07),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-            BoxShadow(
-              color: const Color(0xFF091A2A).withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              child: Icon(icon, color: const Color(0xFF091A2A), size: 19),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF091A2A),
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF091A2A).withValues(alpha: 0.07),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
-            ),
-          ],
+              BoxShadow(
+                color: const Color(0xFF091A2A).withValues(alpha: 0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                child: Icon(icon, color: const Color(0xFF091A2A), size: 19),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF091A2A),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     Widget buildPGCard(PGAccommodation pg) {
-      final bool isFavorited = _favoritePgIds.contains(pg.id);
-
-      return Container(
-        width: 190,
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF091A2A).withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-            BoxShadow(
-              color: const Color(0xFF091A2A).withValues(alpha: 0.03),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  child: AppImage(
-                    imageUrl: pg.imageUrl,
-                    height: 92,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (_favoritePgIds.contains(pg.id)) {
-                          _favoritePgIds.remove(pg.id);
-                        } else {
-                          _favoritePgIds.add(pg.id);
-                        }
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isFavorited
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_border_rounded,
-                        color: isFavorited
-                            ? Colors.red
-                            : const Color(0xFF758595),
-                        size: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          pg.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF091A2A),
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            color: Colors.amber,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            pg.rating.toString(),
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF758595),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Text(
-                        '₹${pg.price.toInt()}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const Text(
-                        '/month',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Color(0xFF758595),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 11,
-                        color: Color(0xFF758595),
-                      ),
-                      const SizedBox(width: 2),
-                      Expanded(
-                        child: Text(
-                          pg.location,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF758595),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          pg.gender,
-                          style: const TextStyle(
-                            fontSize: 9,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      if (pg.hasAC) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0F5),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.ac_unit, size: 10, color: Colors.pink),
-                              SizedBox(width: 2),
-                              Text(
-                                'A.C',
-                                style: TextStyle(
-                                  fontSize: 8,
-                                  color: Colors.pink,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 28,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PgDetailScreen(pg: pg),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Book Now',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      return PGCard(
+        pg: pg,
+        isFavorited: _favoritePgIds.contains(pg.id),
+        onFavoriteToggle: () {
+          setState(() {
+            if (_favoritePgIds.contains(pg.id)) {
+              _favoritePgIds.remove(pg.id);
+            } else {
+              _favoritePgIds.add(pg.id);
+            }
+          });
+        },
       );
     }
 
@@ -635,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     right: horizontalPadding,
                     top: screenHeight * 0.02,
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -643,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Hello, User',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -653,8 +441,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Color(0xFF091A2A),
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            const Text(
+                            SizedBox(height: 4),
+                            Text(
                               'Find your perfect PG',
                               style: TextStyle(
                                 fontSize: 15,
@@ -667,7 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       Row(
-                        children: const [
+                        children: [
                           Icon(
                             Icons.location_on,
                             color: Color(0xFFE53935),
@@ -755,7 +543,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 95),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -810,6 +598,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: 'Boys PG',
                           icon: Icons.person_rounded,
                           color: AppColors.primaryLight,
+                          onTap: () => openCategory('Boys PG'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -818,6 +607,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: 'Girls PG',
                           icon: Icons.person_3_rounded,
                           color: const Color(0xFFFFF0F5),
+                          onTap: () => openCategory('Girls PG'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -826,6 +616,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: 'Hostels',
                           icon: Icons.domain_rounded,
                           color: const Color(0xFFF0FDF4),
+                          onTap: () => openCategory('Hostels'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -834,6 +625,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: 'Flats',
                           icon: Icons.apartment_rounded,
                           color: const Color(0xFFFFF8EE),
+                          onTap: () => openCategory('Flats'),
                         ),
                       ),
                     ],
@@ -960,7 +752,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 95),
               ],
             ),
           ),

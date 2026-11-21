@@ -94,10 +94,49 @@ class SavedScreen extends StatelessWidget {
       ),
       body: DashboardBackground(
         child: SafeArea(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: staticSavedPgs.length,
-            itemBuilder: (context, index) {
+          child: staticSavedPgs.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(22),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.favorite_border_rounded,
+                          size: 54,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      const Text(
+                        'No Saved PGs Yet',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF091A2A),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Browse through PGs and tap the heart icon\nto save your favorite stays here.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          color: Color(0xFF758595),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 95),
+                  itemCount: staticSavedPgs.length,
+                  itemBuilder: (context, index) {
               final pg = staticSavedPgs[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -122,14 +161,7 @@ class SavedScreen extends StatelessWidget {
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                   child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PgDetailScreen(pg: pg),
-                        ),
-                      );
-                    },
+                    onTap: () => PgDetailScreen.open(context, pg: pg),
                     contentPadding: const EdgeInsets.all(12),
                     leading: ClipRRect(
                       borderRadius: BorderRadius.circular(12),

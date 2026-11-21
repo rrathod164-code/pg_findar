@@ -88,7 +88,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                   }
 
                   return ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 95),
                     itemCount: filtered.length,
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 12),

@@ -27,17 +27,12 @@ class IntroScreen extends StatelessWidget {
                     'assets/images/intro.png',
                     fit: BoxFit.contain,
                     width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                      'assets/intro.png',
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        padding: const EdgeInsets.all(32),
-                        child: const Icon(
-                          Icons.apartment_rounded,
-                          size: 100,
-                          color: AppColors.primary,
-                        ),
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      padding: const EdgeInsets.all(32),
+                      child: const Icon(
+                        Icons.apartment_rounded,
+                        size: 100,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -55,7 +50,7 @@ class IntroScreen extends StatelessWidget {
                   height: 44,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const LoginPage(),
@@ -71,7 +66,7 @@ class IntroScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      'Get start',
+                      'Get Started',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

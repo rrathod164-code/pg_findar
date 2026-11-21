@@ -86,7 +86,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     'Laundry',
     'TV',
     'Fridge',
-    'Gyser',
+    'Geyser',
   ];
 
   @override

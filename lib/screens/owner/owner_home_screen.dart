@@ -23,12 +23,17 @@ class OwnerHomeScreen extends StatelessWidget {
         .where((b) => b.status.toLowerCase() == 'pending')
         .length;
 
+    final hour = DateTime.now().hour;
+    final String greeting = hour < 12
+        ? 'Good Morning,'
+        : (hour < 17 ? 'Good Afternoon,' : 'Good Evening,');
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 95),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -41,9 +46,9 @@ class OwnerHomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Good Morning,',
-                          style: TextStyle(
+                        Text(
+                          greeting,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
                             color: OwnerColors.textDark,
@@ -51,8 +56,8 @@ class OwnerHomeScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Row(
-                          children: const [
+                        const Row(
+                          children: [
                             Text(
                               'Renisha!',
                               style: TextStyle(
@@ -126,7 +131,7 @@ class OwnerHomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: ClipOval(
+                        child: const ClipOval(
                           child: AppImage(
                             imageUrl: AppPlaceholders.defaultUserAvatar,
                             width: 48,
@@ -206,8 +211,8 @@ class OwnerHomeScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: onViewAllBookings,
-                    child: Row(
-                      children: const [
+                    child: const Row(
+                      children: [
                         Text(
                           'View All',
                           style: TextStyle(

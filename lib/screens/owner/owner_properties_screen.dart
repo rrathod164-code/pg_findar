@@ -1188,26 +1188,13 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       'Tap "Add PG" to publish your first property.',
                       style: TextStyle(color: OwnerColors.textGrey),
                     ),
-                    const SizedBox(height: 18),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: OwnerColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add Property'),
-                      onPressed: () => _showAddPropertyDialog(context),
-                    ),
                   ],
                 ),
               );
             }
 
             return ListView.separated(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 95),
               itemCount: myProperties.length,
               separatorBuilder: (context, index) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
@@ -1492,16 +1479,6 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
             );
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: OwnerColors.primary,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_business_rounded),
-        label: const Text(
-          'Add Property',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        onPressed: () => _showAddPropertyDialog(context),
       ),
     );
   }

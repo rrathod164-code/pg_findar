@@ -65,7 +65,7 @@ class PGBooking {
   }
 }
 
-class BookingScreen extends StatelessWidget {
+class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
 
   static List<PGBooking> get sampleBookings => staticBookings;
@@ -162,6 +162,66 @@ class BookingScreen extends StatelessWidget {
       customDateRange: '5 Mar 2025 - 5 May 2025',
     ),
   ];
+
+  @override
+  State<BookingScreen> createState() => _BookingScreenState();
+}
+
+class _BookingScreenState extends State<BookingScreen> {
+  String _selectedFilter = 'All';
+  final List<String> _filters = const [
+    'All',
+    'Active',
+    'Pending',
+    'Completed',
+    'Cancelled',
+  ];
+
+  Widget _buildFilterChip(String label) {
+    final isSelected = _selectedFilter == label;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilter = label;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : const Color(0xFFE2E8F0),
+            width: 1.2,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? Colors.white : const Color(0xFF4B5563),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildAmenitiesChips(PGAccommodation pg) {
     final List<String> tags = [];
@@ -440,7 +500,11 @@ class BookingScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color.fromARGB(255, 134, 142, 158),
+          ),
           const SizedBox(height: 10),
 
           if (isCancelled)
@@ -448,14 +512,7 @@ class BookingScreen extends StatelessWidget {
               width: double.infinity,
               height: 36,
               child: OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PgDetailScreen(pg: pg),
-                    ),
-                  );
-                },
+                onPressed: () => PgDetailScreen.open(context, pg: pg),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary, width: 1.2),
@@ -477,14 +534,7 @@ class BookingScreen extends StatelessWidget {
                   child: SizedBox(
                     height: 36,
                     child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PgDetailScreen(pg: pg),
-                          ),
-                        );
-                      },
+                      onPressed: () => PgDetailScreen.open(context, pg: pg),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: const BorderSide(
@@ -546,14 +596,7 @@ class BookingScreen extends StatelessWidget {
                   child: SizedBox(
                     height: 36,
                     child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PgDetailScreen(pg: pg),
-                          ),
-                        );
-                      },
+                      onPressed: () => PgDetailScreen.open(context, pg: pg),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: const BorderSide(
@@ -581,14 +624,7 @@ class BookingScreen extends StatelessWidget {
                   child: SizedBox(
                     height: 36,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BookVisitScreen(pg: pg),
-                          ),
-                        );
-                      },
+                      onPressed: () => BookVisitScreen.open(context, pg: pg),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -712,13 +748,12 @@ class BookingScreen extends StatelessWidget {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Your Past Bookings',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF091A2A),
+                    const SizedBox(height: 12),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: _filters.map(_buildFilterChip).toList(),
                       ),
                     ),
                   ],
@@ -726,11 +761,75 @@ class BookingScreen extends StatelessWidget {
               ),
 
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: staticBookings.length,
-                  itemBuilder: (context, index) {
-                    return _buildBookingCard(context, staticBookings[index]);
+                child: Builder(
+                  builder: (context) {
+                    final filtered = BookingScreen.staticBookings.where((b) {
+                      if (_selectedFilter == 'All') return true;
+                      final st = b.status.toLowerCase();
+                      if (_selectedFilter == 'Active') {
+                        return st == 'confirmed' ||
+                            st == 'active' ||
+                            st == 'approved';
+                      }
+                      if (_selectedFilter == 'Pending') return st == 'pending';
+                      if (_selectedFilter == 'Completed') {
+                        return st == 'completed';
+                      }
+                      if (_selectedFilter == 'Cancelled') {
+                        return st == 'cancelled';
+                      }
+                      return true;
+                    }).toList();
+
+                    if (filtered.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(22),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.12,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.calendar_today_rounded,
+                                size: 48,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No $_selectedFilter Bookings',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF091A2A),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'You have no bookings under this status.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF758595),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 95),
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        return _buildBookingCard(context, filtered[index]);
+                      },
+                    );
                   },
                 ),
               ),
