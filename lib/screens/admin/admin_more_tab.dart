@@ -67,9 +67,9 @@ class _AdminMoreTabState extends State<AdminMoreTab> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Property Reviews'),
-          content: Column(
+          content: const Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               ListTile(
                 leading: Icon(Icons.star, color: Colors.amber),
                 title: Text('Green Valley PG'),

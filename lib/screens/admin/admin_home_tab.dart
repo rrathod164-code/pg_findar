@@ -62,9 +62,9 @@ class AdminHomeTab extends StatelessWidget {
 
   /// Greetings Header
   Widget _buildWelcomeHeader() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text(
           'Welcome Back,',
           style: TextStyle(
@@ -239,10 +239,10 @@ class AdminHomeTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'Green Valley PG',
                       style: TextStyle(
