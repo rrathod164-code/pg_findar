@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pg_findar/resources/theme.dart';
 import 'package:pg_findar/widgets/dashboard_background.dart';
+import '../admin/admin_page.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
 import '../../widgets/user_bottom_nav_bar.dart';
@@ -49,7 +50,12 @@ class _LoginPageState extends State<LoginPage> {
       Widget nextScreen;
       String roleName;
 
-      if (loginInput == 'owner' ||
+      if (loginInput == 'admin' ||
+          loginInput == 'admin13' ||
+          loginInput == 'admin@pgfindar.com') {
+        nextScreen = const AdminPage();
+        roleName = 'Admin';
+      } else if (loginInput == 'owner' ||
           loginInput == 'owner13' ||
           loginInput == 'owner@pgfindar.com' ||
           loginInput == 'organizer13' ||
